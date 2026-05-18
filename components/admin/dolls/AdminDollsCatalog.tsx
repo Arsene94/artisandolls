@@ -82,7 +82,7 @@ export default function AdminDollsCatalog({ dolls }: AdminDollsCatalogProps) {
                         Șterge selectate
                     </button>
 
-                    <Link href="/admin/(protected)/dolls/new" className={styles.primaryLink}>
+                    <Link href="/admin/dolls/new" className={styles.primaryLink}>
                         Adaugă păpușă
                     </Link>
                 </div>
@@ -139,7 +139,7 @@ export default function AdminDollsCatalog({ dolls }: AdminDollsCatalogProps) {
                             <Link href={`/catalog/${doll.slug}`} target="_blank">
                                 Vezi
                             </Link>
-                            <Link href={`/app/admin/(protected)/dolls/${doll.slug}/edit`}>
+                            <Link href={`/app/admin/dolls/${doll.slug}/edit`}>
                                 Editează
                             </Link>
                             <button type="button" onClick={() => deleteOne(doll.id)} disabled={isPending}>

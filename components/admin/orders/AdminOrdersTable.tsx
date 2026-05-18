@@ -132,7 +132,7 @@ export default function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                         <strong>{order.total_label}</strong>
 
                         <div className={styles.actions}>
-                            <Link href={`/app/admin/(protected)/orders/${order.id}`} className={styles.viewButton}><IconEye /></Link>
+                            <Link href={`/admin/orders/${order.id}`} className={styles.viewButton}><IconEye /></Link>
                             <a href={`tel:${getCleanPhone(order.customer_phone)}`} className={styles.callButton}><IconPhone /></a>
                             <a
                                 href={getWhatsappHref(

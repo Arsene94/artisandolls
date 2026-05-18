@@ -170,6 +170,12 @@ export type OrderRow = {
     return_time: string | null;
     notes: string | null;
 
+    subtotal_amount: number;
+    custom_price_amount: number | null;
+    discount_type: "none" | "fixed" | "percent";
+    discount_value: number;
+    discount_amount: number;
+
     total_amount: number;
     total_label: string;
 
@@ -180,6 +186,10 @@ export type OrderRow = {
     created_at: string;
     updated_at: string;
 };
+
+export function getOrderBaseAmount(order: OrderRow) {
+    return order.custom_price_amount ?? order.subtotal_amount ?? order.total_amount ?? 0;
+}
 
 export function getInitialOrderStatus(mode: OrderMode): OrderStatus {
     return mode === "rent" ? "rent_new" : "buy_new";

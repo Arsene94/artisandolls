@@ -88,6 +88,11 @@ export async function createOrderAction(formData: FormData) {
         return_time: getNullableString(formData, "return_time"),
         notes: getNullableString(formData, "notes"),
 
+        subtotal_amount: totalAmount,
+        custom_price_amount: null,
+        discount_type: "none",
+        discount_value: 0,
+        discount_amount: 0,
         total_amount: totalAmount,
         total_label:
             totalAmount > 0

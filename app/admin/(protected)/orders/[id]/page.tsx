@@ -4,10 +4,12 @@ import {
     formatOrderMode,
     formatOrderStatus,
     getOrderStatusOptions,
+    getOrderBaseAmount,
 } from "@/lib/orders/shared";
 import {getAdminOrderById} from "@/lib/orders";
-import { deleteOrderAction, updateOrderStatusAction } from "@/app/admin/(protected)/orders/actions";
+import { deleteOrderAction, updateOrderStatusAction, updateOrderStatusFromFormAction } from "@/app/admin/(protected)/orders/actions";
 import styles from "../../page.module.css";
+import Link from "next/link";
 
 type AdminOrderPageProps = {
     params: Promise<{
@@ -24,6 +26,7 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
     }
 
     const statusOptions = getOrderStatusOptions(order.mode);
+    const baseAmount = getOrderBaseAmount(order);
 
     return (
         <main className={styles.page}>
@@ -73,36 +76,67 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
                         <strong>{order.delivery_address}</strong>
                     </div>
                     <div>
-                        <span>Total</span>
+                        <span>Subtotal</span>
+                        <strong>{order.subtotal_amount.toLocaleString("ro-RO")} lei</strong>
+                    </div>
+
+                    <div>
+                        <span>Preț custom</span>
+                        <strong>
+                            {order.custom_price_amount
+                                ? `${order.custom_price_amount.toLocaleString("ro-RO")} lei`
+                                : "-"}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Discount</span>
+                        <strong>
+                            {order.discount_type === "none"
+                                ? "-"
+                                : order.discount_type === "fixed"
+                                    ? `${order.discount_value.toLocaleString("ro-RO")} lei`
+                                    : `${order.discount_value}%`}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Reducere calculată</span>
+                        <strong>{order.discount_amount.toLocaleString("ro-RO")} lei</strong>
+                    </div>
+
+                    <div>
+                        <span>Total final</span>
                         <strong>{order.total_label}</strong>
                     </div>
                 </div>
 
-                <div>
+                <div className={styles.panelWide}>
                     <h2>Status comandă</h2>
 
-                    <div className={styles.actionList}>
-                        {statusOptions.map((status) => (
-                            <form
-                                key={status.value}
-                                action={async () => {
-                                    "use server";
-                                    await updateOrderStatusAction(order.id, status.value);
-                                }}
-                            >
-                                <button
-                                    className={
-                                        order.status === status.value
-                                            ? "btn btn-gold"
-                                            : "btn btn-outline-light"
-                                    }
-                                    disabled={order.status === status.value}
-                                >
-                                    {status.label}
-                                </button>
-                            </form>
-                        ))}
-                    </div>
+                    <form
+                        action={async (formData) => {
+                            "use server";
+                            await updateOrderStatusFromFormAction(order.id, formData);
+                        }}
+                    >
+                        <label>
+                            Status
+                            <select name="status" defaultValue={order.status}>
+                                {statusOptions.map((status) => (
+                                    <option key={status.value} value={status.value}>
+                                        {status.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+
+                        <button className="btn btn-gold">Salvează statusul</button>
+                    </form>
+
+                    <Link href={`/admin/orders/${order.id}/edit`} className="btn btn-outline-light">
+                        Editează rezervarea
+                    </Link>
                 </div>
 
                 <form

@@ -148,3 +148,84 @@
     background: rgba(37, 211, 102, 0.14) !important;
     border-color: rgba(37, 211, 102, 0.7) !important;
 }
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+    color: var(--color-gold-light);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.field input,
+.field textarea,
+.field select {
+    width: 100%;
+    min-height: 48px;
+    border: 1px solid rgba(255, 155, 208, 0.24);
+    outline: 0;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-white);
+    padding: 0 14px;
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    color-scheme: dark;
+}
+
+.field textarea {
+    min-height: 120px;
+    padding-top: 14px;
+    resize: vertical;
+}
+
+.field select option {
+    background: #130713;
+    color: #fff;
+}
+
+.summaryBox {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: center;
+    margin: 22px 0;
+    padding: 18px;
+    border: 1px solid rgba(255, 155, 208, 0.18);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.summaryBox span {
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.summaryBox strong {
+    color: var(--color-gold-light);
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+@media (max-width: 760px) {
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .summaryBox {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
