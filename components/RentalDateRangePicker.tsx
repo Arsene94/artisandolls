@@ -5,6 +5,15 @@ import styles from "./RentalDateRangePicker.module.css";
 
 const WEEK_DAYS = ["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"];
 
+export type RentalRangeValue = {
+    startDate: string;
+    endDate: string;
+};
+
+type RentalDateRangePickerProps = {
+    onChange?: (value: RentalRangeValue) => void;
+};
+
 function normalizeDate(date: Date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
@@ -72,13 +81,16 @@ function formatMonthTitle(date: Date) {
     }).format(date);
 }
 
-export default function RentalDateRangePicker() {
+export default function RentalDateRangePicker({ onChange }: RentalDateRangePickerProps) {
     const pickerRef = useRef<HTMLDivElement | null>(null);
 
     const [isOpen, setIsOpen] = useState(false);
     const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(new Date()));
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
+
+    const startDateValue = formatHiddenDate(startDate);
+    const endDateValue = formatHiddenDate(endDate);
 
     const displayValue = useMemo(() => {
         if (startDate && endDate) {
@@ -97,6 +109,13 @@ export default function RentalDateRangePicker() {
 
         return Array.from({ length: 42 }, (_, index) => addDays(firstCalendarDay, index));
     }, [visibleMonth]);
+
+    useEffect(() => {
+        onChange?.({
+            startDate: startDateValue,
+            endDate: endDateValue,
+        });
+    }, [startDateValue, endDateValue, onChange]);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -171,8 +190,8 @@ export default function RentalDateRangePicker() {
                 </button>
             </div>
 
-            <input type="hidden" name="rental_start_date" value={formatHiddenDate(startDate)} />
-            <input type="hidden" name="rental_end_date" value={formatHiddenDate(endDate)} />
+            <input type="hidden" name="rental_start_date" value={startDateValue} />
+            <input type="hidden" name="rental_end_date" value={endDateValue} />
 
             {isOpen && (
                 <div className={styles.calendarPopover}>

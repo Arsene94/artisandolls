@@ -1,5 +1,5 @@
 import HeroEffect from "@/components/HeroEffect";
-import RentalDateRangePicker from "@/components/RentalDateRangePicker";
+import HeroRentalActions from "@/components/HeroRentalActions";
 
 export default function ArtisanDollsLanding() {
 
@@ -17,11 +17,7 @@ export default function ArtisanDollsLanding() {
                   <p className="fade-in fade-in-delay-2">
                       Fiecare piesă este o operă de artă unică, realizată manual cu pasiune și rafinament. Descoperă colecția noastră exclusivă de păpuși colecționabile, personalizate la cel mai înalt nivel al meșteșugului artistic.
                   </p>
-                  <div className="hero-cta fade-in fade-in-delay-3">
-                      <RentalDateRangePicker />
-                      <a href="#galerie" className="btn btn-gold">Închiriază</a>
-                      <a href="#servicii" className="btn btn-outline-light">Cumpără</a>
-                  </div>
+                  <HeroRentalActions />
                   <div className="hero-stats fade-in fade-in-delay-4">
                       <div className="stat">
                           <div className="stat-number">240+</div>

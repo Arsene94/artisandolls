@@ -65,17 +65,7 @@ h6,
     font-family: var(--font-heading);
 }
 
-p,
-a,
-button,
-input,
-textarea,
-select,
-nav,
-.section-subtitle,
-.stat-label {
-    font-family: var(--font-body);
-}
+
 
 /* ===== HEADER ===== */
 header {
