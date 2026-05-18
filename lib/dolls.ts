@@ -8,6 +8,7 @@ export type Doll = {
     collection: string;
     description: string;
     image: string;
+    images?: string[];
     badge: string;
     availability: DollAvailability;
     availableForRent: boolean;
@@ -24,6 +25,14 @@ export const dolls: Doll[] = [
         collection: "Ediții Limitate",
         description: "Piesă de colecție realizată manual, cu detalii couture și finisaje premium.",
         image: "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-14.jpg",
+        images: [
+            "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-10.jpg",
+            "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-11.jpg",
+            "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-9.jpg",
+            "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-5.jpg",
+            "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-2.jpg",
+            "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-1.jpg",
+        ],
         badge: "Ediție Limitată",
         availability: "limited",
         availableForRent: true,
@@ -38,6 +47,13 @@ export const dolls: Doll[] = [
         collection: "Seria Anotimpuri",
         description: "Păpușă artistică inspirată de tonuri calde, textile fine și siluetă elegantă.",
         image: "https://vsdoll.net/wp-content/uploads/2021/03/AlessandraItalianGirlfriendSexDoll21.jpg",
+        images: [
+            "https://vsdoll.net/wp-content/uploads/2022/01/AlessandraItalianGirlfriendSexDoll25.jpg",
+            "https://vsdoll.net/wp-content/uploads/2022/01/AlessandraItalianGirlfriendSexDoll2.jpg",
+            "https://vsdoll.net/wp-content/uploads/2022/01/AlessandraItalianGirlfriendSexDoll4.jpg",
+            "https://vsdoll.net/wp-content/uploads/2022/01/AlessandraItalianGirlfriendSexDoll5.jpg",
+            "https://vsdoll.net/wp-content/uploads/2022/01/AlessandraItalianGirlfriendSexDoll11.jpg",
+        ],
         badge: "Personalizabil",
         availability: "custom",
         availableForRent: true,
@@ -52,6 +68,14 @@ export const dolls: Doll[] = [
         collection: "Seria Clasică",
         description: "Model vintage couture, cu expresie delicată și accesorii lucrate manual.",
         image: "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-7.webp",
+        images: [
+            "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-3.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-5.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-9.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-1.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-8.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-4.webp",
+        ],
         badge: "Sold Out",
         availability: "sold_out",
         availableForRent: false,
@@ -66,6 +90,14 @@ export const dolls: Doll[] = [
         collection: "Colecția Noir",
         description: "Piesă dramatică, cu styling dark-pink, ideală pentru colecții private.",
         image: "https://vsdoll.net/wp-content/uploads/2025/07/Kendra-Lust-Pornstar-Sex-Doll-MILF-with-big-breast-7-1.webp",
+        images: [
+            "https://vsdoll.net/wp-content/uploads/2025/07/Kendra-Lust-Pornstar-Sex-Doll-MILF-with-big-breast-8.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Kendra-Lust-Pornstar-Sex-Doll-MILF-with-big-breast-4.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Kendra-Lust-Pornstar-Sex-Doll-MILF-with-big-breast-1.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Kendra-Lust-Pornstar-Sex-Doll-MILF-with-big-breast-9.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Kendra-Lust-Pornstar-Sex-Doll-MILF-with-big-breast-12.webp",
+            "",
+        ],
         badge: "Comandă Specială",
         availability: "custom",
         availableForRent: false,
@@ -80,6 +112,14 @@ export const dolls: Doll[] = [
         collection: "Seria Anotimpuri",
         description: "Păpușă luminoasă, cu vestimentație pastelată și detalii fine de primăvară.",
         image: "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-11-1-1.webp",
+        images: [
+            "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-9.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-13.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-1.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-3.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-4.webp",
+            "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-14.webp",
+        ],
         badge: "Disponibil",
         availability: "available",
         availableForRent: true,
@@ -94,6 +134,13 @@ export const dolls: Doll[] = [
         collection: "Seria Fantaisie",
         description: "Model fantasy realizat manual, cu accesorii miniaturale și styling rafinat.",
         image: "https://vsdoll.net/wp-content/uploads/2025/03/Parry-rabbit-sex-doll-SY140cm-big-breast-2.jpg",
+        images: [
+            "https://vsdoll.net/wp-content/uploads/2025/03/Parry-rabbit-sex-doll-SY140cm-big-breast-2.jpg",
+            "https://vsdoll.net/wp-content/uploads/2025/03/Parry-rabbit-sex-doll-SY140cm-big-breast-1.jpg",
+            "https://vsdoll.net/wp-content/uploads/2025/03/Parry-rabbit-sex-doll-SY140cm-big-breast-2.jpg",
+            "https://vsdoll.net/wp-content/uploads/2025/03/Parry-rabbit-sex-doll-SY140cm-big-breast-3.jpg",
+            "https://vsdoll.net/wp-content/uploads/2025/03/Parry-rabbit-sex-doll-SY140cm-big-breast-4.jpg"
+        ],
         badge: "Personalizabil",
         availability: "custom",
         availableForRent: true,
