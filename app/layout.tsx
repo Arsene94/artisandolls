@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ro">
-      <body className={`${inter.variable} ${roboto.variable}`}>
+      <body className={`${inter.variable} ${roboto.variable}`} data-scroll-behavior="smooth">
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>

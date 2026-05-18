@@ -7,9 +7,10 @@ import {
     formatOrderMode,
     formatOrderStatus,
     type OrderRow,
-} from "@/lib/orders";
+} from "@/lib/orders/shared";
 import { bulkDeleteOrdersAction } from "@/app/admin/orders/actions";
 import styles from "./AdminOrders.module.css";
+import {IconBrandWhatsapp, IconEye, IconPhone} from "@tabler/icons-react";
 
 type AdminOrdersTableProps = {
     orders: OrderRow[];
@@ -131,8 +132,8 @@ export default function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                         <strong>{order.total_label}</strong>
 
                         <div className={styles.actions}>
-                            <Link href={`/admin/orders/${order.id}`}>Vezi</Link>
-                            <a href={`tel:${getCleanPhone(order.customer_phone)}`}>Sună</a>
+                            <Link href={`/admin/orders/${order.id}`} className={styles.viewButton}><IconEye /></Link>
+                            <a href={`tel:${getCleanPhone(order.customer_phone)}`} className={styles.callButton}><IconPhone /></a>
                             <a
                                 href={getWhatsappHref(
                                     order.customer_phone,
@@ -141,8 +142,9 @@ export default function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                                 )}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                className={styles.whatsappButton}
                             >
-                                WhatsApp
+                                <IconBrandWhatsapp />
                             </a>
                         </div>
                     </div>

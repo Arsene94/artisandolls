@@ -1,6 +1,9 @@
 import { getDollRows, type CatalogMode } from "@/lib/dolls";
 import { getAdminOrderRows } from "@/lib/orders";
 import styles from "./page.module.css";
+import {IconBrandWhatsapp, IconEye, IconPhone} from "@tabler/icons-react";
+
+export const dynamic = "force-dynamic";
 
 const recommendedActions = [
     "Verifică comenzile noi și confirmă disponibilitatea.",
@@ -8,8 +11,6 @@ const recommendedActions = [
     "Adaugă poze reale pentru ținute și customizări.",
     "Configurează tabelele Supabase pentru comenzi reale.",
 ];
-
-const latestOrders = await getAdminOrderRows(5);
 
 function getCleanPhone(phone: string) {
     return phone.replace(/[^\d+]/g, "");
@@ -60,6 +61,19 @@ function formatCreatedAt(value: string) {
 
 export default async function AdminDashboardPage() {
     const dolls = await getDollRows(true);
+    const orders = await getAdminOrderRows(100);
+    const latestOrders = orders.slice(0, 5);
+
+    const newOrders = orders.filter((order) => order.status === "new").length;
+    const activeRentals = orders.filter(
+        (order) =>
+            order.mode === "rent" &&
+            ["new", "in_review", "confirmed"].includes(order.status)
+    ).length;
+
+    const estimatedRevenue = orders.reduce((total, order) => {
+        return total + (order.total_amount ?? 0);
+    }, 0);
 
     const availableForRent = dolls.filter((doll) => doll.available_for_rent).length;
     const availableForBuy = dolls.filter((doll) => doll.available_for_buy).length;
@@ -69,18 +83,18 @@ export default async function AdminDashboardPage() {
     const dashboardStats = [
         {
             label: "Comenzi noi",
-            value: "0",
-            hint: "Azi",
+            value: String(newOrders),
+            hint: "Status nou",
         },
         {
             label: "Închirieri active",
-            value: "0",
-            hint: "În desfășurare",
+            value: String(activeRentals),
+            hint: "Noi / verificare / confirmate",
         },
         {
             label: "Venit estimat",
-            value: "0 lei",
-            hint: "Luna curentă",
+            value: `${estimatedRevenue.toLocaleString("ro-RO")} lei`,
+            hint: "Din cereri",
         },
         {
             label: "Păpuși în catalog",
@@ -156,12 +170,12 @@ export default async function AdminDashboardPage() {
                                 </div>
 
                                 <div className={styles.orderActions}>
-                                    <a href={`/admin/orders/${order.order_number}`} className={styles.viewButton}>
-                                        Vezi
+                                    <a href={`/admin/orders/${order.id}`} className={styles.viewButton}>
+                                        <IconEye />
                                     </a>
 
                                     <a href={`tel:${getCleanPhone(order.customer_phone)}`} className={styles.callButton}>
-                                        Sună
+                                        <IconPhone />
                                     </a>
 
                                     <a
@@ -170,7 +184,7 @@ export default async function AdminDashboardPage() {
                                         rel="noopener noreferrer"
                                         className={styles.whatsappButton}
                                     >
-                                        WhatsApp
+                                        <IconBrandWhatsapp />
                                     </a>
                                 </div>
                             </div>

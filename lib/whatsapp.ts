@@ -1,6 +1,6 @@
 import "server-only";
-import type { OrderRow } from "@/lib/orders";
-import { formatDateRo } from "@/lib/orders";
+import type { OrderRow } from "@/lib/orders/shared";
+import { formatDateRo } from "@/lib/orders/shared";
 
 function getRequiredEnv(name: string) {
     const value = process.env[name];

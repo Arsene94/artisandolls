@@ -104,3 +104,47 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+.viewButton,
+.callButton,
+.whatsappButton {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 11px;
+    border: 1px solid rgba(255, 155, 208, 0.22);
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: var(--color-white);
+    text-decoration: none;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.viewButton:hover {
+    border-color: var(--color-gold-light) !important;
+    background: rgba(255, 79, 163, 0.14) !important;
+}
+
+.callButton {
+    border-color: rgba(255, 155, 208, 0.3) !important;
+    color: var(--color-gold-light) !important;
+}
+
+.callButton:hover {
+    background: rgba(255, 155, 208, 0.14) !important;
+}
+
+.whatsappButton {
+    border-color: rgba(37, 211, 102, 0.42) !important;
+    color: #8cffb6 !important;
+}
+
+.whatsappButton:hover {
+    background: rgba(37, 211, 102, 0.14) !important;
+    border-color: rgba(37, 211, 102, 0.7) !important;
+}

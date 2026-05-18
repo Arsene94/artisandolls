@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
-import { getRentalDays, type OrderRow } from "@/lib/orders";
+import { getRentalDays, type OrderRow } from "@/lib/orders/shared";
 import { notifyAdminsAboutOrder } from "@/lib/whatsapp";
 import type { CatalogMode } from "@/lib/dolls";
 
@@ -106,7 +106,20 @@ export async function createOrderAction(formData: FormData) {
     }
 
     const order = insertedOrder as OrderRow;
-    const whatsappResult = await notifyAdminsAboutOrder(order);
+
+    let whatsappResult: {
+        success: boolean;
+        error: string | null;
+    };
+
+    try {
+        whatsappResult = await notifyAdminsAboutOrder(order);
+    } catch (error) {
+        whatsappResult = {
+            success: false,
+            error: error instanceof Error ? error.message : String(error),
+        };
+    }
 
     await supabase
         .from("orders")
@@ -116,5 +129,6 @@ export async function createOrderAction(formData: FormData) {
         })
         .eq("id", order.id);
 
+    redirect(`/catalog/${dollSlug}/success?orderId=${order.id}`);
     redirect(`/catalog/${dollSlug}/success?orderId=${order.id}`);
 }

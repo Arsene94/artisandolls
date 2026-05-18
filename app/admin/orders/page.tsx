@@ -2,6 +2,8 @@ import { getAdminOrderRows } from "@/lib/orders";
 import AdminOrdersTable from "@/components/admin/orders/AdminOrdersTable";
 import styles from "../page.module.css";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminOrdersPage() {
     const orders = await getAdminOrderRows(100);
 
