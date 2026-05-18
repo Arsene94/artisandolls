@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import AdminLoginForm from "@/components/admin/AdminLoginForm";
 import styles from "./page.module.css";
@@ -13,7 +14,9 @@ export default function AdminLoginPage() {
             <div className={styles.pattern} />
 
             <section className={styles.content}>
-                <AdminLoginForm />
+                <Suspense fallback={null}>
+                    <AdminLoginForm />
+                </Suspense>
             </section>
         </main>
     );
