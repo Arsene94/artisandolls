@@ -106,12 +106,15 @@ function getCatalogHref(mode: CatalogMode, period: RentalRangeValue) {
 }
 
 function getGalleryImages(doll: Doll) {
-    return [
-        doll.image,
-        doll.image,
-        doll.image,
-        doll.image,
-    ];
+    const uniqueImages = Array.from(
+        new Set(
+            [doll.image, ...(doll.images ?? [])]
+                .map((image) => image.trim())
+                .filter(Boolean)
+        )
+    );
+
+    return uniqueImages.length > 0 ? uniqueImages : [doll.image];
 }
 
 export default function DollDetails({
@@ -121,7 +124,29 @@ export default function DollDetails({
                                         initialEndDate,
                                     }: DollDetailsProps) {
     const galleryImages = useMemo(() => getGalleryImages(doll), [doll]);
-    const [selectedImage, setSelectedImage] = useState(galleryImages[0]);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+    const selectedImage = galleryImages[selectedImageIndex] ?? galleryImages[0];
+
+    function goToPreviousImage() {
+        setSelectedImageIndex((currentIndex) => {
+            if (currentIndex === 0) {
+                return galleryImages.length - 1;
+            }
+
+            return currentIndex - 1;
+        });
+    }
+
+    function goToNextImage() {
+        setSelectedImageIndex((currentIndex) => {
+            if (currentIndex === galleryImages.length - 1) {
+                return 0;
+            }
+
+            return currentIndex + 1;
+        });
+    }
     const [mode, setMode] = useState<CatalogMode>(initialMode);
     const [period, setPeriod] = useState<RentalRangeValue>({
         startDate: initialStartDate,
@@ -171,8 +196,36 @@ export default function DollDetails({
                     <div className={styles.heroGrid}>
                         <div className={styles.gallery}>
                             <div className={styles.mainImage}>
-                                <img src={selectedImage} alt={doll.name} />
+                                <img
+                                    key={selectedImage}
+                                    src={selectedImage}
+                                    alt={doll.name}
+                                    className={styles.activeImage}
+                                />
+
                                 <span>{doll.badge}</span>
+
+                                {galleryImages.length > 1 && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            className={`${styles.galleryArrow} ${styles.galleryArrowLeft}`}
+                                            onClick={goToPreviousImage}
+                                            aria-label="Imaginea anterioară"
+                                        >
+                                            ‹
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className={`${styles.galleryArrow} ${styles.galleryArrowRight}`}
+                                            onClick={goToNextImage}
+                                            aria-label="Imaginea următoare"
+                                        >
+                                            ›
+                                        </button>
+                                    </>
+                                )}
                             </div>
 
                             <div className={styles.thumbnails}>
@@ -180,8 +233,8 @@ export default function DollDetails({
                                     <button
                                         key={`${image}-${index}`}
                                         type="button"
-                                        className={selectedImage === image ? styles.activeThumbnail : ""}
-                                        onClick={() => setSelectedImage(image)}
+                                        className={selectedImageIndex === index ? styles.activeThumbnail : ""}
+                                        onClick={() => setSelectedImageIndex(index)}
                                         aria-label={`Vezi imaginea ${index + 1}`}
                                     >
                                         <img src={image} alt={`${doll.name} ${index + 1}`} />
