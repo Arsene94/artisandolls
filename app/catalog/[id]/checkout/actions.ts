@@ -110,6 +110,7 @@ export async function createOrderAction(formData: FormData) {
     let whatsappResult: {
         success: boolean;
         error: string | null;
+        debug?: unknown;
     };
 
     try {
@@ -118,17 +119,32 @@ export async function createOrderAction(formData: FormData) {
         whatsappResult = {
             success: false,
             error: error instanceof Error ? error.message : String(error),
+            debug: {
+                fatal: true,
+                message: error instanceof Error ? error.message : String(error),
+            },
         };
     }
 
-    await supabase
+    const { error: whatsappUpdateError } = await supabase
         .from("orders")
         .update({
             whatsapp_notified: whatsappResult.success,
             whatsapp_error: whatsappResult.error,
+            whatsapp_debug: whatsappResult.debug ?? null,
         })
         .eq("id", order.id);
 
-    redirect(`/catalog/${dollSlug}/success?orderId=${order.id}`);
+    if (whatsappUpdateError) {
+        console.error("[ArtisanDolls] Failed to save WhatsApp debug", whatsappUpdateError);
+    }
+
+    console.info("[ArtisanDolls] Order created", {
+        orderId: order.id,
+        orderNumber: order.order_number,
+        whatsappNotified: whatsappResult.success,
+        whatsappError: whatsappResult.error,
+    });
+
     redirect(`/catalog/${dollSlug}/success?orderId=${order.id}`);
 }
