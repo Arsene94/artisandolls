@@ -414,6 +414,25 @@ function CustomizationPicker({
     );
 }
 
+function getCheckoutHref(
+    dollId: string,
+    mode: CatalogMode,
+    period: RentalRangeValue,
+    outfitId: string,
+    options: string[],
+    total: number
+) {
+    const params = new URLSearchParams({ mode });
+
+    if (period.startDate) params.set("start", period.startDate);
+    if (period.endDate) params.set("end", period.endDate);
+    if (outfitId) params.set("outfit", outfitId);
+    if (options.length > 0) params.set("options", options.join(","));
+    if (total > 0) params.set("total", String(total));
+
+    return `/catalog/${dollId}/checkout?${params.toString()}`;
+}
+
 export default function DollDetails({
                                         doll,
                                         initialMode,
@@ -482,6 +501,15 @@ export default function DollDetails({
     const rentalTotal = rentalBaseTotal + extrasTotal;
     const buyBasePrice = doll.buyPrice ?? 0;
     const buyTotal = buyBasePrice + extrasTotal;
+
+    const checkoutHref = getCheckoutHref(
+        doll.id,
+        mode,
+        period,
+        activeSelectedOutfitId,
+        activeSelectedOptions,
+        mode === "rent" ? rentalTotal : buyTotal
+    );
 
     const isAvailableForSelectedMode = mode === "rent" ? doll.availableForRent : doll.availableForBuy;
 
@@ -713,13 +741,15 @@ export default function DollDetails({
                                         </>
                                     )}
 
-                                    <button
-                                        type="button"
-                                        className="btn btn-gold"
-                                        disabled={!isAvailableForSelectedMode || !hasCompletePeriod}
-                                    >
-                                        Continuă cu închirierea
-                                    </button>
+                                    {isAvailableForSelectedMode && hasCompletePeriod ? (
+                                        <Link href={checkoutHref} className="btn btn-gold">
+                                            Continuă cu închirierea
+                                        </Link>
+                                    ) : (
+                                        <button type="button" className="btn btn-gold" disabled>
+                                            Continuă cu închirierea
+                                        </button>
+                                    )}
                                 </div>
                             )}
 
@@ -749,13 +779,15 @@ export default function DollDetails({
                                         <strong>{buyTotal.toLocaleString("ro-RO")} lei</strong>
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        className="btn btn-gold"
-                                        disabled={!isAvailableForSelectedMode}
-                                    >
-                                        Continuă cu achiziția
-                                    </button>
+                                    {isAvailableForSelectedMode ? (
+                                        <Link href={checkoutHref} className="btn btn-gold">
+                                            Continuă cu achiziția
+                                        </Link>
+                                    ) : (
+                                        <button type="button" className="btn btn-gold" disabled>
+                                            Continuă cu achiziția
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </div>
