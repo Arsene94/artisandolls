@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DollDetails from "@/components/DollDetails";
-import { dolls, type CatalogMode } from "@/lib/dolls";
+import { getDollBySlug, type CatalogMode } from "@/lib/dolls";
 
 type DollPageProps = {
     params: Promise<{
@@ -20,7 +20,7 @@ function getSearchParamValue(value: string | string[] | undefined) {
 
 export async function generateMetadata({ params }: DollPageProps): Promise<Metadata> {
     const { id } = await params;
-    const doll = dolls.find((item) => item.id === id);
+    const doll = await getDollBySlug(id);
 
     if (!doll) {
         return {
@@ -38,7 +38,7 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
     const { id } = await params;
     const resolvedSearchParams = await searchParams;
 
-    const doll = dolls.find((item) => item.id === id);
+    const doll = await getDollBySlug(id);
 
     if (!doll) {
         notFound();

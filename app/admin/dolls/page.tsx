@@ -1,15 +1,19 @@
+import { getDollRows } from "@/lib/dolls";
+import AdminDollsCatalog from "@/components/admin/dolls/AdminDollsCatalog";
 import styles from "../page.module.css";
 
-export default function AdminSectionPage() {
+export default async function AdminDollsPage() {
+    const dolls = await getDollRows(true);
+
     return (
         <main className={styles.page}>
             <section className={styles.hero}>
-                <span>Admin</span>
-                <h1>Secțiune în lucru</h1>
-                <p>
-                    Această pagină este pregătită pentru managementul datelor din Supabase.
-                </p>
+                <span>Catalog</span>
+                <h1>Păpuși</h1>
+                <p>Administrează păpușile din catalog, imaginile, prețurile și disponibilitatea.</p>
             </section>
+
+            <AdminDollsCatalog dolls={dolls} />
         </main>
     );
 }

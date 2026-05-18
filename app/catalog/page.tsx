@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import DollsCatalog from "@/components/DollsCatalog";
-import type { CatalogMode } from "@/lib/dolls";
+import { getCollections, getDolls, type CatalogMode } from "@/lib/dolls";
 
 export const metadata: Metadata = {
     title: "Catalog păpuși — Artisan Dolls",
@@ -28,8 +28,13 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
     const startDate = getSearchParamValue(params?.start);
     const endDate = getSearchParamValue(params?.end);
 
+    const dolls = await getDolls();
+    const collections = await getCollections();
+
     return (
         <DollsCatalog
+            dolls={dolls}
+            collections={collections}
             initialMode={mode}
             initialStartDate={startDate}
             initialEndDate={endDate}

@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { collections, dolls, type CatalogMode, type Doll } from "@/lib/dolls";
+import { type CatalogMode, type Doll } from "@/lib/dolls";
 import styles from "./DollsCatalog.module.css";
 import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
 
 type DollsCatalogProps = {
+    dolls: Doll[];
+    collections: string[];
     initialMode: CatalogMode;
     initialStartDate: string;
     initialEndDate: string;
@@ -73,6 +75,8 @@ function getCatalogHrefWithCurrentParams(mode: CatalogMode, period: RentalRangeV
 }
 
 export default function DollsCatalog({
+                                         dolls,
+                                         collections,
                                          initialMode,
                                          initialStartDate,
                                          initialEndDate,

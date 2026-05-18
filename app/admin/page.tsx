@@ -1,29 +1,5 @@
-import { dolls } from "@/lib/dolls";
+import { getDollRows, type CatalogMode } from "@/lib/dolls";
 import styles from "./page.module.css";
-import {IconBrandWhatsapp, IconEye, IconPhone} from "@tabler/icons-react";
-
-const dashboardStats = [
-    {
-        label: "Comenzi noi",
-        value: "0",
-        hint: "Azi",
-    },
-    {
-        label: "Închirieri active",
-        value: "0",
-        hint: "În desfășurare",
-    },
-    {
-        label: "Venit estimat",
-        value: "0 lei",
-        hint: "Luna curentă",
-    },
-    {
-        label: "Păpuși în catalog",
-        value: String(dolls.length),
-        hint: "Din lib/dolls.ts",
-    },
-];
 
 const recommendedActions = [
     "Verifică comenzile noi și confirmă disponibilitatea.",
@@ -59,6 +35,8 @@ const latestOrders = [
         dollId: "seraphine",
         dollName: "Séraphine",
         mode: "buy",
+        startDate: "2026-05-21",
+        endDate: "2026-05-21",
         outfitId: "buy-outfit-couture",
         options: "buy-face-detailing,buy-display-box",
         total: "3250",
@@ -98,9 +76,9 @@ const latestOrders = [
     orderId: string;
     dollId: string;
     dollName: string;
-    mode: "rent" | "buy";
-    startDate?: string;
-    endDate?: string;
+    mode: CatalogMode;
+    startDate: string;
+    endDate: string;
     outfitId: string;
     options: string;
     total: string;
@@ -129,13 +107,13 @@ function getWhatsappHref(phone: string, orderId: string, customerName: string) {
     return `https://wa.me/${cleanPhone}?text=${message}`;
 }
 
-function getModeLabel(mode: "rent" | "buy") {
+function getModeLabel(mode: CatalogMode) {
     return mode === "rent" ? "Închiriere" : "Cumpărare";
 }
 
-function formatDate(value: string|undefined) {
+function formatDate(value: string) {
     if (!value) {
-        return "";
+        return "Neselectată";
     }
 
     const [year, month, day] = value.split("-");
@@ -163,10 +141,36 @@ function formatCreatedAt(value: string) {
     }).format(date);
 }
 
-export default function AdminDashboardPage() {
-    const availableForRent = dolls.filter((doll) => doll.availableForRent).length;
-    const availableForBuy = dolls.filter((doll) => doll.availableForBuy).length;
+export default async function AdminDashboardPage() {
+    const dolls = await getDollRows(true);
+
+    const availableForRent = dolls.filter((doll) => doll.available_for_rent).length;
+    const availableForBuy = dolls.filter((doll) => doll.available_for_buy).length;
     const soldOut = dolls.filter((doll) => doll.availability === "sold_out").length;
+    const activeDolls = dolls.filter((doll) => doll.is_active).length;
+
+    const dashboardStats = [
+        {
+            label: "Comenzi noi",
+            value: "0",
+            hint: "Azi",
+        },
+        {
+            label: "Închirieri active",
+            value: "0",
+            hint: "În desfășurare",
+        },
+        {
+            label: "Venit estimat",
+            value: "0 lei",
+            hint: "Luna curentă",
+        },
+        {
+            label: "Păpuși în catalog",
+            value: String(activeDolls),
+            hint: "Active în Supabase",
+        },
+    ];
 
     return (
         <main className={styles.page}>
@@ -208,11 +212,7 @@ export default function AdminDashboardPage() {
                                     <span>Rezervare</span>
                                     <strong>{getModeLabel(order.mode)}</strong>
                                     <small>
-                                        {order.startDate && order.endDate && (
-                                            <>
-                                                {formatDate(order.startDate)} — {formatDate(order.endDate)}
-                                            </>
-                                        )}
+                                        {formatDate(order.startDate)} — {formatDate(order.endDate)}
                                     </small>
                                 </div>
 
@@ -240,11 +240,11 @@ export default function AdminDashboardPage() {
 
                                 <div className={styles.orderActions}>
                                     <a href={`/admin/orders/${order.orderId}`} className={styles.viewButton}>
-                                        <IconEye />
+                                        Vezi
                                     </a>
 
                                     <a href={`tel:${getCleanPhone(order.phone)}`} className={styles.callButton}>
-                                        <IconPhone />
+                                        Sună
                                     </a>
 
                                     <a
@@ -253,7 +253,7 @@ export default function AdminDashboardPage() {
                                         rel="noopener noreferrer"
                                         className={styles.whatsappButton}
                                     >
-                                        <IconBrandWhatsapp />
+                                        WhatsApp
                                     </a>
                                 </div>
                             </div>
@@ -315,8 +315,8 @@ export default function AdminDashboardPage() {
                             <div key={doll.id} className={styles.tableRow}>
                                 <span>{doll.name}</span>
                                 <span>{doll.collection}</span>
-                                <span>{doll.availableForRent ? "Da" : "Nu"}</span>
-                                <span>{doll.availableForBuy ? "Da" : "Nu"}</span>
+                                <span>{doll.available_for_rent ? "Da" : "Nu"}</span>
+                                <span>{doll.available_for_buy ? "Da" : "Nu"}</span>
                                 <span>{doll.badge}</span>
                             </div>
                         ))}

@@ -1,3 +1,6 @@
+import "server-only";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
 export type CatalogMode = "rent" | "buy";
 
 export type DollAvailability = "available" | "custom" | "limited" | "sold_out";
@@ -18,137 +21,107 @@ export type Doll = {
     tags: string[];
 };
 
-export const dolls: Doll[] = [
-    {
-        id: "eleonora",
-        name: "Eleonora",
-        collection: "Ediții Limitate",
-        description: "Piesă de colecție realizată manual, cu detalii couture și finisaje premium.",
-        image: "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-14.jpg",
-        images: [
-            "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-10.jpg",
-            "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-11.jpg",
-            "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-9.jpg",
-            "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-5.jpg",
-            "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-2.jpg",
-            "https://vsdoll.net/wp-content/uploads/2025/12/Kennedy-Blonde-Big-Boobs-Sex-Doll148-164cm-1.jpg",
-        ],
-        badge: "Ediție Limitată",
-        availability: "limited",
-        availableForRent: true,
-        availableForBuy: true,
-        rentPricePerDay: 180,
-        buyPrice: 3200,
-        tags: ["Premium", "Limitată", "Disponibilă"],
-    },
-    {
-        id: "seraphine",
-        name: "Séraphine",
-        collection: "Seria Anotimpuri",
-        description: "Păpușă artistică inspirată de tonuri calde, textile fine și siluetă elegantă.",
-        image: "https://vsdoll.net/wp-content/uploads/2021/03/AlessandraItalianGirlfriendSexDoll21.jpg",
-        images: [
-            "https://vsdoll.net/wp-content/uploads/2022/01/AlessandraItalianGirlfriendSexDoll25.jpg",
-            "https://vsdoll.net/wp-content/uploads/2022/01/AlessandraItalianGirlfriendSexDoll2.jpg",
-            "https://vsdoll.net/wp-content/uploads/2022/01/AlessandraItalianGirlfriendSexDoll4.jpg",
-            "https://vsdoll.net/wp-content/uploads/2022/01/AlessandraItalianGirlfriendSexDoll5.jpg",
-            "https://vsdoll.net/wp-content/uploads/2022/01/AlessandraItalianGirlfriendSexDoll11.jpg",
-        ],
-        badge: "Personalizabil",
-        availability: "custom",
-        availableForRent: true,
-        availableForBuy: true,
-        rentPricePerDay: 140,
-        buyPrice: 2600,
-        tags: ["Personalizabilă", "Couture", "Toamnă"],
-    },
-    {
-        id: "violetta",
-        name: "Violetta",
-        collection: "Seria Clasică",
-        description: "Model vintage couture, cu expresie delicată și accesorii lucrate manual.",
-        image: "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-7.webp",
-        images: [
-            "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-3.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-5.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-9.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-1.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-8.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Libby-Watkins-European-Blonde-sexy-Girl-Love-Doll-with-Big-breast-158cm-4.webp",
-        ],
-        badge: "Sold Out",
-        availability: "sold_out",
-        availableForRent: false,
-        availableForBuy: false,
-        rentPricePerDay: null,
-        buyPrice: null,
-        tags: ["Vintage", "Clasică", "Sold out"],
-    },
-    {
-        id: "isabelle",
-        name: "Isabelle",
-        collection: "Colecția Noir",
-        description: "Piesă dramatică, cu styling dark-pink, ideală pentru colecții private.",
-        image: "https://vsdoll.net/wp-content/uploads/2025/07/Kendra-Lust-Pornstar-Sex-Doll-MILF-with-big-breast-7-1.webp",
-        images: [
-            "https://vsdoll.net/wp-content/uploads/2025/07/Kendra-Lust-Pornstar-Sex-Doll-MILF-with-big-breast-8.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Kendra-Lust-Pornstar-Sex-Doll-MILF-with-big-breast-4.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Kendra-Lust-Pornstar-Sex-Doll-MILF-with-big-breast-1.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Kendra-Lust-Pornstar-Sex-Doll-MILF-with-big-breast-9.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Kendra-Lust-Pornstar-Sex-Doll-MILF-with-big-breast-12.webp",
-            "",
-        ],
-        badge: "Comandă Specială",
-        availability: "custom",
-        availableForRent: false,
-        availableForBuy: true,
-        rentPricePerDay: null,
-        buyPrice: 4100,
-        tags: ["Noir", "Comandă specială", "Colecție"],
-    },
-    {
-        id: "aurora",
-        name: "Aurora",
-        collection: "Seria Anotimpuri",
-        description: "Păpușă luminoasă, cu vestimentație pastelată și detalii fine de primăvară.",
-        image: "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-11-1-1.webp",
-        images: [
-            "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-9.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-13.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-1.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-3.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-4.webp",
-            "https://vsdoll.net/wp-content/uploads/2025/07/Kardashian-Thick-Big-BreastTits-Kim-Kardashian-Sex-Doll-14.webp",
-        ],
-        badge: "Disponibil",
-        availability: "available",
-        availableForRent: true,
-        availableForBuy: true,
-        rentPricePerDay: 120,
-        buyPrice: 2400,
-        tags: ["Disponibilă", "Primăvară", "Elegantă"],
-    },
-    {
-        id: "celeste",
-        name: "Céleste",
-        collection: "Seria Fantaisie",
-        description: "Model fantasy realizat manual, cu accesorii miniaturale și styling rafinat.",
-        image: "https://vsdoll.net/wp-content/uploads/2025/03/Parry-rabbit-sex-doll-SY140cm-big-breast-2.jpg",
-        images: [
-            "https://vsdoll.net/wp-content/uploads/2025/03/Parry-rabbit-sex-doll-SY140cm-big-breast-2.jpg",
-            "https://vsdoll.net/wp-content/uploads/2025/03/Parry-rabbit-sex-doll-SY140cm-big-breast-1.jpg",
-            "https://vsdoll.net/wp-content/uploads/2025/03/Parry-rabbit-sex-doll-SY140cm-big-breast-2.jpg",
-            "https://vsdoll.net/wp-content/uploads/2025/03/Parry-rabbit-sex-doll-SY140cm-big-breast-3.jpg",
-            "https://vsdoll.net/wp-content/uploads/2025/03/Parry-rabbit-sex-doll-SY140cm-big-breast-4.jpg"
-        ],
-        badge: "Personalizabil",
-        availability: "custom",
-        availableForRent: true,
-        availableForBuy: true,
-        rentPricePerDay: 150,
-        buyPrice: 2900,
-        tags: ["Fantasy", "Personalizabilă", "Artizanal"],
-    },
-];
+export type DollRow = {
+    id: string;
+    slug: string;
+    name: string;
+    collection: string;
+    description: string;
+    main_image_url: string;
+    image_urls: string[];
+    badge: string;
+    availability: DollAvailability;
+    available_for_rent: boolean;
+    available_for_buy: boolean;
+    rent_price_per_day: number | null;
+    buy_price: number | null;
+    tags: string[];
+    display_order: number;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+};
 
-export const collections = Array.from(new Set(dolls.map((doll) => doll.collection)));
+export function mapDollRowToDoll(row: DollRow): Doll {
+    return {
+        id: row.slug,
+        name: row.name,
+        collection: row.collection,
+        description: row.description,
+        image: row.main_image_url,
+        images: row.image_urls,
+        badge: row.badge,
+        availability: row.availability,
+        availableForRent: row.available_for_rent,
+        availableForBuy: row.available_for_buy,
+        rentPricePerDay: row.rent_price_per_day,
+        buyPrice: row.buy_price,
+        tags: row.tags,
+    };
+}
+
+export async function getDollRows(includeInactive = false) {
+    const supabase = await createSupabaseServerClient();
+
+    let query = supabase
+        .from("dolls")
+        .select("*")
+        .order("display_order", { ascending: true })
+        .order("created_at", { ascending: false });
+
+    if (!includeInactive) {
+        query = query.eq("is_active", true);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return (data ?? []) as DollRow[];
+}
+
+export async function getDolls() {
+    const rows = await getDollRows(false);
+
+    return rows.map(mapDollRowToDoll);
+}
+
+export async function getDollBySlug(slug: string) {
+    const supabase = await createSupabaseServerClient();
+
+    const { data, error } = await supabase
+        .from("dolls")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+
+    if (error || !data) {
+        return null;
+    }
+
+    return mapDollRowToDoll(data as DollRow);
+}
+
+export async function getDollRowBySlug(slug: string) {
+    const supabase = await createSupabaseServerClient();
+
+    const { data, error } = await supabase
+        .from("dolls")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+
+    if (error || !data) {
+        return null;
+    }
+
+    return data as DollRow;
+}
+
+export async function getCollections() {
+    const rows = await getDollRows(false);
+
+    return Array.from(new Set(rows.map((doll) => doll.collection)));
+}

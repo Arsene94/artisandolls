@@ -1,0 +1,5 @@
+[db.seed]
+enabled = true
+sql_paths = [
+    "./seed/dolls.sql"
+]
