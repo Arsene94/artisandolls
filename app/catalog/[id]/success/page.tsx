@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import OrderSuccess from "@/components/OrderSuccess";
-import { dolls, type CatalogMode } from "@/lib/dolls";
+import { getOrderByIdForSuccess } from "@/lib/orders";
 
 export const metadata: Metadata = {
     title: "Comandă trimisă — Artisan Dolls",
@@ -9,9 +9,6 @@ export const metadata: Metadata = {
 };
 
 type SuccessPageProps = {
-    params: Promise<{
-        id: string;
-    }>;
     searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
@@ -23,19 +20,19 @@ function getSearchParamValue(value: string | string[] | undefined) {
     return value ?? "";
 }
 
-export default async function SuccessPage({ params, searchParams }: SuccessPageProps) {
-    const { id } = await params;
+export default async function SuccessPage({ searchParams }: SuccessPageProps) {
     const resolvedSearchParams = await searchParams;
+    const orderId = getSearchParamValue(resolvedSearchParams?.orderId);
 
-    const doll = dolls.find((item) => item.id === id);
-
-    if (!doll) {
+    if (!orderId) {
         notFound();
     }
 
-    const rawMode = getSearchParamValue(resolvedSearchParams?.mode);
-    const mode: CatalogMode = rawMode === "buy" ? "buy" : "rent";
-    const orderId = getSearchParamValue(resolvedSearchParams?.orderId);
+    const order = await getOrderByIdForSuccess(orderId);
 
-    return <OrderSuccess doll={doll} mode={mode} orderId={orderId} />;
+    if (!order) {
+        notFound();
+    }
+
+    return <OrderSuccess order={order} />;
 }

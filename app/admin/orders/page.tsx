@@ -1,15 +1,19 @@
+import { getAdminOrderRows } from "@/lib/orders";
+import AdminOrdersTable from "@/components/admin/orders/AdminOrdersTable";
 import styles from "../page.module.css";
 
-export default function AdminSectionPage() {
+export default async function AdminOrdersPage() {
+    const orders = await getAdminOrderRows(100);
+
     return (
         <main className={styles.page}>
             <section className={styles.hero}>
-                <span>Admin</span>
-                <h1>Secțiune în lucru</h1>
-                <p>
-                    Această pagină este pregătită pentru managementul datelor din Supabase.
-                </p>
+                <span>Comenzi</span>
+                <h1>Cereri rent / buy</h1>
+                <p>Administrează cererile de închiriere și cumpărare primite de la clienți.</p>
             </section>
+
+            <AdminOrdersTable orders={orders} />
         </main>
     );
 }

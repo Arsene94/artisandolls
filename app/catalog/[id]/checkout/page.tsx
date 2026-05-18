@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import OrderCheckout from "@/components/OrderCheckout";
-import { dolls, type CatalogMode } from "@/lib/dolls";
+import { getDollBySlug, type CatalogMode } from "@/lib/dolls";
+import { createOrderAction } from "./actions";
 
 export const metadata: Metadata = {
     title: "Finalizare comandă — Artisan Dolls",
@@ -27,7 +28,7 @@ export default async function CheckoutPage({ params, searchParams }: CheckoutPag
     const { id } = await params;
     const resolvedSearchParams = await searchParams;
 
-    const doll = dolls.find((item) => item.id === id);
+    const doll = await getDollBySlug(id);
 
     if (!doll) {
         notFound();
@@ -45,6 +46,7 @@ export default async function CheckoutPage({ params, searchParams }: CheckoutPag
             outfitId={getSearchParamValue(resolvedSearchParams?.outfit)}
             options={getSearchParamValue(resolvedSearchParams?.options)}
             total={getSearchParamValue(resolvedSearchParams?.total)}
+            action={createOrderAction}
         />
     );
 }

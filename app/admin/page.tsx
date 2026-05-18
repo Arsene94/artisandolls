@@ -1,4 +1,5 @@
 import { getDollRows, type CatalogMode } from "@/lib/dolls";
+import { getAdminOrderRows } from "@/lib/orders";
 import styles from "./page.module.css";
 
 const recommendedActions = [
@@ -8,91 +9,7 @@ const recommendedActions = [
     "Configurează tabelele Supabase pentru comenzi reale.",
 ];
 
-const latestOrders = [
-    {
-        orderId: "AD-1007",
-        dollId: "aurora",
-        dollName: "Aurora",
-        mode: "rent",
-        startDate: "2026-05-20",
-        endDate: "2026-05-24",
-        outfitId: "rent-outfit-photo",
-        options: "rent-premium-cleaning,rent-photo-ready",
-        total: "620",
-        totalLabel: "620 lei",
-        fullName: "Maria Ionescu",
-        email: "maria@example.com",
-        phone: "+40722111222",
-        deliveryAddress: "Str. Exemplu 10, București",
-        deliveryTime: "10:30",
-        returnTime: "18:00",
-        notes: "Preferă livrare dimineața.",
-        createdAt: "2026-05-18T10:30:00.000Z",
-        status: "Nouă",
-    },
-    {
-        orderId: "AD-1006",
-        dollId: "seraphine",
-        dollName: "Séraphine",
-        mode: "buy",
-        startDate: "2026-05-21",
-        endDate: "2026-05-21",
-        outfitId: "buy-outfit-couture",
-        options: "buy-face-detailing,buy-display-box",
-        total: "3250",
-        totalLabel: "3.250 lei",
-        fullName: "Elena Popa",
-        email: "elena@example.com",
-        phone: "+40733111333",
-        deliveryAddress: "Bd. Exemplu 22, București",
-        deliveryTime: "14:00",
-        returnTime: "",
-        notes: "Dorește ambalare premium.",
-        createdAt: "2026-05-17T13:10:00.000Z",
-        status: "În verificare",
-    },
-    {
-        orderId: "AD-1005",
-        dollId: "celeste",
-        dollName: "Céleste",
-        mode: "rent",
-        startDate: "2026-05-22",
-        endDate: "2026-05-26",
-        outfitId: "rent-outfit-evening",
-        options: "rent-protective-case",
-        total: "840",
-        totalLabel: "840 lei",
-        fullName: "Andreea Marin",
-        email: "andreea@example.com",
-        phone: "+40744111444",
-        deliveryAddress: "Calea Exemplu 5, Ilfov",
-        deliveryTime: "09:00",
-        returnTime: "17:30",
-        notes: "",
-        createdAt: "2026-05-16T08:40:00.000Z",
-        status: "Confirmată",
-    },
-] satisfies Array<{
-    orderId: string;
-    dollId: string;
-    dollName: string;
-    mode: CatalogMode;
-    startDate: string;
-    endDate: string;
-    outfitId: string;
-    options: string;
-    total: string;
-    totalLabel: string;
-    fullName: string;
-    email: string;
-    phone: string;
-    deliveryAddress: string;
-    deliveryTime: string;
-    returnTime: string;
-    notes: string;
-    createdAt: string;
-    status: string;
-}>;
+const latestOrders = await getAdminOrderRows(5);
 
 function getCleanPhone(phone: string) {
     return phone.replace(/[^\d+]/g, "");
@@ -111,9 +28,9 @@ function getModeLabel(mode: CatalogMode) {
     return mode === "rent" ? "Închiriere" : "Cumpărare";
 }
 
-function formatDate(value: string) {
+function formatDate(value: string|null) {
     if (!value) {
-        return "Neselectată";
+        return "";
     }
 
     const [year, month, day] = value.split("-");
@@ -201,27 +118,27 @@ export default async function AdminDashboardPage() {
 
                     <div className={styles.ordersList}>
                         {latestOrders.map((order) => (
-                            <div key={order.orderId} className={styles.orderItem}>
+                            <div key={order.order_number} className={styles.orderItem}>
                                 <div>
-                                    <span className={styles.orderId}>{order.orderId}</span>
-                                    <strong>{order.fullName}</strong>
-                                    <small>{order.dollName}</small>
+                                    <span className={styles.orderId}>{order.order_number}</span>
+                                    <strong>{order.customer_name}</strong>
+                                    <small>{order.doll_name}</small>
                                 </div>
 
                                 <div>
                                     <span>Rezervare</span>
                                     <strong>{getModeLabel(order.mode)}</strong>
                                     <small>
-                                        {formatDate(order.startDate)} — {formatDate(order.endDate)}
+                                        {formatDate(order?.start_date)} — {formatDate(order?.end_date)}
                                     </small>
                                 </div>
 
                                 <div>
                                     <span>Livrare</span>
-                                    <strong>{order.deliveryTime}</strong>
+                                    <strong>{order.delivery_time}</strong>
                                     <small>
-                                        {order.mode === "rent" && order.returnTime
-                                            ? `Retur ${order.returnTime}`
+                                        {order.mode === "rent" && order.return_time
+                                            ? `Retur ${order.return_time}`
                                             : "Fără retur"}
                                     </small>
                                 </div>
@@ -229,26 +146,26 @@ export default async function AdminDashboardPage() {
                                 <div>
                                     <span>Status</span>
                                     <strong>{order.status}</strong>
-                                    <small>{formatCreatedAt(order.createdAt)}</small>
+                                    <small>{formatCreatedAt(order.created_at)}</small>
                                 </div>
 
                                 <div>
                                     <span>Total</span>
-                                    <strong>{order.totalLabel}</strong>
-                                    <small>{order.phone}</small>
+                                    <strong>{order.total_label}</strong>
+                                    <small>{order.customer_phone}</small>
                                 </div>
 
                                 <div className={styles.orderActions}>
-                                    <a href={`/admin/orders/${order.orderId}`} className={styles.viewButton}>
+                                    <a href={`/admin/orders/${order.order_number}`} className={styles.viewButton}>
                                         Vezi
                                     </a>
 
-                                    <a href={`tel:${getCleanPhone(order.phone)}`} className={styles.callButton}>
+                                    <a href={`tel:${getCleanPhone(order.customer_phone)}`} className={styles.callButton}>
                                         Sună
                                     </a>
 
                                     <a
-                                        href={getWhatsappHref(order.phone, order.orderId, order.fullName)}
+                                        href={getWhatsappHref(order.customer_phone, order.order_number, order.customer_name)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className={styles.whatsappButton}

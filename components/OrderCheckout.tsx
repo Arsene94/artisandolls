@@ -17,6 +17,7 @@ type OrderCheckoutProps = {
     outfitId: string;
     options: string;
     total: string;
+    action: (formData: FormData) => Promise<void>;
 };
 
 type OrderFormState = {
@@ -67,6 +68,7 @@ export default function OrderCheckout({
                                           outfitId,
                                           options,
                                           total,
+                                          action,
                                       }: OrderCheckoutProps) {
     const router = useRouter();
     const [checkoutPeriod, setCheckoutPeriod] = useState<RentalRangeValue>({
@@ -180,7 +182,15 @@ export default function OrderCheckout({
                                 Completează datele de contact și detaliile de livrare. După trimitere, vei ajunge pe pagina de confirmare.
                             </p>
 
-                            <form className={styles.formCard} onSubmit={handleSubmit}>
+                            <form className={styles.formCard} action={action}>
+                                <input type="hidden" name="mode" value={mode} />
+                                <input type="hidden" name="doll_slug" value={doll.id} />
+                                <input type="hidden" name="outfit_id" value={outfitId} />
+                                <input type="hidden" name="options" value={options} />
+                                <input type="hidden" name="total" value={total} />
+                                <input type="hidden" name="start_date" value={checkoutPeriod.startDate} />
+                                <input type="hidden" name="end_date" value={checkoutPeriod.endDate} />
+
                                 <div className={styles.formHeader}>
                                     <span className="section-label">Date client</span>
                                     <h2>Unde și când livrăm?</h2>
@@ -191,6 +201,7 @@ export default function OrderCheckout({
                                         Nume complet
                                         <input
                                             type="text"
+                                            name="full_name"
                                             value={form.fullName}
                                             onChange={(event) => updateField("fullName", event.target.value)}
                                             placeholder="Ex: Arsene Popescu"
@@ -202,6 +213,7 @@ export default function OrderCheckout({
                                         Email
                                         <input
                                             type="email"
+                                            name="email"
                                             value={form.email}
                                             onChange={(event) => updateField("email", event.target.value)}
                                             placeholder="exemplu@email.com"
@@ -213,6 +225,7 @@ export default function OrderCheckout({
                                         Număr de telefon
                                         <input
                                             type="tel"
+                                            name="phone"
                                             value={form.phone}
                                             onChange={(event) => updateField("phone", event.target.value)}
                                             placeholder="+40 7xx xxx xxx"
@@ -237,6 +250,7 @@ export default function OrderCheckout({
                                         Ora de livrare
                                         <input
                                             type="time"
+                                            name="delivery_time"
                                             value={form.deliveryTime}
                                             onChange={(event) => updateField("deliveryTime", event.target.value)}
                                             required
@@ -248,6 +262,7 @@ export default function OrderCheckout({
                                             Ora de retur
                                             <input
                                                 type="time"
+                                                name="return_time"
                                                 value={form.returnTime}
                                                 onChange={(event) => updateField("returnTime", event.target.value)}
                                                 required
@@ -260,6 +275,7 @@ export default function OrderCheckout({
                                     Adresa de livrare
                                     <textarea
                                         value={form.deliveryAddress}
+                                        name="delivery_address"
                                         onChange={(event) => updateField("deliveryAddress", event.target.value)}
                                         placeholder="Stradă, număr, bloc, scară, etaj, apartament, oraș"
                                         required
@@ -270,6 +286,7 @@ export default function OrderCheckout({
                                     Observații opționale
                                     <textarea
                                         value={form.notes}
+                                        name="notes"
                                         onChange={(event) => updateField("notes", event.target.value)}
                                         placeholder="Ex: reper pentru curier, instrucțiuni speciale"
                                     />
