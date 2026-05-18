@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Roboto } from 'next/font/google';
 import './globals.css';
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import SiteChrome from "@/components/SiteChrome";
 
 const inter = Inter({
   subsets: ['latin'],
@@ -31,9 +30,7 @@ export default function RootLayout({
   return (
     <html lang="ro">
       <body className={`${inter.variable} ${roboto.variable}`}>
-        <Navbar />
-        {children}
-        <Footer />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );
