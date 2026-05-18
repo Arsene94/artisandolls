@@ -5,7 +5,7 @@ import {
     formatOrderStatus,
     getAdminOrderById,
 } from "@/lib/orders";
-import { deleteOrderAction, updateOrderStatusAction } from "@/app/admin/orders/actions";
+import { deleteOrderAction, updateOrderStatusAction } from "@/app/admin/(protected)/orders/actions";
 import styles from "../../page.module.css";
 
 type AdminOrderPageProps = {

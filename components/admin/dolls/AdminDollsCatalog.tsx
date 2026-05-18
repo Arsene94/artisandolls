@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import type { DollRow } from "@/lib/dolls";
-import { bulkDeleteDollsAction, deleteDollAction } from "@/app/admin/dolls/actions";
+import { bulkDeleteDollsAction, deleteDollAction } from "@/app/admin/(protected)/dolls/actions";
 import Image from "next/image";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import styles from "./AdminDolls.module.css";
@@ -82,7 +82,7 @@ export default function AdminDollsCatalog({ dolls }: AdminDollsCatalogProps) {
                         Șterge selectate
                     </button>
 
-                    <Link href="/admin/dolls/new" className={styles.primaryLink}>
+                    <Link href="/admin/(protected)/dolls/new" className={styles.primaryLink}>
                         Adaugă păpușă
                     </Link>
                 </div>
@@ -139,7 +139,7 @@ export default function AdminDollsCatalog({ dolls }: AdminDollsCatalogProps) {
                             <Link href={`/catalog/${doll.slug}`} target="_blank">
                                 Vezi
                             </Link>
-                            <Link href={`/admin/dolls/${doll.slug}/edit`}>
+                            <Link href={`/app/admin/(protected)/dolls/${doll.slug}/edit`}>
                                 Editează
                             </Link>
                             <button type="button" onClick={() => deleteOne(doll.id)} disabled={isPending}>

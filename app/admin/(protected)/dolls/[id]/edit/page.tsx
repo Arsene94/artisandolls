@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import DollForm from "@/components/admin/dolls/DollForm";
-import { updateDollAction } from "@/app/admin/dolls/actions";
+import { updateDollAction } from "@/app/admin/(protected)/dolls/actions";
 import { getDollRowBySlug } from "@/lib/dolls";
 import styles from "../../../page.module.css";
 

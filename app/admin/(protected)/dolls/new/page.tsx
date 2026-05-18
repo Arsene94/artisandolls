@@ -1,5 +1,5 @@
 import DollForm from "@/components/admin/dolls/DollForm";
-import { createDollAction } from "@/app/admin/dolls/actions";
+import { createDollAction } from "@/app/admin/(protected)/dolls/actions";
 import styles from "../../page.module.css";
 
 export default function NewDollPage() {
