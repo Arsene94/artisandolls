@@ -70,8 +70,6 @@
 .calendarPopover {
     position: absolute;
     left: 0;
-    bottom: calc(100% + 12px);
-    top: auto;
     width: min(92vw, 360px);
     padding: 16px;
     background: rgba(9, 0, 9, 0.96);
@@ -79,6 +77,16 @@
     box-shadow: 0 22px 70px rgba(0, 0, 0, 0.42);
     backdrop-filter: blur(18px);
     z-index: 9999;
+}
+
+.calendarPopoverTop {
+    bottom: calc(100% + 12px);
+    top: auto;
+}
+
+.calendarPopoverBottom {
+    top: calc(100% + 12px);
+    bottom: auto;
 }
 
 .calendarHeader {

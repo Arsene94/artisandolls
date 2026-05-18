@@ -39,7 +39,6 @@ function isAvailableForMode(doll: Doll, mode: CatalogMode) {
 function getDetailsHref(doll: Doll, mode: CatalogMode, startDate: string, endDate: string) {
     const params = new URLSearchParams({
         mode,
-        item: doll.id,
     });
 
     if (startDate) {
@@ -50,7 +49,7 @@ function getDetailsHref(doll: Doll, mode: CatalogMode, startDate: string, endDat
         params.set("end", endDate);
     }
 
-    return `/catalog?${params.toString()}`;
+    return `/catalog/${doll.id}?${params.toString()}`;
 }
 
 function getCatalogHrefWithCurrentParams(mode: CatalogMode, period: RentalRangeValue) {

@@ -10,16 +10,17 @@ export type RentalRangeValue = {
     endDate: string;
 };
 
+type DatePickerPlacement = "top" | "bottom";
+
 type RentalDateRangePickerProps = {
     onChange?: (value: RentalRangeValue) => void;
     initialStartDate?: string;
     initialEndDate?: string;
+    placement?: DatePickerPlacement;
 };
 
 function parseDateValue(value: string) {
-    if (!value) {
-        return null;
-    }
+    if (!value) return null;
 
     const date = new Date(`${value}T00:00:00`);
 
@@ -53,17 +54,13 @@ function startOfWeekMonday(date: Date) {
 }
 
 function isSameDay(firstDate: Date | null, secondDate: Date | null) {
-    if (!firstDate || !secondDate) {
-        return false;
-    }
+    if (!firstDate || !secondDate) return false;
 
     return firstDate.getTime() === secondDate.getTime();
 }
 
 function isBetween(date: Date, startDate: Date | null, endDate: Date | null) {
-    if (!startDate || !endDate) {
-        return false;
-    }
+    if (!startDate || !endDate) return false;
 
     const currentTime = date.getTime();
 
@@ -79,9 +76,7 @@ function formatDisplayDate(date: Date) {
 }
 
 function formatHiddenDate(date: Date | null) {
-    if (!date) {
-        return "";
-    }
+    if (!date) return "";
 
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -101,13 +96,14 @@ export default function RentalDateRangePicker({
                                                   onChange,
                                                   initialStartDate = "",
                                                   initialEndDate = "",
+                                                  placement = "top",
                                               }: RentalDateRangePickerProps) {
     const pickerRef = useRef<HTMLDivElement | null>(null);
 
-    const [isOpen, setIsOpen] = useState(false);
     const initialStartDateValue = parseDateValue(initialStartDate);
     const initialEndDateValue = parseDateValue(initialEndDate);
 
+    const [isOpen, setIsOpen] = useState(false);
     const [visibleMonth, setVisibleMonth] = useState(() =>
         startOfMonth(initialStartDateValue ?? new Date())
     );
@@ -219,7 +215,11 @@ export default function RentalDateRangePicker({
             <input type="hidden" name="rental_end_date" value={endDateValue} />
 
             {isOpen && (
-                <div className={styles.calendarPopover}>
+                <div
+                    className={`${styles.calendarPopover} ${
+                        placement === "bottom" ? styles.calendarPopoverBottom : styles.calendarPopoverTop
+                    }`}
+                >
                     <div className={styles.calendarHeader}>
                         <button type="button" onClick={goToPreviousMonth} aria-label="Luna anterioară">
                             ‹
