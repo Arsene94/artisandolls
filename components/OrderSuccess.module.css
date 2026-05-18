@@ -110,6 +110,32 @@
     flex-wrap: wrap;
 }
 
+.section-label {
+    padding-left: 1rem;
+}
+
+.rangeField {
+    position: relative;
+    z-index: 30;
+}
+
+.rangeField > span {
+    display: block;
+}
+
+.rangeField :global([class*="root"]) {
+    width: 100%;
+}
+
+.fieldError {
+    margin-top: 6px;
+    color: #ff9bd0;
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
 @media (max-width: 680px) {
     .hero {
         padding: 120px 28px 70px;

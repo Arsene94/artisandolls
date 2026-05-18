@@ -1,9 +1,10 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type CatalogMode, type Doll } from "@/lib/dolls";
+import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
 import styles from "./OrderCheckout.module.css";
 
 type OrderCheckoutProps = {
@@ -21,7 +22,6 @@ type OrderFormState = {
     email: string;
     phone: string;
     deliveryAddress: string;
-    deliveryDate: string;
     deliveryTime: string;
     returnTime: string;
     notes: string;
@@ -67,17 +67,24 @@ export default function OrderCheckout({
                                           total,
                                       }: OrderCheckoutProps) {
     const router = useRouter();
+    const [checkoutPeriod, setCheckoutPeriod] = useState<RentalRangeValue>({
+        startDate,
+        endDate,
+    });
+
+    const [periodError, setPeriodError] = useState("");
 
     const [form, setForm] = useState<OrderFormState>({
         fullName: "",
         email: "",
         phone: "",
         deliveryAddress: "",
-        deliveryDate: startDate || "",
         deliveryTime: "",
         returnTime: "",
         notes: "",
     });
+
+    const hasCompletePeriod = Boolean(checkoutPeriod.startDate && checkoutPeriod.endDate);
 
     const totalLabel = useMemo(() => {
         const parsedTotal = Number(total);
@@ -96,8 +103,30 @@ export default function OrderCheckout({
         }));
     }
 
+    const updateCheckoutPeriod = useCallback((value: RentalRangeValue) => {
+        setCheckoutPeriod((currentPeriod) => {
+            if (
+                currentPeriod.startDate === value.startDate &&
+                currentPeriod.endDate === value.endDate
+            ) {
+                return currentPeriod;
+            }
+
+            return value;
+        });
+
+        if (value.startDate && value.endDate) {
+            setPeriodError("");
+        }
+    }, []);
+
     function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+
+        if (!hasCompletePeriod) {
+            setPeriodError("Alege data de început și data de sfârșit înainte de confirmare.");
+            return;
+        }
 
         const orderId = getOrderId();
 
@@ -106,8 +135,8 @@ export default function OrderCheckout({
             dollId: doll.id,
             dollName: doll.name,
             mode,
-            startDate,
-            endDate,
+            startDate: checkoutPeriod.startDate,
+            endDate: checkoutPeriod.endDate,
             outfitId,
             options,
             total,
@@ -123,8 +152,8 @@ export default function OrderCheckout({
             orderId,
         });
 
-        if (startDate) params.set("start", startDate);
-        if (endDate) params.set("end", endDate);
+        if (checkoutPeriod.startDate) params.set("start", checkoutPeriod.startDate);
+        if (checkoutPeriod.endDate) params.set("end", checkoutPeriod.endDate);
 
         router.push(`/catalog/${doll.id}/success?${params.toString()}`);
     }
@@ -189,15 +218,18 @@ export default function OrderCheckout({
                                         />
                                     </label>
 
-                                    <label className={styles.field}>
-                                        Data livrării
-                                        <input
-                                            type="date"
-                                            value={form.deliveryDate}
-                                            onChange={(event) => updateField("deliveryDate", event.target.value)}
-                                            required
+                                    <div className={`${styles.field} ${styles.rangeField}`}>
+                                        <span>{mode === "rent" ? "Perioadă livrare / retur" : "Perioadă livrare"}</span>
+
+                                        <RentalDateRangePicker
+                                            initialStartDate={checkoutPeriod.startDate}
+                                            initialEndDate={checkoutPeriod.endDate}
+                                            onChange={updateCheckoutPeriod}
+                                            placement="bottom"
                                         />
-                                    </label>
+
+                                        {periodError && <small className={styles.fieldError}>{periodError}</small>}
+                                    </div>
 
                                     <label className={styles.field}>
                                         Ora de livrare
@@ -237,7 +269,7 @@ export default function OrderCheckout({
                                     <textarea
                                         value={form.notes}
                                         onChange={(event) => updateField("notes", event.target.value)}
-                                        placeholder="Ex: interval preferat, reper pentru curier, instrucțiuni speciale"
+                                        placeholder="Ex: reper pentru curier, instrucțiuni speciale"
                                     />
                                 </label>
 
@@ -258,11 +290,9 @@ export default function OrderCheckout({
 
                             <dl>
                                 <div>
-                                    <dt>Perioadă</dt>
+                                    <dt>{mode === "rent" ? "Perioadă livrare / retur" : "Perioadă livrare"}</dt>
                                     <dd>
-                                        {mode === "rent"
-                                            ? `${formatDate(startDate)} — ${formatDate(endDate)}`
-                                            : "Cumpărare"}
+                                        {`${formatDate(checkoutPeriod.startDate)} — ${formatDate(checkoutPeriod.endDate)}`}
                                     </dd>
                                 </div>
                                 <div>
