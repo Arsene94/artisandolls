@@ -1,0 +1,21 @@
+alter type public.order_status add value if not exists 'rent_new';
+alter type public.order_status add value if not exists 'rent_in_review';
+alter type public.order_status add value if not exists 'rent_confirmed';
+alter type public.order_status add value if not exists 'rent_preparing';
+alter type public.order_status add value if not exists 'rent_out_for_delivery';
+alter type public.order_status add value if not exists 'rent_delivered';
+alter type public.order_status add value if not exists 'rent_active';
+alter type public.order_status add value if not exists 'rent_return_scheduled';
+alter type public.order_status add value if not exists 'rent_returned';
+alter type public.order_status add value if not exists 'rent_completed';
+alter type public.order_status add value if not exists 'rent_cancelled';
+
+alter type public.order_status add value if not exists 'buy_new';
+alter type public.order_status add value if not exists 'buy_in_review';
+alter type public.order_status add value if not exists 'buy_confirmed';
+alter type public.order_status add value if not exists 'buy_preparing';
+alter type public.order_status add value if not exists 'buy_out_for_delivery';
+alter type public.order_status add value if not exists 'buy_delivered';
+alter type public.order_status add value if not exists 'buy_completed';
+alter type public.order_status add value if not exists 'buy_cancelled';
+alter type public.order_status add value if not exists 'buy_refunded';
