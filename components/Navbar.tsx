@@ -22,7 +22,7 @@ export default function Navbar() {
     return (
         <>
             <header id="header" className={scrolled ? "scrolled" : ""}>
-                <a href="#" className="logo">Artisan<span>Dolls</span></a>
+                <a href="/" className="logo">Artisan<span>Dolls</span></a>
                 <nav>
                     <a href="#hero">Acasă</a>
                     <a href="/catalog">Catalog</a>
