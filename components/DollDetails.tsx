@@ -20,32 +20,95 @@ type CustomOption = {
     price: number;
 };
 
-const customOptions: CustomOption[] = [
-    {
-        id: "face-detailing",
-        label: "Detalii față premium",
-        description: "Finisaj expresiv, machiaj artistic și accente pictate manual.",
-        price: 350,
-    },
-    {
-        id: "custom-outfit",
-        label: "Ținută couture personalizată",
-        description: "Materiale premium, croială dedicată și accesorii potrivite colecției.",
-        price: 650,
-    },
-    {
-        id: "display-box",
-        label: "Cutie de prezentare",
-        description: "Ambalaj rigid, interior protejat și prezentare premium.",
-        price: 280,
-    },
-    {
-        id: "certificate",
-        label: "Certificat extins",
-        description: "Fișă detaliată cu număr de serie, colecție și recomandări de întreținere.",
-        price: 120,
-    },
-];
+type CustomOptionGroup = {
+    id: string;
+    title: string;
+    description: string;
+    options: CustomOption[];
+};
+
+const customizationGroupsByMode: Record<CatalogMode, CustomOptionGroup[]> = {
+    rent: [
+        {
+            id: "rental-care",
+            title: "Pregătire & igienizare",
+            description: "Opțiuni extra pentru predare, curățare și protecție.",
+            options: [
+                {
+                    id: "rent-premium-cleaning",
+                    label: "Igienizare premium",
+                    description: "Curățare detaliată înainte de predare și ambalare protejată.",
+                    price: 90,
+                },
+                {
+                    id: "rent-protective-case",
+                    label: "Cutie transport premium",
+                    description: "Cutie rigidă pentru transport mai sigur pe durata închirierii.",
+                    price: 60,
+                },
+            ],
+        },
+        {
+            id: "rental-experience",
+            title: "Experiență",
+            description: "Opțiuni potrivite pentru evenimente, decor sau sesiuni foto.",
+            options: [
+                {
+                    id: "rent-photo-ready",
+                    label: "Pregătire pentru ședință foto",
+                    description: "Styling rapid, poziționare și verificare vizuală înainte de livrare.",
+                    price: 120,
+                },
+                {
+                    id: "rent-extra-outfit",
+                    label: "Ținută extra pentru închiriere",
+                    description: "O ținută suplimentară inclusă în pachetul de închiriere.",
+                    price: 150,
+                },
+            ],
+        },
+    ],
+    buy: [
+        {
+            id: "buy-appearance",
+            title: "Aspect & finisaj",
+            description: "Customizări permanente pentru piesa cumpărată.",
+            options: [
+                {
+                    id: "buy-face-detailing",
+                    label: "Detalii față premium",
+                    description: "Finisaj expresiv, machiaj artistic și accente pictate manual.",
+                    price: 350,
+                },
+                {
+                    id: "buy-custom-outfit",
+                    label: "Ținută couture personalizată",
+                    description: "Materiale premium, croială dedicată și accesorii potrivite colecției.",
+                    price: 650,
+                },
+            ],
+        },
+        {
+            id: "buy-presentation",
+            title: "Prezentare & colecție",
+            description: "Opțiuni pentru păstrare, livrare și autenticitate.",
+            options: [
+                {
+                    id: "buy-display-box",
+                    label: "Cutie de prezentare",
+                    description: "Ambalaj rigid, interior protejat și prezentare premium.",
+                    price: 280,
+                },
+                {
+                    id: "buy-certificate",
+                    label: "Certificat extins",
+                    description: "Fișă detaliată cu număr de serie, colecție și recomandări de întreținere.",
+                    price: 120,
+                },
+            ],
+        },
+    ],
+};
 
 function formatDate(value: string) {
     if (!value) return "";
@@ -117,6 +180,100 @@ function getGalleryImages(doll: Doll) {
     return uniqueImages.length > 0 ? uniqueImages : [doll.image];
 }
 
+function getCustomOptionsForMode(mode: CatalogMode) {
+    return customizationGroupsByMode[mode].flatMap((group) => group.options);
+}
+
+function getCustomizationTotal(optionIds: string[], mode: CatalogMode) {
+    const options = getCustomOptionsForMode(mode);
+
+    return optionIds.reduce((total, optionId) => {
+        const option = options.find((item) => item.id === optionId);
+
+        return total + (option?.price ?? 0);
+    }, 0);
+}
+
+type CustomizationPickerProps = {
+    mode: CatalogMode;
+    groups: CustomOptionGroup[];
+    selectedOptions: string[];
+    onToggle: (optionId: string) => void;
+};
+
+function CustomizationPicker({
+                                 mode,
+                                 groups,
+                                 selectedOptions,
+                                 onToggle,
+                             }: CustomizationPickerProps) {
+    return (
+        <div className={styles.customizationPanel}>
+            <div className={styles.customizationHeader}>
+                <div>
+                    <span className="section-label">Customizări</span>
+                    <h2>
+                        {mode === "rent"
+                            ? "Opțiuni pentru închiriere"
+                            : "Opțiuni pentru cumpărare"}
+                    </h2>
+                </div>
+
+                <span className={styles.modePill}>
+                    {mode === "rent" ? "Închiriere" : "Cumpărare"}
+                </span>
+            </div>
+
+            <div className={styles.customizationGroups}>
+                {groups.map((group) => (
+                    <div key={group.id} className={styles.customizationGroup}>
+                        <div className={styles.groupHeader}>
+                            <h3>{group.title}</h3>
+                            <p>{group.description}</p>
+                        </div>
+
+                        <div className={styles.customOptionList}>
+                            {group.options.map((option) => {
+                                const isSelected = selectedOptions.includes(option.id);
+
+                                return (
+                                    <label
+                                        key={option.id}
+                                        className={
+                                            isSelected
+                                                ? styles.customOptionSelected
+                                                : styles.customOption
+                                        }
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={isSelected}
+                                            onChange={() => onToggle(option.id)}
+                                        />
+
+                                        <span className={styles.checkboxControl} aria-hidden="true">
+                                            {isSelected ? "✓" : ""}
+                                        </span>
+
+                                        <span className={styles.customOptionContent}>
+                                            <span className={styles.customOptionTop}>
+                                                <strong>{option.label}</strong>
+                                                <em>+{option.price.toLocaleString("ro-RO")} lei</em>
+                                            </span>
+
+                                            <span>{option.description}</span>
+                                        </span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export default function DollDetails({
                                         doll,
                                         initialMode,
@@ -152,34 +309,42 @@ export default function DollDetails({
         startDate: initialStartDate,
         endDate: initialEndDate,
     });
-    const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+    const [selectedOptionsByMode, setSelectedOptionsByMode] = useState<Record<CatalogMode, string[]>>({
+        rent: [],
+        buy: [],
+    });
 
     const rentalDays = useMemo(() => {
         return getRentalDays(period.startDate, period.endDate);
     }, [period.endDate, period.startDate]);
 
+    const activeSelectedOptions = selectedOptionsByMode[mode];
+
     const customizationTotal = useMemo(() => {
-        return selectedOptions.reduce((total, optionId) => {
-            const option = customOptions.find((item) => item.id === optionId);
-            return total + (option?.price ?? 0);
-        }, 0);
-    }, [selectedOptions]);
+        return getCustomizationTotal(activeSelectedOptions, mode);
+    }, [activeSelectedOptions, mode]);
 
     const hasCompletePeriod = Boolean(period.startDate && period.endDate);
     const pricePerDay = doll.rentPricePerDay ?? 0;
-    const rentalTotal = mode === "rent" && hasCompletePeriod ? rentalDays * pricePerDay : 0;
+    const rentalBaseTotal = mode === "rent" && hasCompletePeriod ? rentalDays * pricePerDay : 0;
+    const rentalTotal = rentalBaseTotal + customizationTotal;
     const buyBasePrice = doll.buyPrice ?? 0;
     const buyTotal = buyBasePrice + customizationTotal;
 
     const isAvailableForSelectedMode = mode === "rent" ? doll.availableForRent : doll.availableForBuy;
 
     function toggleOption(optionId: string) {
-        setSelectedOptions((currentOptions) => {
-            if (currentOptions.includes(optionId)) {
-                return currentOptions.filter((item) => item !== optionId);
-            }
+        setSelectedOptionsByMode((currentOptionsByMode) => {
+            const currentModeOptions = currentOptionsByMode[mode];
 
-            return [...currentOptions, optionId];
+            const nextModeOptions = currentModeOptions.includes(optionId)
+                ? currentModeOptions.filter((item) => item !== optionId)
+                : [...currentModeOptions, optionId];
+
+            return {
+                ...currentOptionsByMode,
+                [mode]: nextModeOptions,
+            };
         });
     }
 
@@ -280,6 +445,13 @@ export default function DollDetails({
                                 </div>
                             )}
 
+                            <CustomizationPicker
+                                mode={mode}
+                                groups={customizationGroupsByMode[mode]}
+                                selectedOptions={activeSelectedOptions}
+                                onToggle={toggleOption}
+                            />
+
                             {mode === "rent" && (
                                 <div className={styles.pricePanel}>
                                     <div className={styles.priceRow}>
@@ -290,6 +462,13 @@ export default function DollDetails({
                                                 : "Indisponibil"}
                                         </strong>
                                     </div>
+
+                                    {customizationTotal > 0 && (
+                                        <div className={styles.priceRow}>
+                                            <span>Customizări</span>
+                                            <strong>{customizationTotal.toLocaleString("ro-RO")} lei</strong>
+                                        </div>
+                                    )}
 
                                     {!hasCompletePeriod && (
                                         <div className={styles.periodBox}>
@@ -411,36 +590,6 @@ export default function DollDetails({
                                 <strong>{doll.availableForBuy ? "Disponibilă" : "Indisponibilă"}</strong>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <div className={styles.customizeSection}>
-                    <div className={styles.sectionHeader}>
-                        <span className="section-label">Customizare</span>
-                        <h2>Personalizează experiența</h2>
-                        <p>
-                            Alege opțiuni extra pentru prezentare, finisaj și ambalare. Costurile se calculează automat
-                            pentru modul de cumpărare.
-                        </p>
-                    </div>
-
-                    <div className={styles.optionsGrid}>
-                        {customOptions.map((option) => {
-                            const isSelected = selectedOptions.includes(option.id);
-
-                            return (
-                                <button
-                                    key={option.id}
-                                    type="button"
-                                    className={isSelected ? styles.selectedOption : styles.optionCard}
-                                    onClick={() => toggleOption(option.id)}
-                                >
-                                    <span>{option.label}</span>
-                                    <p>{option.description}</p>
-                                    <strong>+{option.price.toLocaleString("ro-RO")} lei</strong>
-                                </button>
-                            );
-                        })}
                     </div>
                 </div>
             </section>
