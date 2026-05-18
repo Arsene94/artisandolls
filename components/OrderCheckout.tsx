@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type CatalogMode, type Doll } from "@/lib/dolls";
 import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
+import Image from "next/image";
+import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import styles from "./OrderCheckout.module.css";
 
 type OrderCheckoutProps = {
@@ -280,7 +282,13 @@ export default function OrderCheckout({
                         </div>
 
                         <aside className={styles.summaryCard}>
-                            <img src={doll.image} alt={doll.name} />
+                            <Image
+                                src={getSupabaseImageUrl(doll.image, "card")}
+                                alt={doll.name}
+                                width={600}
+                                height={400}
+                                sizes="(max-width: 760px) 100vw, 50vw"
+                            />
 
                             <div>
                                 <span>{doll.collection}</span>

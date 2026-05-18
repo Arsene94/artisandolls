@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type CatalogMode, type Doll } from "@/lib/dolls";
+import Image from "next/image";
+import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import styles from "./DollsCatalog.module.css";
 import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
 
@@ -279,7 +281,13 @@ export default function DollsCatalog({
                         return (
                             <article key={doll.id} className={styles.card}>
                                 <div className={styles.imageWrap}>
-                                    <img src={doll.image} alt={doll.name} />
+                                    <Image
+                                        src={getSupabaseImageUrl(doll.image, "card")}
+                                        alt={doll.name}
+                                        width={600}
+                                        height={400}
+                                        sizes="(max-width: 760px) 100vw, 50vw"
+                                    />
                                     <span className={styles.badge}>{doll.badge}</span>
                                 </div>
 

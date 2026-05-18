@@ -27,8 +27,10 @@ export type DollRow = {
     name: string;
     collection: string;
     description: string;
-    main_image_url: string;
-    image_urls: string[];
+    main_image_path: string;
+    image_paths: string[];
+    main_image_url?: string;
+    image_urls?: string[];
     badge: string;
     availability: DollAvailability;
     available_for_rent: boolean;
@@ -48,8 +50,8 @@ export function mapDollRowToDoll(row: DollRow): Doll {
         name: row.name,
         collection: row.collection,
         description: row.description,
-        image: row.main_image_url,
-        images: row.image_urls,
+        image: row.main_image_path ?? row.main_image_url ?? "",
+        images: row.image_paths ?? row.image_urls ?? [],
         badge: row.badge,
         availability: row.availability,
         availableForRent: row.available_for_rent,

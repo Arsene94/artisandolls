@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { type CatalogMode, type Doll } from "@/lib/dolls";
 import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
+import Image from "next/image";
+import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import styles from "./DollDetails.module.css";
 
 type DollDetailsProps = {
@@ -548,11 +550,14 @@ export default function DollDetails({
                     <div className={styles.heroGrid}>
                         <div className={styles.gallery}>
                             <div className={styles.mainImage}>
-                                <img
+                                <Image
                                     key={selectedImage}
-                                    src={selectedImage}
+                                    src={getSupabaseImageUrl(selectedImage, "gallery")}
                                     alt={doll.name}
+                                    width={1200}
+                                    height={900}
                                     className={styles.activeImage}
+                                    sizes="(max-width: 1100px) 100vw, 50vw"
                                 />
 
                                 <span>{doll.badge}</span>
@@ -589,7 +594,12 @@ export default function DollDetails({
                                         onClick={() => setSelectedImageIndex(index)}
                                         aria-label={`Vezi imaginea ${index + 1}`}
                                     >
-                                        <img src={image} alt={`${doll.name} ${index + 1}`} />
+                                        <Image
+                                            src={getSupabaseImageUrl(image, "thumb")}
+                                            alt={`${doll.name} ${index + 1}`}
+                                            width={320}
+                                            height={240}
+                                        />
                                     </button>
                                 ))}
                             </div>

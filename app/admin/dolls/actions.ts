@@ -76,8 +76,8 @@ function getDollPayload(formData: FormData) {
     const customSlug = getString(formData, "slug");
     const slug = slugify(customSlug || name);
 
-    const mainImageUrl = getString(formData, "main_image_url");
-    const imageUrls = getStringArrayFromJson(formData, "image_urls");
+    const mainImagePath = getString(formData, "main_image_path");
+    const imagePaths = getStringArrayFromJson(formData, "image_paths");
     const tags = getStringArrayFromJson(formData, "tags");
 
     return {
@@ -85,8 +85,8 @@ function getDollPayload(formData: FormData) {
         name,
         collection: getString(formData, "collection"),
         description: getString(formData, "description"),
-        main_image_url: mainImageUrl,
-        image_urls: imageUrls,
+        main_image_path: mainImagePath,
+        image_paths: imagePaths,
         badge: getString(formData, "badge"),
         availability: getString(formData, "availability") as DollAvailability,
         available_for_rent: getBoolean(formData, "available_for_rent"),

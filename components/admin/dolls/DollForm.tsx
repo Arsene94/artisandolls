@@ -3,6 +3,9 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import Image from "next/image";
+import { optimizeImageBeforeUpload } from "@/lib/images/optimize-upload";
+import { getSupabaseImageUrl, isExternalImage } from "@/lib/supabase/images";
 import type { DollRow } from "@/lib/dolls";
 import styles from "./AdminDolls.module.css";
 
@@ -40,8 +43,8 @@ export default function DollForm({ mode, doll, action }: DollFormProps) {
     const [isPending, startTransition] = useTransition();
 
     const initialImages = [
-        doll?.main_image_url ?? "",
-        ...(doll?.image_urls ?? []),
+        doll?.main_image_path ?? doll?.main_image_url ?? "",
+        ...((doll?.image_paths ?? doll?.image_urls ?? []) as string[]),
     ].filter(Boolean);
 
     const [images, setImages] = useState<ImageItem[]>(
@@ -80,35 +83,35 @@ export default function DollForm({ mode, doll, action }: DollFormProps) {
     }
 
     async function uploadImage(id: string, file: File) {
-        setUploadingId(id);
+        try {
+            setUploadingId(id);
 
-        const extension = file.name.split(".").pop() || "jpg";
-        const filePath = `dolls/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+            const optimizedFile = await optimizeImageBeforeUpload(file);
+            const filePath = `dolls/${crypto.randomUUID()}.webp`;
 
-        const { error } = await supabase.storage
-            .from("doll-images")
-            .upload(filePath, file, {
-                cacheControl: "3600",
-                upsert: false,
-            });
+            const { error } = await supabase.storage
+                .from("doll-images")
+                .upload(filePath, optimizedFile, {
+                    contentType: "image/webp",
+                    cacheControl: "31536000",
+                    upsert: false,
+                });
 
-        if (error) {
+            if (error) {
+                throw error;
+            }
+
+            updateImageUrl(id, filePath);
+        } catch (error) {
+            alert(error instanceof Error ? error.message : "Imaginea nu a putut fi încărcată.");
+        } finally {
             setUploadingId(null);
-            alert(error.message);
-            return;
         }
-
-        const { data } = supabase.storage
-            .from("doll-images")
-            .getPublicUrl(filePath);
-
-        updateImageUrl(id, data.publicUrl);
-        setUploadingId(null);
     }
 
     function handleSubmit(formData: FormData) {
-        formData.set("main_image_url", mainImageUrl);
-        formData.set("image_urls", JSON.stringify(secondaryImageUrls));
+        formData.set("main_image_path", mainImageUrl);
+        formData.set("image_paths", JSON.stringify(secondaryImageUrls));
 
         const tags = tagsInput
             .split(",")
@@ -244,7 +247,12 @@ export default function DollForm({ mode, doll, action }: DollFormProps) {
                         <div key={image.id} className={styles.imageRow}>
                             <div className={styles.imagePreview}>
                                 {image.url ? (
-                                    <img src={image.url} alt={`Imagine ${index + 1}`} />
+                                    <Image
+                                        src={getSupabaseImageUrl(image.url, "thumb")}
+                                        alt={`Imagine ${index + 1}`}
+                                        width={320}
+                                        height={240}
+                                    />
                                 ) : (
                                     <span>Imagine {index + 1}</span>
                                 )}
@@ -265,7 +273,7 @@ export default function DollForm({ mode, doll, action }: DollFormProps) {
                                         {uploadingId === image.id ? "Se încarcă..." : "Upload"}
                                         <input
                                             type="file"
-                                            accept="image/*"
+                                            accept="image/jpeg,image/jpg,image/png,image/webp"
                                             onChange={(event) => {
                                                 const file = event.target.files?.[0];
                                                 if (file) {

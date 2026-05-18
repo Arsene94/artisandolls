@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import type { DollRow } from "@/lib/dolls";
 import { bulkDeleteDollsAction, deleteDollAction } from "@/app/admin/dolls/actions";
+import Image from "next/image";
+import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import styles from "./AdminDolls.module.css";
 
 type AdminDollsCatalogProps = {
@@ -109,7 +111,12 @@ export default function AdminDollsCatalog({ dolls }: AdminDollsCatalogProps) {
                             />
                         </label>
 
-                        <img src={doll.main_image_url} alt={doll.name} />
+                        <Image
+                            src={getSupabaseImageUrl(doll.main_image_path ?? doll.main_image_url, "thumb")}
+                            alt={doll.name}
+                            width={160}
+                            height={180}
+                        />
 
                         <div>
                             <strong>{doll.name}</strong>
