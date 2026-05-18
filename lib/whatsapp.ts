@@ -35,8 +35,8 @@ function getRentPeriod(order: OrderRow) {
 
 function getTemplateName(order: OrderRow) {
     return order.mode === "buy"
-        ? "artisandolls_new_buy"
-        : "artisandolls_new_rent";
+        ? "artisan_buy_order"
+        : "artisandolls_rent_order";
 }
 
 function getBodyVariables(order: OrderRow) {
