@@ -1,6 +1,7 @@
 'use client';
 
 import {useEffect, useState} from "react";
+import Link from "next/link";
 
 export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -22,10 +23,10 @@ export default function Navbar() {
     return (
         <>
             <header id="header" className={scrolled ? "scrolled" : ""}>
-                <a href="/" className="logo">Artisan<span>Dolls</span></a>
+                <Link href="/" className="logo">Artisan<span>Dolls</span></Link>
                 <nav>
                     <a href="#hero">Acasă</a>
-                    <a href="/catalog">Catalog</a>
+                    <Link href="/catalog">Catalog</Link>
                     <a href="#galerie">Galerie</a>
                     <a href="#contact">Contact</a>
                 </nav>

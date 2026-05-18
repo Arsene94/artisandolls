@@ -364,6 +364,14 @@
     line-height: 1.8;
 }
 
+.descriptionCard {
+    margin-top: 2rem;
+}
+
+.specsCard {
+    margin-top: 2rem;
+}
+
 .specList {
     display: grid;
     gap: 14px;

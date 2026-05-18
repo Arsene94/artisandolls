@@ -565,6 +565,44 @@ export default function DollDetails({
                                     </button>
                                 ))}
                             </div>
+
+                            <div className={styles.descriptionCard}>
+                                <span className="section-label">Descriere</span>
+                                <h2>Detalii despre piesă</h2>
+                                <p>
+                                    {doll.name} este o piesă creată pentru colecționari care caută o prezență vizuală puternică,
+                                    finisaje atent lucrate și o experiență premium. Fiecare detaliu este gândit pentru prezentare,
+                                    păstrare și integrare într-o colecție personală.
+                                </p>
+                                <p>
+                                    Poate fi aleasă pentru sesiuni foto, decor tematic, colecții private sau comandă personalizată,
+                                    în funcție de disponibilitate și modul selectat.
+                                </p>
+                            </div>
+
+                            <div className={styles.specsCard}>
+                                <span className="section-label">Specificații</span>
+                                <h2>Informații rapide</h2>
+
+                                <div className={styles.specList}>
+                                    <div>
+                                        <span>Colecție</span>
+                                        <strong>{doll.collection}</strong>
+                                    </div>
+                                    <div>
+                                        <span>Status</span>
+                                        <strong>{doll.badge}</strong>
+                                    </div>
+                                    <div>
+                                        <span>Închiriere</span>
+                                        <strong>{doll.availableForRent ? "Disponibilă" : "Indisponibilă"}</strong>
+                                    </div>
+                                    <div>
+                                        <span>Cumpărare</span>
+                                        <strong>{doll.availableForBuy ? "Disponibilă" : "Indisponibilă"}</strong>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div className={styles.info}>
@@ -720,48 +758,6 @@ export default function DollDetails({
                                     </button>
                                 </div>
                             )}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section className={styles.detailsSection}>
-                <div className={styles.detailsGrid}>
-                    <div className={styles.descriptionCard}>
-                        <span className="section-label">Descriere</span>
-                        <h2>Detalii despre piesă</h2>
-                        <p>
-                            {doll.name} este o piesă creată pentru colecționari care caută o prezență vizuală puternică,
-                            finisaje atent lucrate și o experiență premium. Fiecare detaliu este gândit pentru prezentare,
-                            păstrare și integrare într-o colecție personală.
-                        </p>
-                        <p>
-                            Poate fi aleasă pentru sesiuni foto, decor tematic, colecții private sau comandă personalizată,
-                            în funcție de disponibilitate și modul selectat.
-                        </p>
-                    </div>
-
-                    <div className={styles.specsCard}>
-                        <span className="section-label">Specificații</span>
-                        <h2>Informații rapide</h2>
-
-                        <div className={styles.specList}>
-                            <div>
-                                <span>Colecție</span>
-                                <strong>{doll.collection}</strong>
-                            </div>
-                            <div>
-                                <span>Status</span>
-                                <strong>{doll.badge}</strong>
-                            </div>
-                            <div>
-                                <span>Închiriere</span>
-                                <strong>{doll.availableForRent ? "Disponibilă" : "Indisponibilă"}</strong>
-                            </div>
-                            <div>
-                                <span>Cumpărare</span>
-                                <strong>{doll.availableForBuy ? "Disponibilă" : "Indisponibilă"}</strong>
-                            </div>
                         </div>
                     </div>
                 </div>
