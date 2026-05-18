@@ -12,7 +12,23 @@ export type RentalRangeValue = {
 
 type RentalDateRangePickerProps = {
     onChange?: (value: RentalRangeValue) => void;
+    initialStartDate?: string;
+    initialEndDate?: string;
 };
+
+function parseDateValue(value: string) {
+    if (!value) {
+        return null;
+    }
+
+    const date = new Date(`${value}T00:00:00`);
+
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+
+    return date;
+}
 
 function normalizeDate(date: Date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -81,13 +97,22 @@ function formatMonthTitle(date: Date) {
     }).format(date);
 }
 
-export default function RentalDateRangePicker({ onChange }: RentalDateRangePickerProps) {
+export default function RentalDateRangePicker({
+                                                  onChange,
+                                                  initialStartDate = "",
+                                                  initialEndDate = "",
+                                              }: RentalDateRangePickerProps) {
     const pickerRef = useRef<HTMLDivElement | null>(null);
 
     const [isOpen, setIsOpen] = useState(false);
-    const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(new Date()));
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
+    const initialStartDateValue = parseDateValue(initialStartDate);
+    const initialEndDateValue = parseDateValue(initialEndDate);
+
+    const [visibleMonth, setVisibleMonth] = useState(() =>
+        startOfMonth(initialStartDateValue ?? new Date())
+    );
+    const [startDate, setStartDate] = useState<Date | null>(initialStartDateValue);
+    const [endDate, setEndDate] = useState<Date | null>(initialEndDateValue);
 
     const startDateValue = formatHiddenDate(startDate);
     const endDateValue = formatHiddenDate(endDate);

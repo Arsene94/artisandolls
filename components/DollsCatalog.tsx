@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { collections, dolls, type CatalogMode, type Doll } from "@/lib/dolls";
 import styles from "./DollsCatalog.module.css";
+import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
 
 type DollsCatalogProps = {
     initialMode: CatalogMode;
@@ -13,20 +15,6 @@ type DollsCatalogProps = {
 
 type AvailabilityFilter = "all" | "available" | "rent" | "buy" | "custom" | "sold_out";
 type SortValue = "featured" | "name" | "price_asc" | "price_desc";
-
-function formatDate(value: string) {
-    if (!value) {
-        return "";
-    }
-
-    const [year, month, day] = value.split("-");
-
-    if (!year || !month || !day) {
-        return value;
-    }
-
-    return `${day}.${month}.${year}`;
-}
 
 function getModeLabel(mode: CatalogMode) {
     return mode === "rent" ? "Închiriere" : "Cumpărare";
@@ -65,16 +53,43 @@ function getDetailsHref(doll: Doll, mode: CatalogMode, startDate: string, endDat
     return `/catalog?${params.toString()}`;
 }
 
+function getCatalogHrefWithCurrentParams(mode: CatalogMode, period: RentalRangeValue) {
+    const params = new URLSearchParams(window.location.search);
+
+    params.set("mode", mode);
+
+    if (period.startDate) {
+        params.set("start", period.startDate);
+    } else {
+        params.delete("start");
+    }
+
+    if (period.endDate) {
+        params.set("end", period.endDate);
+    } else {
+        params.delete("end");
+    }
+
+    return `/catalog?${params.toString()}`;
+}
+
 export default function DollsCatalog({
                                          initialMode,
                                          initialStartDate,
                                          initialEndDate,
                                      }: DollsCatalogProps) {
+    const router = useRouter();
+    const hasInitializedPeriodRef = useRef(false);
+
     const [mode, setMode] = useState<CatalogMode>(initialMode);
     const [search, setSearch] = useState("");
     const [collection, setCollection] = useState("all");
     const [availability, setAvailability] = useState<AvailabilityFilter>("all");
     const [sort, setSort] = useState<SortValue>("featured");
+    const [period, setPeriod] = useState<RentalRangeValue>({
+        startDate: initialStartDate,
+        endDate: initialEndDate,
+    });
 
     const filteredDolls = useMemo(() => {
         const normalizedSearch = search.trim().toLowerCase();
@@ -123,10 +138,19 @@ export default function DollsCatalog({
         });
     }, [availability, collection, mode, search, sort]);
 
-    const selectedPeriod =
-        initialStartDate && initialEndDate
-            ? `${formatDate(initialStartDate)} — ${formatDate(initialEndDate)}`
-            : "Perioada nu a fost selectată complet";
+    useEffect(() => {
+        if (!hasInitializedPeriodRef.current) {
+            hasInitializedPeriodRef.current = true;
+            return;
+        }
+
+        const nextHref = getCatalogHrefWithCurrentParams(mode, period);
+        const currentHref = `${window.location.pathname}${window.location.search}`;
+
+        if (nextHref !== currentHref) {
+            router.replace(nextHref, { scroll: false });
+        }
+    }, [mode, period, router]);
 
     return (
         <main className={styles.page}>
@@ -154,9 +178,14 @@ export default function DollsCatalog({
                             <strong>{getModeLabel(mode)}</strong>
                         </div>
 
-                        <div>
-                            <span>Perioadă</span>
-                            <strong>{selectedPeriod}</strong>
+                        <div className={styles.periodPickerCard}>
+                            <div>
+                                <RentalDateRangePicker
+                                    initialStartDate={period.startDate}
+                                    initialEndDate={period.endDate}
+                                    onChange={setPeriod}
+                                />
+                            </div>
                         </div>
 
                         <div>
@@ -277,7 +306,7 @@ export default function DollsCatalog({
                                         </span>
 
                                         <Link
-                                            href={getDetailsHref(doll, mode, initialStartDate, initialEndDate)}
+                                            href={getDetailsHref(doll, mode, period.startDate, period.endDate)}
                                             className={availableForSelectedMode ? "btn btn-gold" : "btn btn-outline-light"}
                                             aria-disabled={!availableForSelectedMode}
                                         >
