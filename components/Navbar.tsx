@@ -25,7 +25,7 @@ export default function Navbar() {
                 <a href="#" className="logo">Artisan<span>Dolls</span></a>
                 <nav>
                     <a href="#hero">Acasă</a>
-                    <a href="#servicii">Servicii</a>
+                    <a href="/catalog">Catalog</a>
                     <a href="#galerie">Galerie</a>
                     <a href="#contact">Contact</a>
                 </nav>
