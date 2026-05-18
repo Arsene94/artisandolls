@@ -34,48 +34,133 @@ const recommendedActions = [
 
 const latestOrders = [
     {
-        id: "AD-1007",
-        customer: "Maria Ionescu",
-        doll: "Aurora",
-        type: "Închiriere",
-        status: "Nouă",
-        total: "620 lei",
-        date: "18.05.2026",
+        orderId: "AD-1007",
+        dollId: "aurora",
+        dollName: "Aurora",
+        mode: "rent",
+        startDate: "2026-05-20",
+        endDate: "2026-05-24",
+        outfitId: "rent-outfit-photo",
+        options: "rent-premium-cleaning,rent-photo-ready",
+        total: "620",
+        totalLabel: "620 lei",
+        fullName: "Maria Ionescu",
+        email: "maria@example.com",
         phone: "+40722111222",
+        deliveryAddress: "Str. Exemplu 10, București",
+        deliveryTime: "10:30",
+        returnTime: "18:00",
+        notes: "Preferă livrare dimineața.",
+        createdAt: "2026-05-18T10:30:00.000Z",
+        status: "Nouă",
     },
     {
-        id: "AD-1006",
-        customer: "Elena Popa",
-        doll: "Séraphine",
-        type: "Cumpărare",
-        status: "În verificare",
-        total: "3.250 lei",
-        date: "17.05.2026",
+        orderId: "AD-1006",
+        dollId: "seraphine",
+        dollName: "Séraphine",
+        mode: "buy",
+        outfitId: "buy-outfit-couture",
+        options: "buy-face-detailing,buy-display-box",
+        total: "3250",
+        totalLabel: "3.250 lei",
+        fullName: "Elena Popa",
+        email: "elena@example.com",
         phone: "+40733111333",
+        deliveryAddress: "Bd. Exemplu 22, București",
+        deliveryTime: "14:00",
+        returnTime: "",
+        notes: "Dorește ambalare premium.",
+        createdAt: "2026-05-17T13:10:00.000Z",
+        status: "În verificare",
     },
     {
-        id: "AD-1005",
-        customer: "Andreea Marin",
-        doll: "Céleste",
-        type: "Închiriere",
-        status: "Confirmată",
-        total: "840 lei",
-        date: "16.05.2026",
+        orderId: "AD-1005",
+        dollId: "celeste",
+        dollName: "Céleste",
+        mode: "rent",
+        startDate: "2026-05-22",
+        endDate: "2026-05-26",
+        outfitId: "rent-outfit-evening",
+        options: "rent-protective-case",
+        total: "840",
+        totalLabel: "840 lei",
+        fullName: "Andreea Marin",
+        email: "andreea@example.com",
         phone: "+40744111444",
+        deliveryAddress: "Calea Exemplu 5, Ilfov",
+        deliveryTime: "09:00",
+        returnTime: "17:30",
+        notes: "",
+        createdAt: "2026-05-16T08:40:00.000Z",
+        status: "Confirmată",
     },
-];
+] satisfies Array<{
+    orderId: string;
+    dollId: string;
+    dollName: string;
+    mode: "rent" | "buy";
+    startDate?: string;
+    endDate?: string;
+    outfitId: string;
+    options: string;
+    total: string;
+    totalLabel: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    deliveryAddress: string;
+    deliveryTime: string;
+    returnTime: string;
+    notes: string;
+    createdAt: string;
+    status: string;
+}>;
 
 function getCleanPhone(phone: string) {
     return phone.replace(/[^\d+]/g, "");
 }
 
-function getWhatsappHref(phone: string, orderId: string) {
+function getWhatsappHref(phone: string, orderId: string, customerName: string) {
     const cleanPhone = getCleanPhone(phone).replace("+", "");
     const message = encodeURIComponent(
-        `Bună! Te contactăm pentru comanda ta Artisan Dolls ${orderId}.`
+        `Bună, ${customerName}! Te contactăm pentru rezervarea Artisan Dolls ${orderId}.`
     );
 
     return `https://wa.me/${cleanPhone}?text=${message}`;
+}
+
+function getModeLabel(mode: "rent" | "buy") {
+    return mode === "rent" ? "Închiriere" : "Cumpărare";
+}
+
+function formatDate(value: string|undefined) {
+    if (!value) {
+        return "";
+    }
+
+    const [year, month, day] = value.split("-");
+
+    if (!year || !month || !day) {
+        return value;
+    }
+
+    return `${day}.${month}.${year}`;
+}
+
+function formatCreatedAt(value: string) {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+    return new Intl.DateTimeFormat("ro-RO", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    }).format(date);
 }
 
 export default function AdminDashboardPage() {
@@ -112,35 +197,49 @@ export default function AdminDashboardPage() {
 
                     <div className={styles.ordersList}>
                         {latestOrders.map((order) => (
-                            <div key={order.id} className={styles.orderItem}>
+                            <div key={order.orderId} className={styles.orderItem}>
                                 <div>
-                                    <span className={styles.orderId}>{order.id}</span>
-                                    <strong>{order.customer}</strong>
-                                    <small>{order.doll}</small>
+                                    <span className={styles.orderId}>{order.orderId}</span>
+                                    <strong>{order.fullName}</strong>
+                                    <small>{order.dollName}</small>
                                 </div>
 
                                 <div>
-                                    <span>Tip</span>
-                                    <strong>{order.type}</strong>
+                                    <span>Rezervare</span>
+                                    <strong>{getModeLabel(order.mode)}</strong>
+                                    <small>
+                                        {order.startDate && order.endDate && (
+                                            <>
+                                                {formatDate(order.startDate)} — {formatDate(order.endDate)}
+                                            </>
+                                        )}
+                                    </small>
+                                </div>
+
+                                <div>
+                                    <span>Livrare</span>
+                                    <strong>{order.deliveryTime}</strong>
+                                    <small>
+                                        {order.mode === "rent" && order.returnTime
+                                            ? `Retur ${order.returnTime}`
+                                            : "Fără retur"}
+                                    </small>
                                 </div>
 
                                 <div>
                                     <span>Status</span>
                                     <strong>{order.status}</strong>
+                                    <small>{formatCreatedAt(order.createdAt)}</small>
                                 </div>
 
                                 <div>
                                     <span>Total</span>
-                                    <strong>{order.total}</strong>
-                                </div>
-
-                                <div>
-                                    <span>Dată</span>
-                                    <strong>{order.date}</strong>
+                                    <strong>{order.totalLabel}</strong>
+                                    <small>{order.phone}</small>
                                 </div>
 
                                 <div className={styles.orderActions}>
-                                    <a href={`/admin/orders/${order.id}`} className={styles.viewButton}>
+                                    <a href={`/admin/orders/${order.orderId}`} className={styles.viewButton}>
                                         <IconEye />
                                     </a>
 
@@ -149,7 +248,7 @@ export default function AdminDashboardPage() {
                                     </a>
 
                                     <a
-                                        href={getWhatsappHref(order.phone, order.id)}
+                                        href={getWhatsappHref(order.phone, order.orderId, order.fullName)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className={styles.whatsappButton}

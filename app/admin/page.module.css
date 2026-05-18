@@ -169,7 +169,7 @@
 
 .orderItem {
     display: grid;
-    grid-template-columns: 1.4fr 0.8fr 0.9fr 0.8fr 0.8fr 1.2fr;
+    grid-template-columns: 1.2fr 1.25fr 0.9fr 1fr 0.9fr 1.1fr;
     gap: 16px;
     align-items: center;
     padding: 16px;
@@ -280,5 +280,20 @@
 
     .statsGrid {
         grid-template-columns: 1fr;
+    }
+
+    .orderItem {
+        grid-template-columns: 1fr;
+    }
+
+    .orderActions {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .viewButton,
+    .callButton,
+    .whatsappButton {
+        flex: 1;
     }
 }
