@@ -17,8 +17,8 @@
             --color-gold: #ff4fa3;
             --color-gold-light: #ff9bd0;
             --color-gold-dark: #d92d7c;
-            --font-serif: var(--font-playfair), 'Playfair Display', serif;
-            --font-sans: var(--font-raleway), 'Raleway', sans-serif;
+            --font-serif: var(--font-inter), 'Inter', serif;
+            --font-sans: var(--font-roboto), 'Roboto', sans-serif;
             --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             --shadow-sm: 0 2px 12px rgba(255,79,163,0.10);
             --shadow-md: 0 8px 32px rgba(255,79,163,0.14);

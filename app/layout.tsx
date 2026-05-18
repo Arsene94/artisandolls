@@ -1,18 +1,18 @@
 import type { Metadata } from 'next';
-import { Playfair_Display, Raleway } from 'next/font/google';
+import { Inter, Roboto } from 'next/font/google';
 import './globals.css';
 import Navbar from "@/components/Navbar";
 
-const playfair = Playfair_Display({
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-playfair',
+  variable: '--font-inter',
   display: 'swap',
 });
 
-const raleway = Raleway({
+const roboto = Roboto({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600'],
-  variable: '--font-raleway',
+  variable: '--font-roboto',
   display: 'swap',
 });
 
@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ro">
-      <body className={`${playfair.variable} ${raleway.variable}`}>
+      <body className={`${inter.variable} ${roboto.variable}`}>
         <Navbar />
         {children}
       </body>
