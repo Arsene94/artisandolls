@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
-import { getRentalDays, type OrderRow } from "@/lib/orders/shared";
+import {getInitialOrderStatus, getRentalDays, type OrderRow} from "@/lib/orders/shared";
 import { notifyAdminsAboutOrder } from "@/lib/whatsapp";
 import type { CatalogMode } from "@/lib/dolls";
 
@@ -68,7 +68,7 @@ export async function createOrderAction(formData: FormData) {
 
     const payload = {
         mode,
-        status: "new",
+        status: getInitialOrderStatus(mode),
         doll_id: doll.id,
         doll_slug: doll.slug,
         doll_name: doll.name,

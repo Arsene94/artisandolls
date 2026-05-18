@@ -1,11 +1,149 @@
 export type OrderMode = "rent" | "buy";
 
-export type OrderStatus =
-    | "new"
-    | "in_review"
-    | "confirmed"
-    | "completed"
-    | "cancelled";
+export type RentOrderStatus =
+    | "rent_new"
+    | "rent_in_review"
+    | "rent_confirmed"
+    | "rent_preparing"
+    | "rent_out_for_delivery"
+    | "rent_delivered"
+    | "rent_active"
+    | "rent_return_scheduled"
+    | "rent_returned"
+    | "rent_completed"
+    | "rent_cancelled";
+
+export type BuyOrderStatus =
+    | "buy_new"
+    | "buy_in_review"
+    | "buy_confirmed"
+    | "buy_preparing"
+    | "buy_out_for_delivery"
+    | "buy_delivered"
+    | "buy_completed"
+    | "buy_cancelled"
+    | "buy_refunded";
+
+export type OrderStatus = RentOrderStatus | BuyOrderStatus;
+
+export type OrderStatusOption = {
+    value: OrderStatus;
+    label: string;
+    description: string;
+};
+
+export const rentOrderStatusOptions = [
+    {
+        value: "rent_new",
+        label: "Cerere nouă",
+        description: "Cererea de închiriere a intrat și trebuie verificată.",
+    },
+    {
+        value: "rent_in_review",
+        label: "În verificare",
+        description: "Verifici disponibilitatea, perioada și detaliile clientului.",
+    },
+    {
+        value: "rent_confirmed",
+        label: "Confirmată",
+        description: "Închirierea este confirmată cu clientul.",
+    },
+    {
+        value: "rent_preparing",
+        label: "În pregătire",
+        description: "Păpușa, ținutele și customizările sunt pregătite pentru livrare.",
+    },
+    {
+        value: "rent_out_for_delivery",
+        label: "În livrare",
+        description: "Comanda este pe drum către client.",
+    },
+    {
+        value: "rent_delivered",
+        label: "Livrată",
+        description: "Păpușa a fost livrată la client.",
+    },
+    {
+        value: "rent_active",
+        label: "Închiriere activă",
+        description: "Perioada de închiriere este în desfășurare.",
+    },
+    {
+        value: "rent_return_scheduled",
+        label: "Retur programat",
+        description: "Returul este programat și urmează preluarea.",
+    },
+    {
+        value: "rent_returned",
+        label: "Returnată",
+        description: "Păpușa a fost returnată și urmează verificarea.",
+    },
+    {
+        value: "rent_completed",
+        label: "Finalizată",
+        description: "Închirierea este complet închisă.",
+    },
+    {
+        value: "rent_cancelled",
+        label: "Anulată",
+        description: "Cererea de închiriere a fost anulată.",
+    },
+] satisfies OrderStatusOption[];
+
+export const buyOrderStatusOptions = [
+    {
+        value: "buy_new",
+        label: "Cerere nouă",
+        description: "Cererea de cumpărare a intrat și trebuie verificată.",
+    },
+    {
+        value: "buy_in_review",
+        label: "În verificare",
+        description: "Verifici stocul, customizările și detaliile clientului.",
+    },
+    {
+        value: "buy_confirmed",
+        label: "Confirmată",
+        description: "Cumpărarea este confirmată cu clientul.",
+    },
+    {
+        value: "buy_preparing",
+        label: "În pregătire",
+        description: "Păpușa, ținuta și ambalarea sunt în pregătire.",
+    },
+    {
+        value: "buy_out_for_delivery",
+        label: "În livrare",
+        description: "Comanda este pe drum către client.",
+    },
+    {
+        value: "buy_delivered",
+        label: "Livrată",
+        description: "Păpușa a fost livrată clientului.",
+    },
+    {
+        value: "buy_completed",
+        label: "Finalizată",
+        description: "Cumpărarea este complet închisă.",
+    },
+    {
+        value: "buy_cancelled",
+        label: "Anulată",
+        description: "Cererea de cumpărare a fost anulată.",
+    },
+    {
+        value: "buy_refunded",
+        label: "Rambursată",
+        description: "Comanda a fost rambursată.",
+    },
+] satisfies OrderStatusOption[];
+
+const orderStatusLabels = Object.fromEntries(
+    [...rentOrderStatusOptions, ...buyOrderStatusOptions].map((status) => [
+        status.value,
+        status.label,
+    ])
+) as Record<OrderStatus, string>;
 
 export type OrderRow = {
     id: string;
@@ -37,25 +175,38 @@ export type OrderRow = {
 
     whatsapp_notified: boolean;
     whatsapp_error: string | null;
+    whatsapp_debug?: unknown;
 
     created_at: string;
     updated_at: string;
 };
+
+export function getInitialOrderStatus(mode: OrderMode): OrderStatus {
+    return mode === "rent" ? "rent_new" : "buy_new";
+}
+
+export function getOrderStatusOptions(mode: OrderMode) {
+    return mode === "rent" ? rentOrderStatusOptions : buyOrderStatusOptions;
+}
+
+export function isRentOrderStatus(status: OrderStatus): status is RentOrderStatus {
+    return status.startsWith("rent_");
+}
+
+export function isBuyOrderStatus(status: OrderStatus): status is BuyOrderStatus {
+    return status.startsWith("buy_");
+}
+
+export function isValidOrderStatusForMode(status: OrderStatus, mode: OrderMode) {
+    return mode === "rent" ? isRentOrderStatus(status) : isBuyOrderStatus(status);
+}
 
 export function formatOrderMode(mode: OrderMode) {
     return mode === "rent" ? "Închiriere" : "Cumpărare";
 }
 
 export function formatOrderStatus(status: OrderStatus) {
-    const labels: Record<OrderStatus, string> = {
-        new: "Nouă",
-        in_review: "În verificare",
-        confirmed: "Confirmată",
-        completed: "Finalizată",
-        cancelled: "Anulată",
-    };
-
-    return labels[status];
+    return orderStatusLabels[status] ?? status;
 }
 
 export function formatDateRo(value: string | null) {

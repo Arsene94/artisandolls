@@ -64,11 +64,22 @@ export default async function AdminDashboardPage() {
     const orders = await getAdminOrderRows(100);
     const latestOrders = orders.slice(0, 5);
 
-    const newOrders = orders.filter((order) => order.status === "new").length;
+    const newOrders = orders.filter(
+        (order) => order.status === "rent_new" || order.status === "buy_new"
+    ).length;
     const activeRentals = orders.filter(
         (order) =>
             order.mode === "rent" &&
-            ["new", "in_review", "confirmed"].includes(order.status)
+            [
+                "rent_new",
+                "rent_in_review",
+                "rent_confirmed",
+                "rent_preparing",
+                "rent_out_for_delivery",
+                "rent_delivered",
+                "rent_active",
+                "rent_return_scheduled",
+            ].includes(order.status)
     ).length;
 
     const estimatedRevenue = orders.reduce((total, order) => {

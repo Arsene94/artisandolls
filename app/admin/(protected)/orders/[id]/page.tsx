@@ -3,8 +3,9 @@ import {
     formatDateRo,
     formatOrderMode,
     formatOrderStatus,
-    getAdminOrderById,
-} from "@/lib/orders";
+    getOrderStatusOptions,
+} from "@/lib/orders/shared";
+import {getAdminOrderById} from "@/lib/orders";
 import { deleteOrderAction, updateOrderStatusAction } from "@/app/admin/(protected)/orders/actions";
 import styles from "../../page.module.css";
 
@@ -21,6 +22,8 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
     if (!order) {
         notFound();
     }
+
+    const statusOptions = getOrderStatusOptions(order.mode);
 
     return (
         <main className={styles.page}>
@@ -73,29 +76,34 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
                         <span>Total</span>
                         <strong>{order.total_label}</strong>
                     </div>
-                    <div>
-                        <span>WhatsApp notificat</span>
-                        <strong>{order.whatsapp_notified ? "Da" : "Nu"}</strong>
-                    </div>
                 </div>
 
-                <form
-                    action={async () => {
-                        "use server";
-                        await updateOrderStatusAction(order.id, "confirmed");
-                    }}
-                >
-                    <button className="btn btn-gold">Confirmă comanda</button>
-                </form>
+                <div>
+                    <h2>Status comandă</h2>
 
-                <form
-                    action={async () => {
-                        "use server";
-                        await updateOrderStatusAction(order.id, "cancelled");
-                    }}
-                >
-                    <button className="btn btn-outline-light">Anulează comanda</button>
-                </form>
+                    <div className={styles.actionList}>
+                        {statusOptions.map((status) => (
+                            <form
+                                key={status.value}
+                                action={async () => {
+                                    "use server";
+                                    await updateOrderStatusAction(order.id, status.value);
+                                }}
+                            >
+                                <button
+                                    className={
+                                        order.status === status.value
+                                            ? "btn btn-gold"
+                                            : "btn btn-outline-light"
+                                    }
+                                    disabled={order.status === status.value}
+                                >
+                                    {status.label}
+                                </button>
+                            </form>
+                        ))}
+                    </div>
+                </div>
 
                 <form
                     action={async () => {

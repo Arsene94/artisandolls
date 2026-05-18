@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
-import type { OrderStatus } from "@/lib/orders";
+import {
+    isValidOrderStatusForMode,
+    type OrderStatus,
+} from "@/lib/orders/shared";
 
 async function requireAdminSupabase() {
     const supabase = await createSupabaseServerClient();
@@ -21,6 +24,20 @@ async function requireAdminSupabase() {
 
 export async function updateOrderStatusAction(orderId: string, status: OrderStatus) {
     const supabase = await requireAdminSupabase();
+
+    const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .select("id, mode")
+        .eq("id", orderId)
+        .single();
+
+    if (orderError || !order) {
+        throw new Error(orderError?.message ?? "Comanda nu a fost găsită.");
+    }
+
+    if (!isValidOrderStatusForMode(status, order.mode)) {
+        throw new Error("Statusul selectat nu este valid pentru tipul acestei comenzi.");
+    }
 
     const { error } = await supabase
         .from("orders")
