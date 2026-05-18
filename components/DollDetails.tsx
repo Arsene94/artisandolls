@@ -20,6 +20,14 @@ type CustomOption = {
     price: number;
 };
 
+type OutfitOption = {
+    id: string;
+    label: string;
+    description: string;
+    price: number;
+    image: string;
+};
+
 type CustomOptionGroup = {
     id: string;
     title: string;
@@ -59,12 +67,6 @@ const customizationGroupsByMode: Record<CatalogMode, CustomOptionGroup[]> = {
                     description: "Styling rapid, poziționare și verificare vizuală înainte de livrare.",
                     price: 120,
                 },
-                {
-                    id: "rent-extra-outfit",
-                    label: "Ținută extra pentru închiriere",
-                    description: "O ținută suplimentară inclusă în pachetul de închiriere.",
-                    price: 150,
-                },
             ],
         },
     ],
@@ -79,12 +81,6 @@ const customizationGroupsByMode: Record<CatalogMode, CustomOptionGroup[]> = {
                     label: "Detalii față premium",
                     description: "Finisaj expresiv, machiaj artistic și accente pictate manual.",
                     price: 350,
-                },
-                {
-                    id: "buy-custom-outfit",
-                    label: "Ținută couture personalizată",
-                    description: "Materiale premium, croială dedicată și accesorii potrivite colecției.",
-                    price: 650,
                 },
             ],
         },
@@ -106,6 +102,55 @@ const customizationGroupsByMode: Record<CatalogMode, CustomOptionGroup[]> = {
                     price: 120,
                 },
             ],
+        },
+    ],
+};
+
+const outfitOptionsByMode: Record<CatalogMode, OutfitOption[]> = {
+    rent: [
+        {
+            id: "rent-outfit-classic",
+            label: "Ținută elegantă clasică",
+            description: "Look rafinat pentru prezentare, decor sau sesiuni foto simple.",
+            price: 120,
+            image: "https://placehold.co/420x520/130713/ff9bd0?text=Classic+Outfit",
+        },
+        {
+            id: "rent-outfit-evening",
+            label: "Ținută de seară",
+            description: "Styling mai dramatic, potrivit pentru evenimente și cadre premium.",
+            price: 180,
+            image: "https://placehold.co/420x520/24051c/ff4fa3?text=Evening+Outfit",
+        },
+        {
+            id: "rent-outfit-photo",
+            label: "Ținută foto premium",
+            description: "Ținută cu impact vizual ridicat pentru shooting sau vitrină.",
+            price: 240,
+            image: "https://placehold.co/420x520/2a0821/ffc1df?text=Photo+Outfit",
+        },
+    ],
+    buy: [
+        {
+            id: "buy-outfit-couture",
+            label: "Ținută couture personalizată",
+            description: "Materiale premium, croială dedicată și accesorii potrivite colecției.",
+            price: 650,
+            image: "https://placehold.co/420x520/130713/ff9bd0?text=Couture",
+        },
+        {
+            id: "buy-outfit-royal",
+            label: "Ținută royal collection",
+            description: "Ținută amplă, cu detalii decorative și finisaj de colecție.",
+            price: 890,
+            image: "https://placehold.co/420x520/24051c/ff4fa3?text=Royal",
+        },
+        {
+            id: "buy-outfit-noir",
+            label: "Ținută Noir premium",
+            description: "Styling dark, elegant, cu accente dramatice și prezentare premium.",
+            price: 760,
+            image: "https://placehold.co/420x520/090009/ffc1df?text=Noir",
         },
     ],
 };
@@ -194,19 +239,35 @@ function getCustomizationTotal(optionIds: string[], mode: CatalogMode) {
     }, 0);
 }
 
+function getSelectedOutfit(outfitId: string, mode: CatalogMode) {
+    return outfitOptionsByMode[mode].find((outfit) => outfit.id === outfitId) ?? null;
+}
+
+function getOutfitTotal(outfitId: string, mode: CatalogMode) {
+    return getSelectedOutfit(outfitId, mode)?.price ?? 0;
+}
+
 type CustomizationPickerProps = {
     mode: CatalogMode;
     groups: CustomOptionGroup[];
     selectedOptions: string[];
+    selectedOutfitId: string;
     onToggle: (optionId: string) => void;
+    onOutfitSelect: (outfitId: string) => void;
 };
 
 function CustomizationPicker({
                                  mode,
                                  groups,
                                  selectedOptions,
+                                 selectedOutfitId,
                                  onToggle,
+                                 onOutfitSelect,
                              }: CustomizationPickerProps) {
+    const [isOutfitOpen, setIsOutfitOpen] = useState(false);
+    const outfitOptions = outfitOptionsByMode[mode];
+    const selectedOutfit = getSelectedOutfit(selectedOutfitId, mode);
+
     return (
         <div className={styles.customizationPanel}>
             <div className={styles.customizationHeader}>
@@ -222,6 +283,85 @@ function CustomizationPicker({
                 <span className={styles.modePill}>
                     {mode === "rent" ? "Închiriere" : "Cumpărare"}
                 </span>
+            </div>
+
+            <div className={styles.outfitSelector}>
+                <div className={styles.groupHeader}>
+                    <h3>Ținută</h3>
+                    <p>
+                        Alege o ținută separată pentru {mode === "rent" ? "închiriere" : "cumpărare"}.
+                        Fiecare ținută are preț separat.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    className={styles.outfitTrigger}
+                    onClick={() => setIsOutfitOpen((current) => !current)}
+                    aria-expanded={isOutfitOpen}
+                >
+                    {selectedOutfit ? (
+                        <>
+                            <img src={selectedOutfit.image} alt={selectedOutfit.label} />
+
+                            <span>
+                    <strong>{selectedOutfit.label}</strong>
+                    <small>+{selectedOutfit.price.toLocaleString("ro-RO")} lei</small>
+                </span>
+                        </>
+                    ) : (
+                        <span>
+                <strong>Alege o ținută</strong>
+                <small>Nicio ținută selectată</small>
+            </span>
+                    )}
+
+                    <em>{isOutfitOpen ? "−" : "+"}</em>
+                </button>
+
+                {isOutfitOpen && (
+                    <div className={styles.outfitDropdown}>
+                        <button
+                            type="button"
+                            className={!selectedOutfitId ? styles.outfitOptionSelected : styles.outfitOption}
+                            onClick={() => {
+                                onOutfitSelect("");
+                                setIsOutfitOpen(false);
+                            }}
+                        >
+                            <span className={styles.noOutfitPreview}>Fără</span>
+
+                            <span>
+                    <strong>Fără ținută extra</strong>
+                    <small>+0 lei</small>
+                </span>
+                        </button>
+
+                        {outfitOptions.map((outfit) => {
+                            const isSelected = selectedOutfitId === outfit.id;
+
+                            return (
+                                <button
+                                    key={outfit.id}
+                                    type="button"
+                                    className={isSelected ? styles.outfitOptionSelected : styles.outfitOption}
+                                    onClick={() => {
+                                        onOutfitSelect(outfit.id);
+                                        setIsOutfitOpen(false);
+                                    }}
+                                >
+                                    <img src={outfit.image} alt={outfit.label} />
+
+                                    <span>
+                            <strong>{outfit.label}</strong>
+                            <small>{outfit.description}</small>
+                            <em>+{outfit.price.toLocaleString("ro-RO")} lei</em>
+                        </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
 
             <div className={styles.customizationGroups}>
@@ -314,22 +454,34 @@ export default function DollDetails({
         buy: [],
     });
 
+    const [selectedOutfitByMode, setSelectedOutfitByMode] = useState<Record<CatalogMode, string>>({
+        rent: "",
+        buy: "",
+    });
+
     const rentalDays = useMemo(() => {
         return getRentalDays(period.startDate, period.endDate);
     }, [period.endDate, period.startDate]);
 
     const activeSelectedOptions = selectedOptionsByMode[mode];
+    const activeSelectedOutfitId = selectedOutfitByMode[mode];
 
     const customizationTotal = useMemo(() => {
         return getCustomizationTotal(activeSelectedOptions, mode);
     }, [activeSelectedOptions, mode]);
 
+    const outfitTotal = useMemo(() => {
+        return getOutfitTotal(activeSelectedOutfitId, mode);
+    }, [activeSelectedOutfitId, mode]);
+
+    const extrasTotal = customizationTotal + outfitTotal;
+
     const hasCompletePeriod = Boolean(period.startDate && period.endDate);
     const pricePerDay = doll.rentPricePerDay ?? 0;
     const rentalBaseTotal = mode === "rent" && hasCompletePeriod ? rentalDays * pricePerDay : 0;
-    const rentalTotal = rentalBaseTotal + customizationTotal;
+    const rentalTotal = rentalBaseTotal + extrasTotal;
     const buyBasePrice = doll.buyPrice ?? 0;
-    const buyTotal = buyBasePrice + customizationTotal;
+    const buyTotal = buyBasePrice + extrasTotal;
 
     const isAvailableForSelectedMode = mode === "rent" ? doll.availableForRent : doll.availableForBuy;
 
@@ -346,6 +498,13 @@ export default function DollDetails({
                 [mode]: nextModeOptions,
             };
         });
+    }
+
+    function selectOutfit(outfitId: string) {
+        setSelectedOutfitByMode((currentOutfitByMode) => ({
+            ...currentOutfitByMode,
+            [mode]: outfitId,
+        }));
     }
 
     return (
@@ -449,7 +608,9 @@ export default function DollDetails({
                                 mode={mode}
                                 groups={customizationGroupsByMode[mode]}
                                 selectedOptions={activeSelectedOptions}
+                                selectedOutfitId={activeSelectedOutfitId}
                                 onToggle={toggleOption}
+                                onOutfitSelect={selectOutfit}
                             />
 
                             {mode === "rent" && (
@@ -463,9 +624,16 @@ export default function DollDetails({
                                         </strong>
                                     </div>
 
+                                    {outfitTotal > 0 && (
+                                        <div className={styles.priceRow}>
+                                            <span>Ținută</span>
+                                            <strong>{outfitTotal.toLocaleString("ro-RO")} lei</strong>
+                                        </div>
+                                    )}
+
                                     {customizationTotal > 0 && (
                                         <div className={styles.priceRow}>
-                                            <span>Customizări</span>
+                                            <span>Alte customizări</span>
                                             <strong>{customizationTotal.toLocaleString("ro-RO")} lei</strong>
                                         </div>
                                     )}
@@ -529,7 +697,12 @@ export default function DollDetails({
                                     </div>
 
                                     <div className={styles.priceRow}>
-                                        <span>Customizări</span>
+                                        <span>Ținută</span>
+                                        <strong>{outfitTotal.toLocaleString("ro-RO")} lei</strong>
+                                    </div>
+
+                                    <div className={styles.priceRow}>
+                                        <span>Alte customizări</span>
                                         <strong>{customizationTotal.toLocaleString("ro-RO")} lei</strong>
                                     </div>
 

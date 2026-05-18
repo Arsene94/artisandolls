@@ -486,6 +486,151 @@
     gap: 16px;
 }
 
+.outfitSelector {
+    margin-bottom: 18px;
+    padding: 16px 0 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.outfitTrigger {
+    width: 100%;
+    min-height: 74px;
+    display: flex;
+    justify-content: space-between;
+    grid-template-columns: 58px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border: 1px solid rgba(255, 155, 208, 0.22);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-white);
+    cursor: pointer;
+    text-align: left;
+    transition: var(--transition);
+}
+
+.outfitTrigger:hover {
+    border-color: var(--color-gold-light);
+    background: rgba(255, 79, 163, 0.12);
+}
+
+.outfitTrigger img {
+    width: 58px;
+    height: 58px;
+    object-fit: cover;
+    display: block;
+    background: var(--color-beige-dark);
+}
+
+.outfitTrigger span {
+    display: grid;
+    gap: 4px;
+}
+
+.outfitTrigger strong {
+    color: var(--color-white);
+    font-size: 0.9rem;
+}
+
+.outfitTrigger small {
+    color: rgba(255, 255, 255, 0.52);
+    font-size: 0.78rem;
+}
+
+.outfitTrigger > em {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 155, 208, 0.28);
+    color: var(--color-gold-light);
+    font-style: normal;
+    font-size: 1.1rem;
+}
+
+.outfitDropdown {
+    display: grid;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid rgba(255, 155, 208, 0.18);
+    background: rgba(9, 0, 9, 0.42);
+}
+
+.outfitOption,
+.outfitOptionSelected {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 12px;
+    padding: 10px;
+    border: 1px solid rgba(255, 155, 208, 0.18);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-white);
+    cursor: pointer;
+    text-align: left;
+    transition: var(--transition);
+}
+
+.outfitOption:hover,
+.outfitOptionSelected {
+    border-color: var(--color-gold-light);
+    background: rgba(255, 79, 163, 0.14);
+    transform: translateY(-2px);
+}
+
+.outfitOption img,
+.outfitOptionSelected img {
+    width: 72px;
+    height: 88px;
+    object-fit: cover;
+    display: block;
+    background: var(--color-beige-dark);
+}
+
+.noOutfitPreview {
+    width: 72px;
+    height: 88px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed rgba(255, 155, 208, 0.28);
+    color: rgba(255, 255, 255, 0.42);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+}
+
+.outfitOption span,
+.outfitOptionSelected span {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.outfitOption strong,
+.outfitOptionSelected strong {
+    color: var(--color-white);
+    font-size: 0.92rem;
+}
+
+.outfitOption small,
+.outfitOptionSelected small {
+    color: rgba(255, 255, 255, 0.52);
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+
+.outfitOption em,
+.outfitOptionSelected em {
+    margin-top: 4px;
+    color: var(--color-gold-light);
+    font-style: normal;
+    font-weight: 700;
+    font-size: 0.84rem;
+}
+
 .customizationGroup {
     padding-top: 16px;
     border-top: 1px solid rgba(255, 255, 255, 0.07);
