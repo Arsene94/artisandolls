@@ -1,8 +1,7 @@
 "use client";
 
-import { FormEvent, useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { type CatalogMode, type Doll } from "@/lib/dolls";
 import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
 import Image from "next/image";
@@ -43,14 +42,6 @@ function getModeLabel(mode: CatalogMode) {
     return mode === "rent" ? "Închiriere" : "Cumpărare";
 }
 
-function getOrderId() {
-    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-        return crypto.randomUUID();
-    }
-
-    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
 function getBackHref(dollId: string, mode: CatalogMode, startDate: string, endDate: string) {
     const params = new URLSearchParams({ mode });
 
@@ -70,11 +61,12 @@ export default function OrderCheckout({
                                           total,
                                           action,
                                       }: OrderCheckoutProps) {
-    const router = useRouter();
     const [checkoutPeriod, setCheckoutPeriod] = useState<RentalRangeValue>({
         startDate,
         endDate,
     });
+
+    const hasCompletePeriod = Boolean(checkoutPeriod.startDate && checkoutPeriod.endDate);
 
     const [periodError, setPeriodError] = useState("");
 
@@ -87,8 +79,6 @@ export default function OrderCheckout({
         returnTime: "",
         notes: "",
     });
-
-    const hasCompletePeriod = Boolean(checkoutPeriod.startDate && checkoutPeriod.endDate);
 
     const totalLabel = useMemo(() => {
         const parsedTotal = Number(total);
@@ -123,44 +113,6 @@ export default function OrderCheckout({
             setPeriodError("");
         }
     }, []);
-
-    function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-
-        if (!hasCompletePeriod) {
-            setPeriodError("Alege data de început și data de sfârșit înainte de confirmare.");
-            return;
-        }
-
-        const orderId = getOrderId();
-
-        const orderPayload = {
-            orderId,
-            dollId: doll.id,
-            dollName: doll.name,
-            mode,
-            startDate: checkoutPeriod.startDate,
-            endDate: checkoutPeriod.endDate,
-            outfitId,
-            options,
-            total,
-            totalLabel,
-            ...form,
-            createdAt: new Date().toISOString(),
-        };
-
-        sessionStorage.setItem(`artisandolls-order-${orderId}`, JSON.stringify(orderPayload));
-
-        const params = new URLSearchParams({
-            mode,
-            orderId,
-        });
-
-        if (checkoutPeriod.startDate) params.set("start", checkoutPeriod.startDate);
-        if (checkoutPeriod.endDate) params.set("end", checkoutPeriod.endDate);
-
-        router.push(`/catalog/${doll.id}/success?${params.toString()}`);
-    }
 
     return (
         <main className={styles.page}>
@@ -243,6 +195,12 @@ export default function OrderCheckout({
                                             placement="bottom"
                                         />
 
+                                        {!hasCompletePeriod && (
+                                            <small className={styles.fieldError}>
+                                                Alege data de început și data de sfârșit înainte de confirmare.
+                                            </small>
+                                        )}
+
                                         {periodError && <small className={styles.fieldError}>{periodError}</small>}
                                     </div>
 
@@ -292,7 +250,7 @@ export default function OrderCheckout({
                                     />
                                 </label>
 
-                                <button type="submit" className="btn btn-gold">
+                                <button type="submit" className="btn btn-gold" disabled={!hasCompletePeriod}>
                                     Confirmă datele
                                 </button>
                             </form>

@@ -1,9 +1,11 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { type ComponentProps, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import styles from "./AdminLoginForm.module.css";
+
+type FormSubmitHandler = NonNullable<ComponentProps<"form">["onSubmit"]>;
 
 export default function AdminLoginForm() {
     const router = useRouter();
@@ -17,7 +19,7 @@ export default function AdminLoginForm() {
 
     const errorFromUrl = searchParams.get("error");
 
-    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    const handleSubmit: FormSubmitHandler = async (event) => {
         event.preventDefault();
 
         setIsSubmitting(true);
