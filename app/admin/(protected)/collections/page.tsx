@@ -1,15 +1,23 @@
+import { getCollectionRows } from "@/lib/collections";
+import AdminCollectionsTable from "@/components/admin/collections/AdminCollectionsTable";
 import styles from "../page.module.css";
 
-export default function AdminSectionPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminCollectionsPage() {
+    const collections = await getCollectionRows(true);
+
     return (
         <main className={styles.page}>
             <section className={styles.hero}>
-                <span>Admin</span>
-                <h1>Secțiune în lucru</h1>
+                <span>Catalog</span>
+                <h1>Colecții</h1>
                 <p>
-                    Această pagină este pregătită pentru managementul datelor din Supabase.
+                    Administrează categoriile și seriile folosite pentru gruparea păpușilor.
                 </p>
             </section>
+
+            <AdminCollectionsTable collections={collections} />
         </main>
     );
 }

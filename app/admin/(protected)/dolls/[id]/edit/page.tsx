@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import DollForm from "@/components/admin/dolls/DollForm";
 import { updateDollAction } from "@/app/admin/(protected)/dolls/actions";
+import { getCollectionRows } from "@/lib/collections";
 import { getDollRowBySlug } from "@/lib/dolls";
 import styles from "../../../page.module.css";
 
@@ -12,7 +13,10 @@ type EditDollPageProps = {
 
 export default async function EditDollPage({ params }: EditDollPageProps) {
     const { id } = await params;
-    const doll = await getDollRowBySlug(id);
+    const [doll, collections] = await Promise.all([
+        getDollRowBySlug(id),
+        getCollectionRows(true),
+    ]);
 
     if (!doll) {
         notFound();
@@ -31,7 +35,12 @@ export default async function EditDollPage({ params }: EditDollPageProps) {
                 <p>Modifică informațiile, imaginile, disponibilitatea și prețurile.</p>
             </section>
 
-            <DollForm mode="edit" doll={doll} action={action} />
+            <DollForm
+                mode="edit"
+                doll={doll}
+                collections={collections}
+                action={action}
+            />
         </main>
     );
 }

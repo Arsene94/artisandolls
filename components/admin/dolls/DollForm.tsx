@@ -6,12 +6,14 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import { optimizeImageBeforeUpload } from "@/lib/images/optimize-upload";
 import { getSupabaseImageUrl, isExternalImage } from "@/lib/supabase/images";
+import type { CollectionRow } from "@/lib/collections";
 import type { DollRow } from "@/lib/dolls";
 import styles from "./AdminDolls.module.css";
 
 type DollFormProps = {
     mode: "create" | "edit";
     doll?: DollRow;
+    collections: CollectionRow[];
     action: (formData: FormData) => Promise<void>;
 };
 
@@ -37,7 +39,7 @@ function normalizeImageUrls(images: ImageItem[]) {
     );
 }
 
-export default function DollForm({ mode, doll, action }: DollFormProps) {
+export default function DollForm({ mode, doll, collections, action }: DollFormProps) {
     const router = useRouter();
     const supabase = useMemo(() => createSupabaseBrowserClient(), []);
     const [isPending, startTransition] = useTransition();
@@ -55,6 +57,11 @@ export default function DollForm({ mode, doll, action }: DollFormProps) {
 
     const [tagsInput, setTagsInput] = useState((doll?.tags ?? []).join(", "));
     const [uploadingId, setUploadingId] = useState<string | null>(null);
+
+    const defaultCollectionId =
+        doll?.collection_id ??
+        collections.find((collection) => collection.name === doll?.collection)?.id ??
+        "";
 
     const imageUrls = normalizeImageUrls(images);
     const mainImageUrl = imageUrls[0] ?? "";
@@ -143,8 +150,18 @@ export default function DollForm({ mode, doll, action }: DollFormProps) {
                 </label>
 
                 <label className={styles.field}>
-                    Colecție
-                    <input name="collection" defaultValue={doll?.collection ?? ""} required />
+                    Colecție / Serie
+                    <select name="collection_id" defaultValue={defaultCollectionId} required>
+                        <option value="" disabled>
+                            Alege colecția
+                        </option>
+
+                        {collections.map((collection) => (
+                            <option key={collection.id} value={collection.id}>
+                                {collection.name} — {collection.type === "series" ? "Serie" : "Categorie"}
+                            </option>
+                        ))}
+                    </select>
                 </label>
 
                 <label className={styles.field}>

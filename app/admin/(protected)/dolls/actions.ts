@@ -71,7 +71,10 @@ function getStringArrayFromJson(formData: FormData, key: string) {
     }
 }
 
-function getDollPayload(formData: FormData) {
+async function getDollPayload(
+    supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+    formData: FormData
+) {
     const name = getString(formData, "name");
     const customSlug = getString(formData, "slug");
     const slug = slugify(customSlug || name);
@@ -80,10 +83,23 @@ function getDollPayload(formData: FormData) {
     const imagePaths = getStringArrayFromJson(formData, "image_paths");
     const tags = getStringArrayFromJson(formData, "tags");
 
+    const collectionId = getString(formData, "collection_id");
+
+    const { data: collection, error: collectionError } = await supabase
+        .from("doll_collections")
+        .select("id, name")
+        .eq("id", collectionId)
+        .single();
+
+    if (collectionError || !collection) {
+        throw new Error(collectionError?.message ?? "Colecția selectată nu a fost găsită.");
+    }
+
     return {
         slug,
         name,
-        collection: getString(formData, "collection"),
+        collection_id: collection.id,
+        collection: collection.name,
         description: getString(formData, "description"),
         main_image_path: mainImagePath,
         image_paths: imagePaths,
@@ -101,7 +117,7 @@ function getDollPayload(formData: FormData) {
 
 export async function createDollAction(formData: FormData) {
     const supabase = await requireAdminSupabase();
-    const payload = getDollPayload(formData);
+    const payload = await getDollPayload(supabase, formData);
 
     const { error } = await supabase.from("dolls").insert(payload);
 
@@ -117,7 +133,7 @@ export async function createDollAction(formData: FormData) {
 
 export async function updateDollAction(id: string, formData: FormData) {
     const supabase = await requireAdminSupabase();
-    const payload = getDollPayload(formData);
+    const payload = await getDollPayload(supabase, formData);
 
     const { error } = await supabase
         .from("dolls")

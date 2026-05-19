@@ -25,6 +25,7 @@ export type DollRow = {
     id: string;
     slug: string;
     name: string;
+    collection_id: string | null;
     collection: string;
     description: string;
     main_image_path: string;
@@ -123,7 +124,17 @@ export async function getDollRowBySlug(slug: string) {
 }
 
 export async function getCollections() {
-    const rows = await getDollRows(false);
+    const supabase = await createSupabaseServerClient();
 
-    return Array.from(new Set(rows.map((doll) => doll.collection)));
+    const { data, error } = await supabase
+        .from("doll_collections")
+        .select("name")
+        .eq("is_active", true)
+        .order("display_order", { ascending: true });
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return (data ?? []).map((collection) => collection.name);
 }
