@@ -2,7 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import type { CollectionRow, CollectionType } from "@/lib/collections";
+import type {
+    CollectionRow,
+    CollectionType,
+} from "@/lib/collections/shared";
 import styles from "./AdminCollections.module.css";
 
 type CollectionFormProps = {

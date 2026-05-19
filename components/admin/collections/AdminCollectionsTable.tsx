@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import type { CollectionRow } from "@/lib/collections";
-import { formatCollectionType } from "@/lib/collections";
+import {
+    formatCollectionType,
+    type CollectionRow,
+} from "@/lib/collections/shared";
 import {
     bulkDeleteCollectionsAction,
     deleteCollectionAction,

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DollDetails from "@/components/DollDetails";
 import { getDollBySlug, type CatalogMode } from "@/lib/dolls";
+import { getCustomizationGroupsWithOptionsForCatalog } from "@/lib/customizations";
 
 type DollPageProps = {
     params: Promise<{
@@ -38,7 +39,10 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
     const { id } = await params;
     const resolvedSearchParams = await searchParams;
 
-    const doll = await getDollBySlug(id);
+    const [doll, customizations] = await Promise.all([
+        getDollBySlug(id),
+        getCustomizationGroupsWithOptionsForCatalog(),
+    ]);
 
     if (!doll) {
         notFound();
@@ -56,6 +60,7 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
             initialMode={mode}
             initialStartDate={startDate}
             initialEndDate={endDate}
+            customizations={customizations}
         />
     );
 }

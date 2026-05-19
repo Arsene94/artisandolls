@@ -6,6 +6,8 @@ import { type CatalogMode, type Doll } from "@/lib/dolls";
 import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
 import Image from "next/image";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
+import type { CustomizationGroupWithOptions } from "@/lib/customizations/shared";
+import CustomizationIcon from "@/components/icons/CustomizationIcon";
 import styles from "./DollDetails.module.css";
 
 type DollDetailsProps = {
@@ -13,14 +15,9 @@ type DollDetailsProps = {
     initialMode: CatalogMode;
     initialStartDate: string;
     initialEndDate: string;
+    customizations: Record<CatalogMode, CustomizationGroupWithOptions[]>;
 };
 
-type CustomOption = {
-    id: string;
-    label: string;
-    description: string;
-    price: number;
-};
 
 type OutfitOption = {
     id: string;
@@ -28,84 +25,6 @@ type OutfitOption = {
     description: string;
     price: number;
     image: string;
-};
-
-type CustomOptionGroup = {
-    id: string;
-    title: string;
-    description: string;
-    options: CustomOption[];
-};
-
-const customizationGroupsByMode: Record<CatalogMode, CustomOptionGroup[]> = {
-    rent: [
-        {
-            id: "rental-care",
-            title: "Pregătire & igienizare",
-            description: "Opțiuni extra pentru predare, curățare și protecție.",
-            options: [
-                {
-                    id: "rent-premium-cleaning",
-                    label: "Igienizare premium",
-                    description: "Curățare detaliată înainte de predare și ambalare protejată.",
-                    price: 90,
-                },
-                {
-                    id: "rent-protective-case",
-                    label: "Cutie transport premium",
-                    description: "Cutie rigidă pentru transport mai sigur pe durata închirierii.",
-                    price: 60,
-                },
-            ],
-        },
-        {
-            id: "rental-experience",
-            title: "Experiență",
-            description: "Opțiuni potrivite pentru evenimente, decor sau sesiuni foto.",
-            options: [
-                {
-                    id: "rent-photo-ready",
-                    label: "Pregătire pentru ședință foto",
-                    description: "Styling rapid, poziționare și verificare vizuală înainte de livrare.",
-                    price: 120,
-                },
-            ],
-        },
-    ],
-    buy: [
-        {
-            id: "buy-appearance",
-            title: "Aspect & finisaj",
-            description: "Customizări permanente pentru piesa cumpărată.",
-            options: [
-                {
-                    id: "buy-face-detailing",
-                    label: "Detalii față premium",
-                    description: "Finisaj expresiv, machiaj artistic și accente pictate manual.",
-                    price: 350,
-                },
-            ],
-        },
-        {
-            id: "buy-presentation",
-            title: "Prezentare & colecție",
-            description: "Opțiuni pentru păstrare, livrare și autenticitate.",
-            options: [
-                {
-                    id: "buy-display-box",
-                    label: "Cutie de prezentare",
-                    description: "Ambalaj rigid, interior protejat și prezentare premium.",
-                    price: 280,
-                },
-                {
-                    id: "buy-certificate",
-                    label: "Certificat extins",
-                    description: "Fișă detaliată cu număr de serie, colecție și recomandări de întreținere.",
-                    price: 120,
-                },
-            ],
-        },
-    ],
 };
 
 const outfitOptionsByMode: Record<CatalogMode, OutfitOption[]> = {
@@ -227,15 +146,22 @@ function getGalleryImages(doll: Doll) {
     return uniqueImages.length > 0 ? uniqueImages : [doll.image];
 }
 
-function getCustomOptionsForMode(mode: CatalogMode) {
-    return customizationGroupsByMode[mode].flatMap((group) => group.options);
+function getCustomOptionsForMode(
+    mode: CatalogMode,
+    customizations: Record<CatalogMode, CustomizationGroupWithOptions[]>
+) {
+    return customizations[mode].flatMap((group) => group.options);
 }
 
-function getCustomizationTotal(optionIds: string[], mode: CatalogMode) {
-    const options = getCustomOptionsForMode(mode);
+function getCustomizationTotal(
+    optionIds: string[],
+    mode: CatalogMode,
+    customizations: Record<CatalogMode, CustomizationGroupWithOptions[]>
+) {
+    const options = getCustomOptionsForMode(mode, customizations);
 
     return optionIds.reduce((total, optionId) => {
-        const option = options.find((item) => item.id === optionId);
+        const option = options.find((item) => item.id === optionId || item.slug === optionId);
 
         return total + (option?.price ?? 0);
     }, 0);
@@ -251,10 +177,10 @@ function getOutfitTotal(outfitId: string, mode: CatalogMode) {
 
 type CustomizationPickerProps = {
     mode: CatalogMode;
-    groups: CustomOptionGroup[];
+    groups: CustomizationGroupWithOptions[];
     selectedOptions: string[];
     selectedOutfitId: string;
-    onToggle: (optionId: string) => void;
+    onToggle: (groupId: string, optionId: string) => void;
     onOutfitSelect: (outfitId: string) => void;
 };
 
@@ -370,7 +296,10 @@ function CustomizationPicker({
                 {groups.map((group) => (
                     <div key={group.id} className={styles.customizationGroup}>
                         <div className={styles.groupHeader}>
-                            <h3>{group.title}</h3>
+                            <h3>
+                                <CustomizationIcon name={group.icon_name} />
+                                {group.title}
+                            </h3>
                             <p>{group.description}</p>
                         </div>
 
@@ -388,13 +317,24 @@ function CustomizationPicker({
                                         }
                                     >
                                         <input
-                                            type="checkbox"
+                                            type={group.selection_type === "single" ? "radio" : "checkbox"}
                                             checked={isSelected}
-                                            onChange={() => onToggle(option.id)}
+                                            onChange={() => onToggle(group.id, option.id)}
                                         />
 
                                         <span className={styles.checkboxControl} aria-hidden="true">
                                             {isSelected ? "✓" : ""}
+                                        </span>
+
+                                        <span className={styles.customOptionIcon} aria-hidden="true">
+                                            <CustomizationIcon
+                                                name={option.icon_name}
+                                                color={option.icon_color}
+                                            />
+
+                                            {option.swatch_color && (
+                                                <i style={{ background: option.swatch_color }} />
+                                            )}
                                         </span>
 
                                         <span className={styles.customOptionContent}>
@@ -403,7 +343,7 @@ function CustomizationPicker({
                                                 <em>+{option.price.toLocaleString("ro-RO")} lei</em>
                                             </span>
 
-                                            <span>{option.description}</span>
+                                            <span>{option.description ?? ""}</span>
                                         </span>
                                     </label>
                                 );
@@ -440,6 +380,7 @@ export default function DollDetails({
                                         initialMode,
                                         initialStartDate,
                                         initialEndDate,
+                                        customizations,
                                     }: DollDetailsProps) {
     const galleryImages = useMemo(() => getGalleryImages(doll), [doll]);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -488,8 +429,8 @@ export default function DollDetails({
     const activeSelectedOutfitId = selectedOutfitByMode[mode];
 
     const customizationTotal = useMemo(() => {
-        return getCustomizationTotal(activeSelectedOptions, mode);
-    }, [activeSelectedOptions, mode]);
+        return getCustomizationTotal(activeSelectedOptions, mode, customizations);
+    }, [activeSelectedOptions, mode, customizations]);
 
     const outfitTotal = useMemo(() => {
         return getOutfitTotal(activeSelectedOutfitId, mode);
@@ -515,9 +456,28 @@ export default function DollDetails({
 
     const isAvailableForSelectedMode = mode === "rent" ? doll.availableForRent : doll.availableForBuy;
 
-    function toggleOption(optionId: string) {
+    function toggleOption(groupId: string, optionId: string) {
+        const group = customizations[mode].find((item) => item.id === groupId);
+
         setSelectedOptionsByMode((currentOptionsByMode) => {
             const currentModeOptions = currentOptionsByMode[mode];
+
+            if (group?.selection_type === "single") {
+                const groupOptionIds = group.options.map((option) => option.id);
+
+                const withoutGroupOptions = currentModeOptions.filter(
+                    (item) => !groupOptionIds.includes(item)
+                );
+
+                const nextModeOptions = currentModeOptions.includes(optionId)
+                    ? withoutGroupOptions
+                    : [...withoutGroupOptions, optionId];
+
+                return {
+                    ...currentOptionsByMode,
+                    [mode]: nextModeOptions,
+                };
+            }
 
             const nextModeOptions = currentModeOptions.includes(optionId)
                 ? currentModeOptions.filter((item) => item !== optionId)
@@ -682,7 +642,7 @@ export default function DollDetails({
 
                             <CustomizationPicker
                                 mode={mode}
-                                groups={customizationGroupsByMode[mode]}
+                                groups={customizations[mode]}
                                 selectedOptions={activeSelectedOptions}
                                 selectedOutfitId={activeSelectedOutfitId}
                                 onToggle={toggleOption}
