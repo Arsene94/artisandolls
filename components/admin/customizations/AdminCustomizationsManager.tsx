@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import CustomizationIcon, {
-    customizationIconOptions,
-} from "@/components/icons/CustomizationIcon";
+import Link from "next/link";
+import { useTransition } from "react";
+import CustomizationIcon from "@/components/icons/CustomizationIcon";
 import type { CustomizationGroupWithOptions } from "@/lib/customizations/shared";
 import {
-    createCustomizationGroupAction,
-    createCustomizationOptionAction,
+    formatCustomizationMode,
+    formatSelectionType,
+} from "@/lib/customizations/shared";
+import {
     deleteCustomizationGroupAction,
     deleteCustomizationOptionAction,
 } from "@/app/admin/(protected)/customizations/actions";
@@ -19,7 +20,6 @@ type Props = {
 
 export default function AdminCustomizationsManager({ groups }: Props) {
     const [isPending, startTransition] = useTransition();
-    const [openGroupId, setOpenGroupId] = useState<string | null>(groups[0]?.id ?? null);
 
     return (
         <section className={styles.panel}>
@@ -27,68 +27,16 @@ export default function AdminCustomizationsManager({ groups }: Props) {
                 <div>
                     <span>Customizări</span>
                     <h2>Opțiuni extra pentru păpuși</h2>
-                    <p>Administrează categorii precum ochi, piele, dimensiuni, greutate, înălțime și servicii extra.</p>
+                    <p>
+                        Administrează grupuri și valori pentru culoare ochi, culoare piele,
+                        dimensiuni, greutate, înălțime și servicii extra.
+                    </p>
                 </div>
+
+                <Link href="/admin/customizations/new" className={styles.primaryButton}>
+                    Adaugă grup
+                </Link>
             </div>
-
-            <form action={createCustomizationGroupAction} className={styles.inlineForm}>
-                <div className={styles.formGrid}>
-                    <label className={styles.field}>
-                        Titlu grup
-                        <input name="title" placeholder="Culoare ochi" required />
-                    </label>
-
-                    <label className={styles.field}>
-                        Slug
-                        <input name="slug" placeholder="se generează automat" />
-                    </label>
-
-                    <label className={styles.field}>
-                        Mod
-                        <select name="mode" defaultValue="buy">
-                            <option value="both">Ambele</option>
-                            <option value="rent">Închiriere</option>
-                            <option value="buy">Cumpărare</option>
-                        </select>
-                    </label>
-
-                    <label className={styles.field}>
-                        Tip selecție
-                        <select name="selection_type" defaultValue="single">
-                            <option value="single">Single</option>
-                            <option value="multiple">Multiple</option>
-                        </select>
-                    </label>
-
-                    <label className={styles.field}>
-                        Icon grup
-                        <select name="icon_name" defaultValue="sparkles">
-                            {customizationIconOptions.map((icon) => (
-                                <option key={icon} value={icon}>
-                                    {icon}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-
-                    <label className={styles.field}>
-                        Ordine
-                        <input name="display_order" type="number" defaultValue={0} />
-                    </label>
-                </div>
-
-                <label className={styles.field}>
-                    Descriere
-                    <textarea name="description" />
-                </label>
-
-                <label className={styles.checkField}>
-                    <input name="is_active" type="checkbox" defaultChecked />
-                    Activ
-                </label>
-
-                <button className={styles.primaryButton}>Adaugă grup</button>
-            </form>
 
             <div className={styles.optionGrid}>
                 {groups.map((group) => (
@@ -100,19 +48,21 @@ export default function AdminCustomizationsManager({ groups }: Props) {
                         <div>
                             <strong>{group.title}</strong>
                             <small>
-                                {group.mode} · {group.selection_type} · {group.options.length} opțiuni
+                                {formatCustomizationMode(group.mode)} ·{" "}
+                                {formatSelectionType(group.selection_type)} ·{" "}
+                                {group.options.length} opțiuni ·{" "}
+                                {group.is_active ? "Activ" : "Inactiv"}
                             </small>
                         </div>
 
                         <div className={styles.rowActions}>
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setOpenGroupId(openGroupId === group.id ? null : group.id)
-                                }
-                            >
-                                Opțiuni
-                            </button>
+                            <Link href={`/admin/customizations/${group.slug}/edit`}>
+                                Editează
+                            </Link>
+
+                            <Link href={`/admin/customizations/${group.slug}/options/new`}>
+                                Adaugă opțiune
+                            </Link>
 
                             <button
                                 type="button"
@@ -129,70 +79,8 @@ export default function AdminCustomizationsManager({ groups }: Props) {
                             </button>
                         </div>
 
-                        {openGroupId === group.id && (
-                            <div className={styles.panelWide}>
-                                <form
-                                    action={async (formData) => {
-                                        await createCustomizationOptionAction(group.id, formData);
-                                    }}
-                                    className={styles.inlineForm}
-                                >
-                                    <div className={styles.formGrid}>
-                                        <label className={styles.field}>
-                                            Nume opțiune
-                                            <input name="label" placeholder="Albastru" required />
-                                        </label>
-
-                                        <label className={styles.field}>
-                                            Slug
-                                            <input name="slug" />
-                                        </label>
-
-                                        <label className={styles.field}>
-                                            Preț
-                                            <input name="price" type="number" min="0" defaultValue={0} />
-                                        </label>
-
-                                        <label className={styles.field}>
-                                            Icon opțiune
-                                            <select name="icon_name" defaultValue={group.icon_name}>
-                                                {customizationIconOptions.map((icon) => (
-                                                    <option key={icon} value={icon}>
-                                                        {icon}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </label>
-
-                                        <label className={styles.field}>
-                                            Culoare icon
-                                            <input name="icon_color" placeholder="#60a5fa" />
-                                        </label>
-
-                                        <label className={styles.field}>
-                                            Culoare bulină
-                                            <input name="swatch_color" placeholder="#60a5fa" />
-                                        </label>
-
-                                        <label className={styles.field}>
-                                            Ordine
-                                            <input name="display_order" type="number" defaultValue={0} />
-                                        </label>
-                                    </div>
-
-                                    <label className={styles.field}>
-                                        Descriere
-                                        <textarea name="description" />
-                                    </label>
-
-                                    <label className={styles.checkField}>
-                                        <input name="is_active" type="checkbox" defaultChecked />
-                                        Activ
-                                    </label>
-
-                                    <button className={styles.primaryButton}>Adaugă opțiune</button>
-                                </form>
-
+                        <div className={styles.panelWide}>
+                            {group.options.length > 0 ? (
                                 <div className={styles.optionGrid}>
                                     {group.options.map((option) => (
                                         <div key={option.id} className={styles.optionCard}>
@@ -206,7 +94,9 @@ export default function AdminCustomizationsManager({ groups }: Props) {
                                             <div>
                                                 <strong>{option.label}</strong>
                                                 <small>
-                                                    +{option.price.toLocaleString("ro-RO")} lei · {option.slug}
+                                                    +{option.price.toLocaleString("ro-RO")} lei ·{" "}
+                                                    {option.is_active ? "Activă" : "Inactivă"} ·{" "}
+                                                    {option.slug}
                                                 </small>
                                             </div>
 
@@ -217,26 +107,44 @@ export default function AdminCustomizationsManager({ groups }: Props) {
                                                 />
                                             )}
 
-                                            <button
-                                                type="button"
-                                                disabled={isPending}
-                                                onClick={() => {
-                                                    if (!confirm("Ștergi această opțiune?")) return;
+                                            <div className={styles.rowActions}>
+                                                <Link
+                                                    href={`/admin/customizations/${group.slug}/options/${option.id}/edit`}
+                                                >
+                                                    Editează
+                                                </Link>
 
-                                                    startTransition(async () => {
-                                                        await deleteCustomizationOptionAction(option.id);
-                                                    });
-                                                }}
-                                            >
-                                                Șterge
-                                            </button>
+                                                <button
+                                                    type="button"
+                                                    disabled={isPending}
+                                                    onClick={() => {
+                                                        if (!confirm("Ștergi această opțiune?")) return;
+
+                                                        startTransition(async () => {
+                                                            await deleteCustomizationOptionAction(option.id);
+                                                        });
+                                                    }}
+                                                >
+                                                    Șterge
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
-                            </div>
-                        )}
+                            ) : (
+                                <div className={styles.emptyState}>
+                                    Nu există opțiuni în acest grup.
+                                </div>
+                            )}
+                        </div>
                     </article>
                 ))}
+
+                {groups.length === 0 && (
+                    <div className={styles.emptyState}>
+                        Nu există încă grupuri de customizări.
+                    </div>
+                )}
             </div>
         </section>
     );

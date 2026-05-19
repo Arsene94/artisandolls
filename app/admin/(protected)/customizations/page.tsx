@@ -1,20 +1,11 @@
-import { getCustomizationGroupsWithOptionsForCatalog } from "@/lib/customizations";
+import { getAllCustomizationGroupsWithOptions } from "@/lib/customizations";
 import AdminCustomizationsManager from "@/components/admin/customizations/AdminCustomizationsManager";
 import styles from "../page.module.css";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminCustomizationsPage() {
-    const { rent, buy } = await getCustomizationGroupsWithOptionsForCatalog();
-
-    const groups = [
-        ...rent.filter((group) => group.mode !== "both"),
-        ...buy,
-    ];
-
-    const uniqueGroups = Array.from(
-        new Map(groups.map((group) => [group.id, group])).values()
-    );
+    const groups = await getAllCustomizationGroupsWithOptions(true);
 
     return (
         <main className={styles.page}>
@@ -27,7 +18,7 @@ export default async function AdminCustomizationsPage() {
                 </p>
             </section>
 
-            <AdminCustomizationsManager groups={uniqueGroups} />
+            <AdminCustomizationsManager groups={groups} />
         </main>
     );
 }

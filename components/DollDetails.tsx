@@ -318,6 +318,7 @@ function CustomizationPicker({
                                     >
                                         <input
                                             type={group.selection_type === "single" ? "radio" : "checkbox"}
+                                            name={`customization-${group.id}`}
                                             checked={isSelected}
                                             onChange={() => onToggle(group.id, option.id)}
                                         />

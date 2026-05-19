@@ -81,33 +81,144 @@ export async function getCustomizationOptionsByGroup(groupId: string, includeIna
     return (data ?? []) as CustomizationOptionRow[];
 }
 
-export async function getCustomizationGroupsWithOptionsForMode(mode: Exclude<CustomizationMode, "both">) {
+export async function getCustomizationGroupsWithOptionsForMode(
+    mode: Exclude<CustomizationMode, "both">,
+    includeInactive = false
+) {
+    const supabase = await createSupabaseServerClient();
+
+    let groupsQuery = supabase
+        .from("doll_customization_groups")
+        .select("*")
+        .in("mode", [mode, "both"])
+        .order("display_order", { ascending: true })
+        .order("created_at", { ascending: false });
+
+    if (!includeInactive) {
+        groupsQuery = groupsQuery.eq("is_active", true);
+    }
+
+    const { data: groupsData, error: groupsError } = await groupsQuery;
+
+    if (groupsError) {
+        throw new Error(groupsError.message);
+    }
+
+    const groups = (groupsData ?? []) as CustomizationGroupRow[];
+
+    if (groups.length === 0) {
+        return [] as CustomizationGroupWithOptions[];
+    }
+
+    const groupIds = groups.map((group) => group.id);
+
+    let optionsQuery = supabase
+        .from("doll_customization_options")
+        .select("*")
+        .in("group_id", groupIds)
+        .order("display_order", { ascending: true })
+        .order("created_at", { ascending: false });
+
+    if (!includeInactive) {
+        optionsQuery = optionsQuery.eq("is_active", true);
+    }
+
+    const { data: optionsData, error: optionsError } = await optionsQuery;
+
+    if (optionsError) {
+        throw new Error(optionsError.message);
+    }
+
+    const options = (optionsData ?? []) as CustomizationOptionRow[];
+
+    const optionsByGroup = new Map<string, CustomizationOptionRow[]>();
+
+    for (const option of options) {
+        const currentOptions = optionsByGroup.get(option.group_id) ?? [];
+        currentOptions.push(option);
+        optionsByGroup.set(option.group_id, currentOptions);
+    }
+
+    return groups.map((group) => ({
+        ...group,
+        options: optionsByGroup.get(group.id) ?? [],
+    }));
+}
+
+export async function getAllCustomizationGroupsWithOptions(includeInactive = true) {
+    const supabase = await createSupabaseServerClient();
+
+    let groupsQuery = supabase
+        .from("doll_customization_groups")
+        .select("*")
+        .order("display_order", { ascending: true })
+        .order("created_at", { ascending: false });
+
+    if (!includeInactive) {
+        groupsQuery = groupsQuery.eq("is_active", true);
+    }
+
+    const { data: groupsData, error: groupsError } = await groupsQuery;
+
+    if (groupsError) {
+        throw new Error(groupsError.message);
+    }
+
+    const groups = (groupsData ?? []) as CustomizationGroupRow[];
+
+    if (groups.length === 0) {
+        return [] as CustomizationGroupWithOptions[];
+    }
+
+    const groupIds = groups.map((group) => group.id);
+
+    let optionsQuery = supabase
+        .from("doll_customization_options")
+        .select("*")
+        .in("group_id", groupIds)
+        .order("display_order", { ascending: true })
+        .order("created_at", { ascending: false });
+
+    if (!includeInactive) {
+        optionsQuery = optionsQuery.eq("is_active", true);
+    }
+
+    const { data: optionsData, error: optionsError } = await optionsQuery;
+
+    if (optionsError) {
+        throw new Error(optionsError.message);
+    }
+
+    const options = (optionsData ?? []) as CustomizationOptionRow[];
+
+    const optionsByGroup = new Map<string, CustomizationOptionRow[]>();
+
+    for (const option of options) {
+        const currentOptions = optionsByGroup.get(option.group_id) ?? [];
+        currentOptions.push(option);
+        optionsByGroup.set(option.group_id, currentOptions);
+    }
+
+    return groups.map((group) => ({
+        ...group,
+        options: optionsByGroup.get(group.id) ?? [],
+    }));
+}
+
+export async function getCustomizationOptionById(id: string) {
     const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
-        .from("doll_customization_groups")
-        .select(`
-            *,
-            options:doll_customization_options(*)
-        `)
-        .eq("is_active", true)
-        .in("mode", [mode, "both"])
-        .order("display_order", { ascending: true })
-        .order("display_order", {
-            ascending: true,
-            referencedTable: "doll_customization_options",
-        });
+        .from("doll_customization_options")
+        .select("*")
+        .eq("id", id)
+        .single();
 
-    if (error) {
-        throw new Error(error.message);
+    if (error || !data) {
+        return null;
     }
 
-    return ((data ?? []) as CustomizationGroupWithOptions[]).map((group) => ({
-        ...group,
-        options: (group.options ?? [])
-            .filter((option) => option.is_active)
-            .sort((a, b) => a.display_order - b.display_order),
-    }));
+    return data as CustomizationOptionRow;
 }
 
 export async function getCustomizationGroupsWithOptionsForCatalog() {

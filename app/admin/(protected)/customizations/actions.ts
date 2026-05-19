@@ -151,6 +151,7 @@ export async function deleteCustomizationGroupAction(id: string) {
 
 export async function createCustomizationOptionAction(groupId: string, formData: FormData) {
     const supabase = await requireAdminSupabase();
+    const redirectTo = getString(formData, "redirect_to") || "/admin/customizations";
 
     const { error } = await supabase
         .from("doll_customization_options")
@@ -161,14 +162,15 @@ export async function createCustomizationOptionAction(groupId: string, formData:
     }
 
     revalidatePath("/admin/customizations");
-    revalidatePath(`/admin/customizations/${groupId}`);
     revalidatePath("/catalog");
+    redirect(redirectTo);
 }
 
 export async function updateCustomizationOptionAction(optionId: string, formData: FormData) {
     const supabase = await requireAdminSupabase();
 
     const groupId = getString(formData, "group_id");
+    const redirectTo = getString(formData, "redirect_to") || "/admin/customizations";
 
     const { error } = await supabase
         .from("doll_customization_options")
@@ -181,6 +183,7 @@ export async function updateCustomizationOptionAction(optionId: string, formData
 
     revalidatePath("/admin/customizations");
     revalidatePath("/catalog");
+    redirect(redirectTo);
 }
 
 export async function deleteCustomizationOptionAction(optionId: string) {
