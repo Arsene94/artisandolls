@@ -4,6 +4,11 @@ import DollDetails from "@/components/DollDetails";
 import { getOutfitsForCatalog } from "@/lib/outfits";
 import { getDollBySlug, type CatalogMode } from "@/lib/dolls";
 import { getCustomizationGroupsWithOptionsForCatalog } from "@/lib/customizations";
+import PublicUnavailableNotice from "@/components/PublicUnavailableNotice";
+import {
+    getPublicPlatformSettings,
+    getSafeCatalogMode,
+} from "@/lib/settings";
 
 type DollPageProps = {
     params: Promise<{
@@ -40,18 +45,40 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
     const { id } = await params;
     const resolvedSearchParams = await searchParams;
 
-    const [doll, customizations, outfits] = await Promise.all([
+    const [doll, customizations, outfits, settings] = await Promise.all([
         getDollBySlug(id),
         getCustomizationGroupsWithOptionsForCatalog(),
         getOutfitsForCatalog(),
+        getPublicPlatformSettings(),
     ]);
 
     if (!doll) {
         notFound();
     }
 
+    if (settings.maintenance_mode || !settings.catalog_enabled) {
+        return (
+            <PublicUnavailableNotice
+                title="Catalog indisponibil temporar"
+                description="Această pagină nu este disponibilă momentan."
+                settings={settings}
+            />
+        );
+    }
+
     const rawMode = getSearchParamValue(resolvedSearchParams?.mode);
-    const mode: CatalogMode = rawMode === "buy" ? "buy" : "rent";
+    const requestedMode: CatalogMode = rawMode === "buy" ? "buy" : "rent";
+    const mode = getSafeCatalogMode(requestedMode, settings);
+
+    if (!mode) {
+        return (
+            <PublicUnavailableNotice
+                title="Comenzile sunt indisponibile temporar"
+                description="Închirierea și cumpărarea sunt momentan oprite."
+                settings={settings}
+            />
+        );
+    }
 
     const startDate = getSearchParamValue(resolvedSearchParams?.start);
     const endDate = getSearchParamValue(resolvedSearchParams?.end);
@@ -64,6 +91,7 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
             initialEndDate={endDate}
             customizations={customizations}
             outfits={outfits}
+            settings={settings}
         />
     );
 }

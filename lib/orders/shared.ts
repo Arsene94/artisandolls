@@ -162,6 +162,7 @@ export type OrderRow = {
     outfit_id: string | null;
     selected_options: string[];
 
+    customer_id: string | null;
     customer_name: string;
     customer_email: string;
     customer_phone: string;

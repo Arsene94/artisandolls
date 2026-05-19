@@ -8,6 +8,7 @@ import Image from "next/image";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import styles from "./DollsCatalog.module.css";
 import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
+import type { PublicPlatformSettings } from "@/lib/settings/shared";
 
 type DollsCatalogProps = {
     dolls: Doll[];
@@ -15,6 +16,7 @@ type DollsCatalogProps = {
     initialMode: CatalogMode;
     initialStartDate: string;
     initialEndDate: string;
+    settings: PublicPlatformSettings;
 };
 
 type AvailabilityFilter = "all" | "available" | "rent" | "buy" | "custom" | "sold_out";
@@ -82,6 +84,7 @@ export default function DollsCatalog({
                                          initialMode,
                                          initialStartDate,
                                          initialEndDate,
+                                         settings,
                                      }: DollsCatalogProps) {
     const router = useRouter();
     const hasInitializedPeriodRef = useRef(false);
@@ -209,21 +212,25 @@ export default function DollsCatalog({
                     </div>
 
                     <div className={styles.modeToggle}>
-                        <button
-                            type="button"
-                            className={mode === "rent" ? styles.activeMode : ""}
-                            onClick={() => setMode("rent")}
-                        >
-                            Închiriere
-                        </button>
+                        {settings.rent_enabled && (
+                            <button
+                                type="button"
+                                className={mode === "rent" ? styles.activeMode : ""}
+                                onClick={() => setMode("rent")}
+                            >
+                                Închiriere
+                            </button>
+                        )}
 
-                        <button
-                            type="button"
-                            className={mode === "buy" ? styles.activeMode : ""}
-                            onClick={() => setMode("buy")}
-                        >
-                            Cumpărare
-                        </button>
+                        {settings.buy_enabled && (
+                            <button
+                                type="button"
+                                className={mode === "buy" ? styles.activeMode : ""}
+                                onClick={() => setMode("buy")}
+                            >
+                                Cumpărare
+                            </button>
+                        )}
                     </div>
 
                     <label className={styles.field}>
@@ -256,8 +263,12 @@ export default function DollsCatalog({
                         >
                             <option value="all">Toate</option>
                             <option value="available">Disponibile acum</option>
-                            <option value="rent">Disponibile pentru închiriere</option>
-                            <option value="buy">Disponibile pentru cumpărare</option>
+                            {settings.rent_enabled && (
+                                <option value="rent">Disponibile pentru închiriere</option>
+                            )}
+                            {settings.buy_enabled && (
+                                <option value="buy">Disponibile pentru cumpărare</option>
+                            )}
                             <option value="custom">Personalizabile</option>
                             <option value="sold_out">Sold out</option>
                         </select>

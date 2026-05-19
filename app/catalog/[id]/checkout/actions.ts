@@ -5,6 +5,10 @@ import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import {getInitialOrderStatus, getRentalDays, type OrderRow} from "@/lib/orders/shared";
 import { notifyAdminsAboutOrder } from "@/lib/whatsapp";
 import type { CatalogMode } from "@/lib/dolls";
+import {
+    getPublicPlatformSettings,
+    isCatalogModeEnabled,
+} from "@/lib/settings";
 
 function getString(formData: FormData, key: string) {
     return String(formData.get(key) ?? "").trim();
@@ -31,10 +35,31 @@ function getTotalAmount(value: string) {
     return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : 0;
 }
 
+function normalizePhone(value: string) {
+    return value.replace(/[^\d+]/g, "");
+}
+
 export async function createOrderAction(formData: FormData) {
     const supabase = createSupabaseServiceClient();
 
     const mode = getMode(getString(formData, "mode"));
+    const settings = await getPublicPlatformSettings();
+
+    if (settings.maintenance_mode) {
+        throw new Error("Platforma este momentan în mentenanță.");
+    }
+
+    if (!settings.catalog_enabled) {
+        throw new Error("Catalogul este momentan indisponibil.");
+    }
+
+    if (!isCatalogModeEnabled(mode, settings)) {
+        throw new Error(
+            mode === "rent"
+                ? "Închirierile sunt momentan indisponibile."
+                : "Cumpărările sunt momentan indisponibile."
+        );
+    }
     const dollSlug = getString(formData, "doll_slug");
 
     const { data: doll, error: dollError } = await supabase
@@ -94,6 +119,32 @@ export async function createOrderAction(formData: FormData) {
 
     const totalAmount = getTotalAmount(getString(formData, "total"));
 
+    const customerEmail = getString(formData, "email").toLowerCase();
+    const customerPhone = getString(formData, "phone");
+    const customerName = getString(formData, "full_name");
+    const deliveryAddress = getString(formData, "delivery_address");
+
+    const { data: customer, error: customerError } = await supabase
+        .from("customers")
+        .upsert(
+            {
+                full_name: customerName,
+                email: customerEmail,
+                phone: customerPhone,
+                normalized_phone: normalizePhone(customerPhone),
+                last_delivery_address: deliveryAddress,
+            },
+            {
+                onConflict: "email",
+            }
+        )
+        .select("id")
+        .single();
+
+    if (customerError || !customer) {
+        throw new Error(customerError?.message ?? "Clientul nu a putut fi salvat.");
+    }
+
     const payload = {
         mode,
         status: getInitialOrderStatus(mode),
@@ -111,10 +162,11 @@ export async function createOrderAction(formData: FormData) {
         outfit_image: selectedOutfit?.image_path ?? selectedOutfit?.image_url ?? null,
         selected_options: getSelectedOptions(getString(formData, "options")),
 
-        customer_name: getString(formData, "full_name"),
-        customer_email: getString(formData, "email"),
-        customer_phone: getString(formData, "phone"),
-        delivery_address: getString(formData, "delivery_address"),
+        customer_id: customer.id,
+        customer_name: customerName,
+        customer_email: customerEmail,
+        customer_phone: customerPhone,
+        delivery_address: deliveryAddress,
         delivery_time: getString(formData, "delivery_time"),
         return_time: getNullableString(formData, "return_time"),
         notes: getNullableString(formData, "notes"),

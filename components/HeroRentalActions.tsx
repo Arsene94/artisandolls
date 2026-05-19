@@ -20,7 +20,17 @@ function buildCatalogHref(mode: "rent" | "buy", range: RentalRangeValue) {
     return `/catalog?${params.toString()}`;
 }
 
-export default function HeroRentalActions() {
+type HeroRentalActionsProps = {
+    catalogEnabled: boolean;
+    rentEnabled: boolean;
+    buyEnabled: boolean;
+};
+
+export default function HeroRentalActions({
+                                              catalogEnabled,
+                                              rentEnabled,
+                                              buyEnabled,
+                                          }: HeroRentalActionsProps) {
     const [range, setRange] = useState<RentalRangeValue>({
         startDate: "",
         endDate: "",
@@ -29,17 +39,31 @@ export default function HeroRentalActions() {
     const rentHref = useMemo(() => buildCatalogHref("rent", range), [range]);
     const buyHref = useMemo(() => buildCatalogHref("buy", range), [range]);
 
+    if (!catalogEnabled || (!rentEnabled && !buyEnabled)) {
+        return (
+            <div className="hero-cta fade-in fade-in-delay-3">
+            <span className="btn btn-outline-light">
+                Catalog indisponibil temporar
+            </span>
+            </div>
+        );
+    }
+
     return (
         <div className="hero-cta fade-in fade-in-delay-3">
             <RentalDateRangePicker onChange={setRange} />
 
-            <Link href={rentHref} className="btn btn-gold">
-                Închiriază
-            </Link>
+            {rentEnabled && (
+                <Link href={rentHref} className="btn btn-gold">
+                    Închiriază
+                </Link>
+            )}
 
-            <Link href={buyHref} className="btn btn-outline-light">
-                Cumpără
-            </Link>
+            {buyEnabled && (
+                <Link href={buyHref} className="btn btn-outline-light">
+                    Cumpără
+                </Link>
+            )}
         </div>
     );
 }

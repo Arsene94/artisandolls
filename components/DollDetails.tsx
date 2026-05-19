@@ -9,6 +9,7 @@ import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import type { CustomizationGroupWithOptions } from "@/lib/customizations/shared";
 import CustomizationIcon from "@/components/icons/CustomizationIcon";
 import type { OutfitOptionForCatalog } from "@/lib/outfits/shared";
+import type { PublicPlatformSettings } from "@/lib/settings/shared";
 import styles from "./DollDetails.module.css";
 
 type DollDetailsProps = {
@@ -18,6 +19,7 @@ type DollDetailsProps = {
     initialEndDate: string;
     customizations: Record<CatalogMode, CustomizationGroupWithOptions[]>;
     outfits: Record<CatalogMode, OutfitOptionForCatalog[]>;
+    settings: PublicPlatformSettings;
 };
 
 function formatDate(value: string) {
@@ -335,6 +337,7 @@ export default function DollDetails({
                                         initialEndDate,
                                         customizations,
                                         outfits,
+                                        settings,
                                     }: DollDetailsProps) {
     const galleryImages = useMemo(() => getGalleryImages(doll), [doll]);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -400,6 +403,10 @@ export default function DollDetails({
     const buyBasePrice = doll.buyPrice ?? 0;
     const buyTotal = buyBasePrice + extrasTotal;
 
+    const canUseCurrentMode =
+        mode === "rent" ? settings.rent_enabled : settings.buy_enabled;
+
+
     const checkoutHref = getCheckoutHref(
         doll.id,
         mode,
@@ -408,6 +415,7 @@ export default function DollDetails({
         activeSelectedOptions,
         mode === "rent" ? rentalTotal : buyTotal
     );
+
 
     const isAvailableForSelectedMode = mode === "rent" ? doll.availableForRent : doll.availableForBuy;
 
@@ -667,13 +675,15 @@ export default function DollDetails({
                                         </>
                                     )}
 
-                                    {isAvailableForSelectedMode && hasCompletePeriod ? (
+                                    {canUseCurrentMode ? (
                                         <Link href={checkoutHref} className="btn btn-gold">
-                                            Continuă cu închirierea
+                                            Continuă
                                         </Link>
                                     ) : (
-                                        <button type="button" className="btn btn-gold" disabled>
-                                            Continuă cu închirierea
+                                        <button type="button" className="btn btn-outline-light" disabled>
+                                            {mode === "rent"
+                                                ? "Închirierile sunt momentan indisponibile"
+                                                : "Cumpărările sunt momentan indisponibile"}
                                         </button>
                                     )}
                                 </div>

@@ -7,6 +7,7 @@ import RentalDateRangePicker, { type RentalRangeValue } from "@/components/Renta
 import Image from "next/image";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import styles from "./OrderCheckout.module.css";
+import type { PublicPlatformSettings } from "@/lib/settings/shared";
 
 type OrderCheckoutProps = {
     doll: Doll;
@@ -17,6 +18,7 @@ type OrderCheckoutProps = {
     options: string;
     total: string;
     action: (formData: FormData) => Promise<void>;
+    settings: PublicPlatformSettings;
 };
 
 type OrderFormState = {
@@ -60,6 +62,7 @@ export default function OrderCheckout({
                                           options,
                                           total,
                                           action,
+                                          settings,
                                       }: OrderCheckoutProps) {
     const [checkoutPeriod, setCheckoutPeriod] = useState<RentalRangeValue>({
         startDate,
@@ -75,8 +78,8 @@ export default function OrderCheckout({
         email: "",
         phone: "",
         deliveryAddress: "",
-        deliveryTime: "",
-        returnTime: "",
+        deliveryTime: settings.default_delivery_start_time ?? "",
+        returnTime: settings.default_return_start_time ?? "",
         notes: "",
     });
 
@@ -249,6 +252,20 @@ export default function OrderCheckout({
                                         placeholder="Ex: reper pentru curier, instrucțiuni speciale"
                                     />
                                 </label>
+
+                                {settings.order_terms && (
+                                    <div className={styles.noticeBox}>
+                                        <strong>Termeni comandă</strong>
+                                        <p>{settings.order_terms}</p>
+                                    </div>
+                                )}
+
+                                {settings.privacy_note && (
+                                    <div className={styles.noticeBox}>
+                                        <strong>Notă confidențialitate</strong>
+                                        <p>{settings.privacy_note}</p>
+                                    </div>
+                                )}
 
                                 <button type="submit" className="btn btn-gold" disabled={!hasCompletePeriod}>
                                     Confirmă datele

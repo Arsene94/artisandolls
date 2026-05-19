@@ -221,6 +221,29 @@
     margin-top: 12px;
 }
 
+.noticeBox {
+    margin-top: 18px;
+    padding: 16px;
+    border: 1px solid rgba(255, 155, 208, 0.18);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.68);
+}
+
+.noticeBox strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--color-gold-light);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.noticeBox p {
+    margin: 0;
+    line-height: 1.7;
+}
+
 @media (max-width: 900px) {
     .heroGrid {
         grid-template-columns: 1fr;

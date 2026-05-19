@@ -1,7 +1,12 @@
 import HeroEffect from "@/components/HeroEffect";
 import HeroRentalActions from "@/components/HeroRentalActions";
+import type { PublicPlatformSettings } from "@/lib/settings/shared";
 
-export default function ArtisanDollsLanding() {
+type ArtisanDollsLandingProps = {
+    settings: PublicPlatformSettings;
+};
+
+export default function ArtisanDollsLanding({ settings }: ArtisanDollsLandingProps) {
 
   return (
     <>
@@ -10,14 +15,18 @@ export default function ArtisanDollsLanding() {
           <div className="hero-bg-pattern"></div>
           <div className="hero-content">
               <div className="hero-text">
-                  <div className="eyebrow fade-in">Artă în Detaliu</div>
+                  <div className="eyebrow fade-in">{settings.business_name}</div>
                   <h1 className="fade-in fade-in-delay-1">
                       Păpuși <em>Artistice</em><br />de Colecție
                   </h1>
                   <p className="fade-in fade-in-delay-2">
                       Fiecare piesă este o operă de artă unică, realizată manual cu pasiune și rafinament. Descoperă colecția noastră exclusivă de păpuși colecționabile, personalizate la cel mai înalt nivel al meșteșugului artistic.
                   </p>
-                  <HeroRentalActions />
+                  <HeroRentalActions
+                      catalogEnabled={settings.catalog_enabled}
+                      rentEnabled={settings.rent_enabled}
+                      buyEnabled={settings.buy_enabled}
+                  />
                   <div className="hero-stats fade-in fade-in-delay-4">
                       <div className="stat">
                           <div className="stat-number">240+</div>
@@ -190,7 +199,20 @@ export default function ArtisanDollsLanding() {
               <div className="divider fade-in fade-in-delay-1"></div>
               <p className="fade-in fade-in-delay-2">Fiecare colecționar merită o piesă care să îi reprezinte viziunea. Contactează-ne astăzi și hai să transformăm ideea ta într-o operă de artă care va dura o viață.</p>
               <div className="cta-buttons fade-in fade-in-delay-3">
-                  <a href="#contact" className="btn btn-gold">Solicită o Ofertă</a>
+                  <a
+                      href={
+                          settings.whatsapp_phone
+                              ? `https://wa.me/${settings.whatsapp_phone.replace(/[^\d]/g, "")}`
+                              : settings.contact_phone
+                                  ? `tel:${settings.contact_phone}`
+                                  : settings.contact_email
+                                      ? `mailto:${settings.contact_email}`
+                                      : "#hero"
+                      }
+                      className="btn btn-gold"
+                  >
+                      Solicită o Ofertă
+                  </a>
                   <a href="#galerie" className="btn btn-outline-light">Explorează Galeria</a>
               </div>
               <div className="cta-features fade-in fade-in-delay-4">
