@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DollDetails from "@/components/DollDetails";
+import { getOutfitsForCatalog } from "@/lib/outfits";
 import { getDollBySlug, type CatalogMode } from "@/lib/dolls";
 import { getCustomizationGroupsWithOptionsForCatalog } from "@/lib/customizations";
 
@@ -39,9 +40,10 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
     const { id } = await params;
     const resolvedSearchParams = await searchParams;
 
-    const [doll, customizations] = await Promise.all([
+    const [doll, customizations, outfits] = await Promise.all([
         getDollBySlug(id),
         getCustomizationGroupsWithOptionsForCatalog(),
+        getOutfitsForCatalog(),
     ]);
 
     if (!doll) {
@@ -61,6 +63,7 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
             initialStartDate={startDate}
             initialEndDate={endDate}
             customizations={customizations}
+            outfits={outfits}
         />
     );
 }

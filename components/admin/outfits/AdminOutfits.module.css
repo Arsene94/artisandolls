@@ -1,0 +1,223 @@
+.panel,
+.form {
+    padding: 28px;
+    background: rgba(16, 7, 16, 0.82);
+    border: 1px solid rgba(255, 79, 163, 0.16);
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(18px);
+}
+
+.toolbar,
+.toolbarActions {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.toolbar span {
+    color: var(--color-gold-light);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.toolbar h2 {
+    margin: 6px 0;
+    color: var(--color-white);
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    font-weight: 500;
+}
+
+.toolbar p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.52);
+}
+
+.primaryButton,
+.dangerButton,
+.rowActions a,
+.rowActions button {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 155, 208, 0.24);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-white);
+    cursor: pointer;
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: var(--transition);
+}
+
+.primaryButton {
+    background: var(--color-gold);
+    border-color: var(--color-gold);
+}
+
+.dangerButton,
+.rowActions button {
+    color: #ffb7d8;
+    border-color: rgba(255, 79, 163, 0.32);
+}
+
+.primaryButton:hover,
+.rowActions a:hover,
+.rowActions button:hover,
+.dangerButton:hover {
+    border-color: var(--color-gold-light);
+    background: rgba(255, 79, 163, 0.16);
+}
+
+.table {
+    overflow-x: auto;
+}
+
+.tableHead,
+.tableRow {
+    min-width: 980px;
+    display: grid;
+    grid-template-columns: 44px 110px 1.4fr 0.8fr 0.7fr 0.7fr 1fr;
+    gap: 14px;
+    align-items: center;
+}
+
+.tableHead {
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-gold-light);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.tableRow {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.64);
+}
+
+.imageCell img,
+.imageCell span {
+    width: 78px;
+    height: 96px;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 155, 208, 0.16);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.44);
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.tableRow strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-white);
+}
+
+.tableRow small {
+    display: block;
+    margin-top: 4px;
+    color: rgba(255, 255, 255, 0.42);
+}
+
+.rowActions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.emptyState {
+    padding: 40px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.62);
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+    color: var(--color-gold-light);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.field input,
+.field textarea,
+.field select {
+    width: 100%;
+    min-height: 48px;
+    border: 1px solid rgba(255, 155, 208, 0.24);
+    outline: 0;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-white);
+    padding: 0 14px;
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    color-scheme: dark;
+}
+
+.field textarea {
+    min-height: 130px;
+    padding-top: 14px;
+    resize: vertical;
+}
+
+.field select option {
+    background: #130713;
+    color: #fff;
+}
+
+.checkField {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: fit-content;
+    min-height: 48px;
+    padding: 14px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(255, 155, 208, 0.16);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.72);
+}
+
+@media (max-width: 780px) {
+    .toolbar,
+    .toolbarActions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .checkField,
+    .primaryButton,
+    .dangerButton {
+        width: 100%;
+    }
+}

@@ -8,6 +8,7 @@ import Image from "next/image";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import type { CustomizationGroupWithOptions } from "@/lib/customizations/shared";
 import CustomizationIcon from "@/components/icons/CustomizationIcon";
+import type { OutfitOptionForCatalog } from "@/lib/outfits/shared";
 import styles from "./DollDetails.module.css";
 
 type DollDetailsProps = {
@@ -16,64 +17,7 @@ type DollDetailsProps = {
     initialStartDate: string;
     initialEndDate: string;
     customizations: Record<CatalogMode, CustomizationGroupWithOptions[]>;
-};
-
-
-type OutfitOption = {
-    id: string;
-    label: string;
-    description: string;
-    price: number;
-    image: string;
-};
-
-const outfitOptionsByMode: Record<CatalogMode, OutfitOption[]> = {
-    rent: [
-        {
-            id: "rent-outfit-classic",
-            label: "Ținută elegantă clasică",
-            description: "Look rafinat pentru prezentare, decor sau sesiuni foto simple.",
-            price: 120,
-            image: "https://placehold.co/420x520/130713/ff9bd0?text=Classic+Outfit",
-        },
-        {
-            id: "rent-outfit-evening",
-            label: "Ținută de seară",
-            description: "Styling mai dramatic, potrivit pentru evenimente și cadre premium.",
-            price: 180,
-            image: "https://placehold.co/420x520/24051c/ff4fa3?text=Evening+Outfit",
-        },
-        {
-            id: "rent-outfit-photo",
-            label: "Ținută foto premium",
-            description: "Ținută cu impact vizual ridicat pentru shooting sau vitrină.",
-            price: 240,
-            image: "https://placehold.co/420x520/2a0821/ffc1df?text=Photo+Outfit",
-        },
-    ],
-    buy: [
-        {
-            id: "buy-outfit-couture",
-            label: "Ținută couture personalizată",
-            description: "Materiale premium, croială dedicată și accesorii potrivite colecției.",
-            price: 650,
-            image: "https://placehold.co/420x520/130713/ff9bd0?text=Couture",
-        },
-        {
-            id: "buy-outfit-royal",
-            label: "Ținută royal collection",
-            description: "Ținută amplă, cu detalii decorative și finisaj de colecție.",
-            price: 890,
-            image: "https://placehold.co/420x520/24051c/ff4fa3?text=Royal",
-        },
-        {
-            id: "buy-outfit-noir",
-            label: "Ținută Noir premium",
-            description: "Styling dark, elegant, cu accente dramatice și prezentare premium.",
-            price: 760,
-            image: "https://placehold.co/420x520/090009/ffc1df?text=Noir",
-        },
-    ],
+    outfits: Record<CatalogMode, OutfitOptionForCatalog[]>;
 };
 
 function formatDate(value: string) {
@@ -167,17 +111,24 @@ function getCustomizationTotal(
     }, 0);
 }
 
-function getSelectedOutfit(outfitId: string, mode: CatalogMode) {
-    return outfitOptionsByMode[mode].find((outfit) => outfit.id === outfitId) ?? null;
+function getSelectedOutfit(
+    outfitId: string,
+    availableOutfits: OutfitOptionForCatalog[]
+) {
+    return availableOutfits.find((outfit) => outfit.id === outfitId) ?? null;
 }
 
-function getOutfitTotal(outfitId: string, mode: CatalogMode) {
-    return getSelectedOutfit(outfitId, mode)?.price ?? 0;
+function getOutfitTotal(
+    outfitId: string,
+    availableOutfits: OutfitOptionForCatalog[]
+) {
+    return getSelectedOutfit(outfitId, availableOutfits)?.price ?? 0;
 }
 
 type CustomizationPickerProps = {
     mode: CatalogMode;
     groups: CustomizationGroupWithOptions[];
+    outfits: OutfitOptionForCatalog[];
     selectedOptions: string[];
     selectedOutfitId: string;
     onToggle: (groupId: string, optionId: string) => void;
@@ -187,14 +138,15 @@ type CustomizationPickerProps = {
 function CustomizationPicker({
                                  mode,
                                  groups,
+                                 outfits,
                                  selectedOptions,
                                  selectedOutfitId,
                                  onToggle,
                                  onOutfitSelect,
                              }: CustomizationPickerProps) {
     const [isOutfitOpen, setIsOutfitOpen] = useState(false);
-    const outfitOptions = outfitOptionsByMode[mode];
-    const selectedOutfit = getSelectedOutfit(selectedOutfitId, mode);
+    const outfitOptions = outfits;
+    const selectedOutfit = getSelectedOutfit(selectedOutfitId, outfitOptions);
 
     return (
         <div className={styles.customizationPanel}>
@@ -382,6 +334,7 @@ export default function DollDetails({
                                         initialStartDate,
                                         initialEndDate,
                                         customizations,
+                                        outfits,
                                     }: DollDetailsProps) {
     const galleryImages = useMemo(() => getGalleryImages(doll), [doll]);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -428,14 +381,15 @@ export default function DollDetails({
 
     const activeSelectedOptions = selectedOptionsByMode[mode];
     const activeSelectedOutfitId = selectedOutfitByMode[mode];
+    const activeOutfits = outfits[mode];
 
     const customizationTotal = useMemo(() => {
         return getCustomizationTotal(activeSelectedOptions, mode, customizations);
     }, [activeSelectedOptions, mode, customizations]);
 
     const outfitTotal = useMemo(() => {
-        return getOutfitTotal(activeSelectedOutfitId, mode);
-    }, [activeSelectedOutfitId, mode]);
+        return getOutfitTotal(activeSelectedOutfitId, activeOutfits);
+    }, [activeSelectedOutfitId, activeOutfits]);
 
     const extrasTotal = customizationTotal + outfitTotal;
 
@@ -644,6 +598,7 @@ export default function DollDetails({
                             <CustomizationPicker
                                 mode={mode}
                                 groups={customizations[mode]}
+                                outfits={activeOutfits}
                                 selectedOptions={activeSelectedOptions}
                                 selectedOutfitId={activeSelectedOutfitId}
                                 onToggle={toggleOption}

@@ -1,15 +1,24 @@
+import { getOutfitRows } from "@/lib/outfits";
+import AdminOutfitsTable from "@/components/admin/outfits/AdminOutfitsTable";
 import styles from "../page.module.css";
 
-export default function AdminSectionPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminOutfitsPage() {
+    const outfits = await getOutfitRows(true);
+
     return (
         <main className={styles.page}>
             <section className={styles.hero}>
-                <span>Admin</span>
-                <h1>Secțiune în lucru</h1>
+                <span>Catalog</span>
+                <h1>Ținute</h1>
                 <p>
-                    Această pagină este pregătită pentru managementul datelor din Supabase.
+                    Administrează dropdown-ul de ținute cu poze, prețuri și disponibilitate
+                    pentru închiriere sau cumpărare.
                 </p>
             </section>
+
+            <AdminOutfitsTable outfits={outfits} />
         </main>
     );
 }

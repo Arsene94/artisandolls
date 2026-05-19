@@ -7,6 +7,8 @@ import {
     IconCamera,
     IconCertificate,
     IconCircle,
+    IconCrown,
+    IconHanger,
     IconEye,
     IconHandFinger,
     IconPalette,
@@ -16,6 +18,7 @@ import {
     IconShieldCheck,
     IconSparkles,
     IconStars,
+
 } from "@tabler/icons-react";
 
 const iconMap = {
@@ -25,6 +28,8 @@ const iconMap = {
     camera: IconCamera,
     certificate: IconCertificate,
     circle: IconCircle,
+    crown: IconCrown,
+    hanger: IconHanger,
     eye: IconEye,
     palette: IconPalette,
     "hand-finger": IconHandFinger,

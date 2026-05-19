@@ -47,6 +47,34 @@ export async function createOrderAction(formData: FormData) {
         throw new Error("Păpușa nu a fost găsită.");
     }
 
+    const outfitId = getNullableString(formData, "outfit_id");
+
+    let selectedOutfit: {
+        id: string;
+        label: string;
+        price: number;
+        image_path: string | null;
+        image_url: string | null;
+    } | null = null;
+
+    if (outfitId) {
+        const { data: outfit, error: outfitError } = await supabase
+            .from("doll_outfits")
+            .select("id, label, price, image_path, image_url, mode, is_active")
+            .eq("id", outfitId)
+            .single();
+
+        if (outfitError || !outfit || !outfit.is_active) {
+            throw new Error("Ținuta selectată nu mai este disponibilă.");
+        }
+
+        if (outfit.mode !== "both" && outfit.mode !== mode) {
+            throw new Error("Ținuta selectată nu este disponibilă pentru acest tip de comandă.");
+        }
+
+        selectedOutfit = outfit;
+    }
+
     if (mode === "rent" && !doll.available_for_rent) {
         throw new Error("Această păpușă nu este disponibilă pentru închiriere.");
     }
@@ -77,7 +105,10 @@ export async function createOrderAction(formData: FormData) {
         end_date: endDate,
         rental_days: rentalDays,
 
-        outfit_id: getNullableString(formData, "outfit_id"),
+        outfit_id: selectedOutfit?.id ?? null,
+        outfit_label: selectedOutfit?.label ?? null,
+        outfit_price: selectedOutfit?.price ?? 0,
+        outfit_image: selectedOutfit?.image_path ?? selectedOutfit?.image_url ?? null,
         selected_options: getSelectedOptions(getString(formData, "options")),
 
         customer_name: getString(formData, "full_name"),
