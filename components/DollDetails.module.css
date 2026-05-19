@@ -780,6 +780,120 @@
     border: 1px solid rgba(255, 255, 255, 0.45);
 }
 
+/* Compact customization options */
+.customOptionList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.customOption,
+.customOptionSelected {
+    width: auto;
+    min-height: 44px;
+    display: inline-grid;
+    grid-template-columns: 18px 28px auto;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    transform: none;
+}
+
+.customOption:hover,
+.customOptionSelected {
+    transform: none;
+}
+
+.checkboxControl {
+    width: 18px;
+    height: 18px;
+    margin-top: 0;
+    font-size: 0.66rem;
+}
+
+.customOptionIcon {
+    width: 28px;
+    height: 28px;
+}
+
+.customOptionIcon i {
+    right: -2px;
+    bottom: -2px;
+    width: 10px;
+    height: 10px;
+}
+
+.customOptionContent {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.customOptionTop {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.customOptionTop strong {
+    max-width: 140px;
+    overflow: hidden;
+    color: var(--color-white);
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customOptionTop em {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* Ascundem descrierea în chip ca să nu lungească pagina */
+.customOptionContent > span:last-child:not(.customOptionTop) {
+    display: none;
+}
+
+.customOptionSelected .customOptionTop strong {
+    color: var(--color-gold-light);
+}
+
+@media (max-width: 720px) {
+    .customOptionList {
+        gap: 7px;
+    }
+
+    .customOption,
+    .customOptionSelected {
+        grid-template-columns: 18px 26px auto;
+        padding: 8px 9px;
+    }
+
+    .customOptionIcon {
+        width: 26px;
+        height: 26px;
+    }
+
+    .customOptionTop {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .customOptionTop strong {
+        max-width: 110px;
+        font-size: 0.75rem;
+    }
+
+    .customOptionTop em {
+        font-size: 0.68rem;
+    }
+}
+
 @media (max-width: 1100px) {
     .heroGrid,
     .detailsGrid {
