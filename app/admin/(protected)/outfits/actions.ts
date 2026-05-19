@@ -62,6 +62,7 @@ function getMode(formData: FormData): OutfitMode {
 function getOutfitPayload(formData: FormData) {
     const label = getString(formData, "label");
     const customSlug = getString(formData, "slug");
+    const imageValue = getNullableString(formData, "image_path");
 
     return {
         slug: slugify(customSlug || label),
@@ -69,8 +70,8 @@ function getOutfitPayload(formData: FormData) {
         description: getNullableString(formData, "description"),
         mode: getMode(formData),
         price: Math.max(0, Math.round(getNumber(formData, "price"))),
-        image_path: getNullableString(formData, "image_path"),
-        image_url: getNullableString(formData, "image_url"),
+        image_path: imageValue?.startsWith("http") ? null : imageValue,
+        image_url: imageValue?.startsWith("http") ? imageValue : null,
         icon_name: getString(formData, "icon_name") || "hanger",
         display_order: getNumber(formData, "display_order"),
         is_active: getBoolean(formData, "is_active"),

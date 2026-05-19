@@ -280,8 +280,9 @@ export default function DollForm({ mode, doll, collections, action }: DollFormPr
                                     {index === 0 ? "Imagine principală" : `Imagine galerie ${index}`}
                                     <input
                                         value={image.url}
+                                        readOnly
                                         onChange={(event) => updateImageUrl(image.id, event.target.value)}
-                                        placeholder="https://... sau upload"
+                                        placeholder="Se completează automat după upload"
                                     />
                                 </label>
 

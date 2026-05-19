@@ -63,6 +63,7 @@ function getCollectionType(formData: FormData): CollectionType {
 function getCollectionPayload(formData: FormData) {
     const name = getString(formData, "name");
     const customSlug = getString(formData, "slug");
+    const imageValue = getNullableString(formData, "image_path");
 
     return {
         slug: slugify(customSlug || name),
@@ -70,8 +71,8 @@ function getCollectionPayload(formData: FormData) {
         type: getCollectionType(formData),
         description: getNullableString(formData, "description"),
         badge: getNullableString(formData, "badge"),
-        image_path: getNullableString(formData, "image_path"),
-        image_url: getNullableString(formData, "image_url"),
+        image_path: imageValue?.startsWith("http") ? null : imageValue,
+        image_url: imageValue?.startsWith("http") ? imageValue : null,
         display_order: getNullableNumber(formData, "display_order") ?? 0,
         is_active: getBoolean(formData, "is_active"),
     };

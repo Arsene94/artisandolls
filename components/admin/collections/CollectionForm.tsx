@@ -7,6 +7,7 @@ import type {
     CollectionType,
 } from "@/lib/collections/shared";
 import styles from "./AdminCollections.module.css";
+import AdminImageUploadField from "@/components/admin/shared/AdminImageUploadField";
 
 type CollectionFormProps = {
     mode: "create" | "edit";
@@ -97,23 +98,14 @@ export default function CollectionForm({
                 />
             </label>
 
-            <label className={styles.field}>
-                Imagine path Supabase
-                <input
-                    name="image_path"
-                    defaultValue={collection?.image_path ?? ""}
-                    placeholder="collections/abc.webp"
-                />
-            </label>
-
-            <label className={styles.field}>
-                Sau imagine URL extern
-                <input
-                    name="image_url"
-                    defaultValue={collection?.image_url ?? ""}
-                    placeholder="https://..."
-                />
-            </label>
+            <AdminImageUploadField
+                name="image_path"
+                label="Imagine colecție"
+                folder="collections"
+                initialValue={collection?.image_path ?? collection?.image_url ?? ""}
+                helperText="Imaginea se comprimă automat în WebP și se salvează în Supabase Storage."
+                allowExternalUrl
+            />
 
             <div className={styles.formActions}>
                 <button

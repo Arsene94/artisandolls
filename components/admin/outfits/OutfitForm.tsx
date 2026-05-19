@@ -5,6 +5,7 @@ import {
     customizationIconOptions,
 } from "@/components/icons/CustomizationIcon";
 import type { OutfitRow } from "@/lib/outfits/shared";
+import AdminImageUploadField from "@/components/admin/shared/AdminImageUploadField";
 import styles from "./AdminOutfits.module.css";
 
 type Props = {
@@ -93,23 +94,14 @@ export default function OutfitForm({ outfit, action }: Props) {
             </label>
 
             <div className={styles.formGrid}>
-                <label className={styles.field}>
-                    Imagine path Supabase
-                    <input
-                        name="image_path"
-                        defaultValue={outfit?.image_path ?? ""}
-                        placeholder="outfits/classic.webp"
-                    />
-                </label>
-
-                <label className={styles.field}>
-                    Sau URL extern imagine
-                    <input
-                        name="image_url"
-                        defaultValue={outfit?.image_url ?? ""}
-                        placeholder="https://..."
-                    />
-                </label>
+                <AdminImageUploadField
+                    name="image_path"
+                    label="Imagine ținută"
+                    folder="outfits"
+                    initialValue={outfit?.image_path ?? outfit?.image_url ?? ""}
+                    helperText="Imaginea apare în dropdown-ul de ținute de pe pagina păpușii."
+                    allowExternalUrl
+                />
             </div>
 
             <label className={styles.checkField}>
