@@ -263,6 +263,307 @@
     border-color: rgba(37, 211, 102, 0.7);
 }
 
+.orderDetailHero {
+    margin-bottom: 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.orderDetailHeroContent span {
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 5px 10px;
+    border: 1px solid rgba(229, 193, 88, 0.2);
+    background: rgba(229, 193, 88, 0.08);
+    color: var(--color-gold-light);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.orderDetailHeroContent h1 {
+    margin: 0 0 10px;
+    color: var(--color-white);
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-weight: 500;
+    line-height: 1.08;
+}
+
+.orderDetailHeroContent p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.orderDetailHeroContent strong {
+    color: var(--color-gold-light);
+}
+
+.orderStatusBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid rgba(229, 193, 88, 0.32);
+    background: rgba(229, 193, 88, 0.08);
+    color: var(--color-gold-light);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.orderDetailGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(320px, 0.8fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.orderCardsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.orderPanel,
+.orderActionsPanel {
+    background: rgba(16, 7, 16, 0.82);
+    border: 1px solid rgba(255, 79, 163, 0.16);
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(18px);
+    padding: 28px;
+}
+
+.orderActionsPanel {
+    position: sticky;
+    top: 108px;
+}
+
+.orderPanelWide {
+    grid-column: 1 / -1;
+}
+
+.orderPanelHeader {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.orderPanelHeader span {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--color-gold-light);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.orderPanelHeader h2 {
+    margin: 0;
+    color: var(--color-white);
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 500;
+}
+
+.orderDataList {
+    display: grid;
+    gap: 16px;
+}
+
+.orderDataItem {
+    display: grid;
+    gap: 5px;
+}
+
+.orderDataItem span {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.orderDataItem strong {
+    color: var(--color-white);
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.55;
+}
+
+.orderDataHighlight strong {
+    color: var(--color-gold-light);
+    font-size: 1.08rem;
+}
+
+.orderSummaryBox {
+    display: grid;
+    gap: 0;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.orderSummaryRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: center;
+    padding-bottom: 13px;
+    margin-bottom: 13px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.orderSummaryRow:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0;
+}
+
+.orderSummaryRow span {
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 0.86rem;
+}
+
+.orderSummaryRow strong {
+    color: var(--color-white);
+    font-weight: 700;
+}
+
+.orderSummaryTotal {
+    padding-top: 8px;
+}
+
+.orderSummaryTotal span {
+    color: var(--color-gold-light);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.orderSummaryTotal strong {
+    color: var(--color-gold-light);
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.orderStatusForm {
+    display: grid;
+    gap: 18px;
+}
+
+.orderStatusForm label {
+    display: grid;
+    gap: 10px;
+    color: var(--color-gold-light);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.orderStatusForm select {
+    width: 100%;
+    min-height: 48px;
+    border: 1px solid rgba(255, 155, 208, 0.24);
+    outline: 0;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-white);
+    padding: 0 14px;
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    color-scheme: dark;
+}
+
+.orderStatusForm select option {
+    background: #130713;
+    color: #fff;
+}
+
+.orderActionsStack {
+    display: grid;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.orderDeleteForm {
+    margin-top: 30px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 79, 163, 0.15);
+}
+
+.orderDangerButton {
+    width: 100%;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 79, 79, 0.35);
+    background: transparent;
+    color: #ff9a9a;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: var(--transition);
+}
+
+.orderDangerButton:hover {
+    background: rgba(255, 79, 79, 0.12);
+    border-color: rgba(255, 79, 79, 0.7);
+    color: #ffd0d0;
+}
+
+.orderNotes {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.66);
+    line-height: 1.8;
+}
+
+@media (max-width: 1100px) {
+    .orderDetailGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .orderActionsPanel {
+        position: static;
+    }
+}
+
+@media (max-width: 760px) {
+    .orderCardsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .orderDetailHero {
+        align-items: flex-start;
+    }
+
+    .orderPanel,
+    .orderActionsPanel {
+        padding: 22px;
+    }
+
+    .orderSummaryRow {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+    }
+}
+
 @media (max-width: 1100px) {
     .statsGrid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
