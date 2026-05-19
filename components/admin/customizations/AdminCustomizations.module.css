@@ -1,3 +1,148 @@
+.panel {
+    padding: 28px;
+    background: rgba(16, 7, 16, 0.82);
+    border: 1px solid rgba(255, 79, 163, 0.16);
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(18px);
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.toolbar span {
+    color: var(--color-gold-light);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.toolbar h2 {
+    margin: 6px 0;
+    color: var(--color-white);
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    font-weight: 500;
+}
+
+.toolbar p {
+    max-width: 760px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.52);
+    line-height: 1.7;
+}
+
+.inlineForm {
+    display: grid;
+    gap: 16px;
+    margin: 0 0 24px;
+    padding: 22px;
+    border: 1px solid rgba(255, 155, 208, 0.16);
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: var(--color-gold-light);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.field input,
+.field textarea,
+.field select {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid rgba(255, 155, 208, 0.24);
+    outline: 0;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-white);
+    padding: 0 14px;
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    color-scheme: dark;
+}
+
+.field textarea {
+    min-height: 110px;
+    padding-top: 14px;
+    resize: vertical;
+}
+
+.field select option {
+    background: #130713;
+    color: #fff;
+}
+
+.checkField {
+    width: fit-content;
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    min-height: 44px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 155, 208, 0.16);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.primaryButton,
+.rowActions button,
+.optionCard > button {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 155, 208, 0.24);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-white);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: var(--transition);
+}
+
+.primaryButton {
+    width: fit-content;
+    background: var(--color-gold);
+    border-color: var(--color-gold);
+}
+
+.primaryButton:hover,
+.rowActions button:hover,
+.optionCard > button:hover {
+    border-color: var(--color-gold-light);
+    background: rgba(255, 79, 163, 0.16);
+}
+
+.primaryButton:disabled,
+.rowActions button:disabled,
+.optionCard > button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .optionGrid {
     display: grid;
     gap: 14px;
@@ -5,12 +150,26 @@
 
 .optionCard {
     display: grid;
-    grid-template-columns: 42px 1fr auto;
+    grid-template-columns: 42px minmax(0, 1fr) auto;
     gap: 14px;
     align-items: center;
-    padding: 14px;
+    padding: 16px;
     border: 1px solid rgba(255, 155, 208, 0.16);
     background: rgba(255, 255, 255, 0.04);
+}
+
+.optionCard strong {
+    display: block;
+    color: var(--color-white);
+    font-size: 0.95rem;
+}
+
+.optionCard small {
+    display: block;
+    margin-top: 4px;
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 0.76rem;
+    line-height: 1.45;
 }
 
 .iconPreview {
@@ -30,11 +189,86 @@
     border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
-.inlineForm {
+.rowActions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.panelWide {
+    grid-column: 1 / -1;
     display: grid;
-    gap: 14px;
-    margin-top: 16px;
-    padding: 16px;
-    border: 1px solid rgba(255, 155, 208, 0.16);
-    background: rgba(255, 255, 255, 0.03);
+    gap: 16px;
+    margin-top: 10px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.panelWide .inlineForm {
+    margin-bottom: 0;
+}
+
+.panelWide .optionGrid {
+    padding: 10px;
+    border: 1px solid rgba(255, 155, 208, 0.12);
+    background: rgba(9, 0, 9, 0.28);
+}
+
+.panelWide .optionCard {
+    grid-template-columns: 42px minmax(0, 1fr) auto auto;
+}
+
+@media (max-width: 1100px) {
+    .formGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .optionCard,
+    .panelWide .optionCard {
+        grid-template-columns: 42px minmax(0, 1fr);
+    }
+
+    .rowActions,
+    .optionCard > button,
+    .swatch {
+        grid-column: 2;
+        justify-self: start;
+    }
+}
+
+@media (max-width: 720px) {
+    .panel,
+    .inlineForm {
+        padding: 20px;
+    }
+
+    .toolbar {
+        flex-direction: column;
+    }
+
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .checkField,
+    .primaryButton {
+        width: 100%;
+    }
+
+    .optionCard,
+    .panelWide .optionCard {
+        grid-template-columns: 1fr;
+    }
+
+    .iconPreview,
+    .rowActions,
+    .optionCard > button,
+    .swatch {
+        grid-column: auto;
+    }
+
+    .rowActions {
+        justify-content: flex-start;
+    }
 }

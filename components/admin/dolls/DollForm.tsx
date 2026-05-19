@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import { optimizeImageBeforeUpload } from "@/lib/images/optimize-upload";
-import { getSupabaseImageUrl, isExternalImage } from "@/lib/supabase/images";
-import type { CollectionRow } from "@/lib/collections";
+import { getSupabaseImageUrl } from "@/lib/supabase/images";
+import type { CollectionRow } from "@/lib/collections/shared";
 import type { DollRow } from "@/lib/dolls";
 import styles from "./AdminDolls.module.css";
 

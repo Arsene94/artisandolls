@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
-import type { CollectionType } from "@/lib/collections";
+import type { CollectionType } from "@/lib/collections/shared";
 
 async function requireAdminSupabase() {
     const supabase = await createSupabaseServerClient();
