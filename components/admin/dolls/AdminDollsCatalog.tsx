@@ -139,7 +139,7 @@ export default function AdminDollsCatalog({ dolls }: AdminDollsCatalogProps) {
                             <Link href={`/catalog/${doll.slug}`} target="_blank">
                                 Vezi
                             </Link>
-                            <Link href={`/app/admin/dolls/${doll.slug}/edit`}>
+                            <Link href={`/admin/dolls/${doll.slug}/edit`}>
                                 Editează
                             </Link>
                             <button type="button" onClick={() => deleteOne(doll.id)} disabled={isPending}>

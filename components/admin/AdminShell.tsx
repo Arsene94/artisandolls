@@ -1,5 +1,15 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import {
+    IconAdjustments,
+    IconBuildingStore,
+    IconHanger,
+    IconLayoutDashboard,
+    IconLayersIntersect,
+    IconSettings,
+    IconShoppingBag,
+    IconUsers,
+} from "@tabler/icons-react";
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
 import AdminSignOutButton from "@/components/admin/AdminSignOutButton";
 import styles from "./AdminShell.module.css";
@@ -9,41 +19,49 @@ const menuItems = [
         label: "Dashboard",
         href: "/admin",
         description: "Overview comenzi și activitate",
+        icon: IconLayoutDashboard,
     },
     {
         label: "Comenzi",
         href: "/admin/orders",
         description: "Închirieri și cumpărări",
+        icon: IconShoppingBag,
     },
     {
         label: "Păpuși",
         href: "/admin/dolls",
         description: "Catalog produse",
+        icon: IconBuildingStore,
     },
     {
         label: "Colecții",
         href: "/admin/collections",
         description: "Categorii și serii",
+        icon: IconLayersIntersect,
     },
     {
         label: "Customizări",
         href: "/admin/customizations",
         description: "Opțiuni extra",
+        icon: IconAdjustments,
     },
     {
         label: "Ținute",
         href: "/admin/outfits",
         description: "Dropdown poze și prețuri",
+        icon: IconHanger,
     },
     {
         label: "Clienți",
         href: "/admin/customers",
         description: "Date contact și istoric",
+        icon: IconUsers,
     },
     {
         label: "Setări",
         href: "/admin/settings",
         description: "Configurare platformă",
+        icon: IconSettings,
     },
 ];
 
@@ -67,12 +85,24 @@ export default async function AdminShell({ children }: { children: React.ReactNo
                 </Link>
 
                 <nav className={styles.nav}>
-                    {menuItems.map((item) => (
-                        <Link key={item.href} href={item.href} className={styles.navItem}>
-                            <span>{item.label}</span>
-                            <small>{item.description}</small>
-                        </Link>
-                    ))}
+                    {menuItems.map((item) => {
+                        const Icon = item.icon;
+
+                        return (
+                            <Link key={item.href} href={item.href} className={styles.navItem}>
+                                <span className={styles.navLabel}>
+                                    <Icon
+                                        size={18}
+                                        stroke={1.7}
+                                        className={styles.navIcon}
+                                        aria-hidden="true"
+                                    />
+                                    {item.label}
+                                </span>
+                                <small>{item.description}</small>
+                            </Link>
+                        );
+                    })}
                 </nav>
 
                 <div className={styles.userBox}>

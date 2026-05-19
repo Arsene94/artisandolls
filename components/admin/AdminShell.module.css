@@ -64,10 +64,27 @@
     transform: translateX(3px);
 }
 
-.navItem span {
+.navLabel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: inherit;
     font-size: 0.86rem;
     font-weight: 700;
     letter-spacing: 0.04em;
+}
+
+.navIcon {
+    flex: 0 0 auto;
+    color: var(--color-gold-light);
+    opacity: 0.88;
+    transition: var(--transition);
+}
+
+.navItem:hover .navIcon {
+    color: var(--color-white);
+    opacity: 1;
+    transform: translateX(1px);
 }
 
 .navItem small {

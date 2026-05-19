@@ -27,6 +27,44 @@ function formatMoney(value: number | null | undefined) {
     return `${value.toLocaleString("ro-RO")} lei`;
 }
 
+function getPricePerDay(order: NonNullable<Awaited<ReturnType<typeof getAdminOrderById>>>) {
+    if (order.mode !== "rent" || !order.rental_days || order.rental_days <= 0) {
+        return null;
+    }
+
+    const subtotal = order.subtotal_amount || order.total_amount || 0;
+
+    if (subtotal <= 0) {
+        return null;
+    }
+
+    return Math.round(subtotal / order.rental_days);
+}
+
+function getDiscountTypeLabel(order: NonNullable<Awaited<ReturnType<typeof getAdminOrderById>>>) {
+    if (order.discount_type === "fixed") {
+        return "Reducere fixă";
+    }
+
+    if (order.discount_type === "percent") {
+        return "Reducere procentuală";
+    }
+
+    return "Fără discount";
+}
+
+function getDiscountBasisLabel(order: NonNullable<Awaited<ReturnType<typeof getAdminOrderById>>>) {
+    if (order.discount_type === "fixed") {
+        return `Reducere fixă din total: ${Number(order.discount_value ?? 0).toLocaleString("ro-RO")} lei`;
+    }
+
+    if (order.discount_type === "percent") {
+        return `Reducere procentuală din total: ${Number(order.discount_value ?? 0).toLocaleString("ro-RO")}%`;
+    }
+
+    return "Nu există discount aplicat";
+}
+
 function formatDiscount(order: NonNullable<Awaited<ReturnType<typeof getAdminOrderById>>>) {
     if (order.discount_type === "none") {
         return "-";
@@ -37,6 +75,69 @@ function formatDiscount(order: NonNullable<Awaited<ReturnType<typeof getAdminOrd
     }
 
     return `${Number(order.discount_value ?? 0).toLocaleString("ro-RO")}%`;
+}
+
+function getDiscountDisplayType(
+    order: NonNullable<Awaited<ReturnType<typeof getAdminOrderById>>>
+) {
+    if (order.custom_price_amount && order.custom_price_amount > 0) {
+        return "Preț custom";
+    }
+
+    if (order.discount_type === "fixed") {
+        return "Reducere fixă";
+    }
+
+    if (order.discount_type === "percent") {
+        return "Reducere procentuală";
+    }
+
+    return "Fără discount";
+}
+
+function getDiscountDetailLabel(
+    order: NonNullable<Awaited<ReturnType<typeof getAdminOrderById>>>,
+    pricePerDay: number | null
+) {
+    if (order.custom_price_amount && order.custom_price_amount > 0) {
+        return `Preț custom setat manual: ${order.custom_price_amount.toLocaleString("ro-RO")} lei`;
+    }
+
+    if (order.discount_type === "fixed") {
+        return `Reducere din total: ${Number(order.discount_value ?? 0).toLocaleString("ro-RO")} lei`;
+    }
+
+    if (order.discount_type === "percent") {
+        return `Reducere din total: ${Number(order.discount_value ?? 0).toLocaleString("ro-RO")}%`;
+    }
+
+    if (pricePerDay) {
+        return `Preț pe zi: ${pricePerDay.toLocaleString("ro-RO")} lei / zi`;
+    }
+
+    return "Nu există discount aplicat";
+}
+
+function getAppliedDiscountLabel(
+    order: NonNullable<Awaited<ReturnType<typeof getAdminOrderById>>>
+) {
+    const subtotal = order.subtotal_amount || order.total_amount || 0;
+
+    if (order.custom_price_amount && order.custom_price_amount > 0) {
+        const difference = subtotal - order.custom_price_amount;
+
+        if (difference > 0) {
+            return `${difference.toLocaleString("ro-RO")} lei`;
+        }
+
+        if (difference < 0) {
+            return `+${Math.abs(difference).toLocaleString("ro-RO")} lei față de subtotal`;
+        }
+
+        return "0 lei";
+    }
+
+    return formatMoney(order.discount_amount);
 }
 
 function getWhatsappHref(phone: string) {
@@ -55,6 +156,7 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
 
     const statusOptions = getOrderStatusOptions(order.mode);
     const isRent = order.mode === "rent";
+    const pricePerDay = getPricePerDay(order);
 
     return (
         <main className={styles.page}>
@@ -143,42 +245,6 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
                             </div>
                         </article>
 
-                        <article className={`${styles.orderPanel} ${styles.orderPanelWide}`}>
-                            <div className={styles.orderPanelHeader}>
-                                <span>Financiar</span>
-                                <h2>Sumar financiar</h2>
-                            </div>
-
-                            <div className={styles.orderSummaryBox}>
-                                <div className={styles.orderSummaryRow}>
-                                    <span>
-                                        Subtotal {isRent && order.rental_days ? `(${order.rental_days} zile)` : ""}
-                                    </span>
-                                    <strong>{formatMoney(order.subtotal_amount || order.total_amount)}</strong>
-                                </div>
-
-                                <div className={styles.orderSummaryRow}>
-                                    <span>Preț custom</span>
-                                    <strong>{formatMoney(order.custom_price_amount)}</strong>
-                                </div>
-
-                                <div className={styles.orderSummaryRow}>
-                                    <span>Discount aplicat</span>
-                                    <strong>{formatDiscount(order)}</strong>
-                                </div>
-
-                                <div className={styles.orderSummaryRow}>
-                                    <span>Reducere calculată</span>
-                                    <strong>{formatMoney(order.discount_amount)}</strong>
-                                </div>
-
-                                <div className={`${styles.orderSummaryRow} ${styles.orderSummaryTotal}`}>
-                                    <span>Total final de plată</span>
-                                    <strong>{order.total_label}</strong>
-                                </div>
-                            </div>
-                        </article>
-
                         {order.notes && (
                             <article className={`${styles.orderPanel} ${styles.orderPanelWide}`}>
                                 <div className={styles.orderPanelHeader}>
@@ -192,61 +258,114 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
                     </div>
                 </div>
 
-                <aside className={styles.orderActionsPanel}>
-                    <div className={styles.orderPanelHeader}>
-                        <span>Management</span>
-                        <h2>Gestionează comanda</h2>
-                    </div>
+                <aside className={styles.orderRightColumn}>
+                    <article className={styles.orderActionsPanel}>
+                        <div className={styles.orderPanelHeader}>
+                            <span>Financiar</span>
+                            <h2>Sumar financiar</h2>
+                        </div>
 
-                    <form
-                        className={styles.orderStatusForm}
-                        action={async (formData) => {
-                            "use server";
-                            await updateOrderStatusFromFormAction(order.id, formData);
-                        }}
-                    >
-                        <label>
-                            Status curent
-                            <select name="status" defaultValue={order.status}>
-                                {statusOptions.map((status) => (
-                                    <option key={status.value} value={status.value}>
-                                        {status.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
+                        <div className={styles.orderSummaryBox}>
+                            <div className={styles.orderSummaryRow}>
+                <span>
+                    Subtotal {isRent && order.rental_days ? `(${order.rental_days} zile)` : ""}
+                </span>
+                                <strong>{formatMoney(order.subtotal_amount || order.total_amount)}</strong>
+                            </div>
 
-                        <button className="btn btn-gold">Salvează statusul</button>
-                    </form>
+                            <div className={styles.orderSummaryRow}>
+                                <span>Preț pe zi</span>
+                                <strong>{pricePerDay ? `${pricePerDay.toLocaleString("ro-RO")} lei / zi` : "-"}</strong>
+                            </div>
 
-                    <div className={styles.orderActionsStack}>
-                        <Link href={`/admin/orders/${order.id}/edit`} className="btn btn-outline-light">
-                            Editează rezervarea
-                        </Link>
+                            <div className={styles.orderDiscountInfo}>
+                                <span>Informații discount</span>
 
-                        <a href={`tel:${order.customer_phone}`} className="btn btn-outline-light">
-                            Sună clientul
-                        </a>
+                                <div>
+                                    <small>Tip discount</small>
+                                    <strong>{getDiscountDisplayType(order)}</strong>
+                                </div>
 
-                        <a
-                            href={getWhatsappHref(order.customer_phone)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-outline-light"
+                                <div>
+                                    <small>
+                                        {order.custom_price_amount && order.custom_price_amount > 0
+                                            ? "Preț custom"
+                                            : order.discount_type === "none"
+                                                ? "Preț pe zi"
+                                                : "Reducere din total"}
+                                    </small>
+                                    <strong>{getDiscountDetailLabel(order, pricePerDay)}</strong>
+                                </div>
+
+                                <div>
+                                    <small>Discount aplicat</small>
+                                    <strong>{getAppliedDiscountLabel(order)}</strong>
+                                </div>
+                            </div>
+
+                            <div className={`${styles.orderSummaryRow} ${styles.orderSummaryTotal}`}>
+                                <span>Total final de plată</span>
+                                <strong>{order.total_label}</strong>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article className={styles.orderActionsPanel}>
+                        <div className={styles.orderPanelHeader}>
+                            <span>Management</span>
+                            <h2>Gestionează comanda</h2>
+                        </div>
+
+                        <form
+                            className={styles.orderStatusForm}
+                            action={async (formData) => {
+                                "use server";
+                                await updateOrderStatusFromFormAction(order.id, formData);
+                            }}
                         >
-                            Mesaj WhatsApp
-                        </a>
-                    </div>
+                            <label>
+                                Status curent
+                                <select name="status" defaultValue={order.status}>
+                                    {statusOptions.map((status) => (
+                                        <option key={status.value} value={status.value}>
+                                            {status.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
 
-                    <form
-                        className={styles.orderDeleteForm}
-                        action={async () => {
-                            "use server";
-                            await deleteOrderAction(order.id);
-                        }}
-                    >
-                        <button className={styles.orderDangerButton}>Șterge comanda</button>
-                    </form>
+                            <button className="btn btn-gold">Salvează statusul</button>
+                        </form>
+
+                        <div className={styles.orderActionsStack}>
+                            <Link href={`/admin/orders/${order.id}/edit`} className="btn btn-outline-light">
+                                Editează rezervarea
+                            </Link>
+
+                            <a href={`tel:${order.customer_phone}`} className="btn btn-outline-light">
+                                Sună clientul
+                            </a>
+
+                            <a
+                                href={getWhatsappHref(order.customer_phone)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-outline-light"
+                            >
+                                Mesaj WhatsApp
+                            </a>
+                        </div>
+
+                        <form
+                            className={styles.orderDeleteForm}
+                            action={async () => {
+                                "use server";
+                                await deleteOrderAction(order.id);
+                            }}
+                        >
+                            <button className={styles.orderDangerButton}>Șterge comanda</button>
+                        </form>
+                    </article>
                 </aside>
             </section>
         </main>

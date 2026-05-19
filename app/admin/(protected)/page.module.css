@@ -347,6 +347,17 @@
     top: 108px;
 }
 
+.orderRightColumn {
+    position: sticky;
+    top: 108px;
+    display: grid;
+    gap: 24px;
+}
+
+.orderRightColumn .orderActionsPanel {
+    position: static;
+}
+
 .orderPanelWide {
     grid-column: 1 / -1;
 }
@@ -437,6 +448,42 @@
 .orderSummaryRow strong {
     color: var(--color-white);
     font-weight: 700;
+}
+
+.orderDiscountInfo {
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+    margin-bottom: 13px;
+    border: 1px solid rgba(255, 155, 208, 0.14);
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.orderDiscountInfo > span {
+    color: var(--color-gold-light);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.orderDiscountInfo div {
+    display: grid;
+    gap: 4px;
+}
+
+.orderDiscountInfo small {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.orderDiscountInfo strong {
+    color: var(--color-white);
+    font-size: 0.92rem;
+    line-height: 1.5;
 }
 
 .orderSummaryTotal {
@@ -534,11 +581,16 @@
 }
 
 @media (max-width: 1100px) {
-    .orderDetailGrid {
+    .statsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboardGrid {
         grid-template-columns: 1fr;
     }
 
-    .orderActionsPanel {
+    .orderActionsPanel,
+    .orderRightColumn {
         position: static;
     }
 }
@@ -561,16 +613,6 @@
         align-items: flex-start;
         flex-direction: column;
         gap: 6px;
-    }
-}
-
-@media (max-width: 1100px) {
-    .statsGrid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .dashboardGrid {
-        grid-template-columns: 1fr;
     }
 }
 
