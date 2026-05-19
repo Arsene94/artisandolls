@@ -25,6 +25,41 @@ function getNumberValue(value: number | null | undefined) {
     return value && value > 0 ? String(value) : "";
 }
 
+function parseDate(value: string) {
+    if (!value) return null;
+
+    const date = new Date(`${value}T00:00:00`);
+
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+
+    return date;
+}
+
+function getRentalDays(startDate: string, endDate: string) {
+    const start = parseDate(startDate);
+    const end = parseDate(endDate);
+
+    if (!start || !end) {
+        return 0;
+    }
+
+    const diff = end.getTime() - start.getTime();
+    const dayMs = 1000 * 60 * 60 * 24;
+
+    return Math.max(1, Math.ceil(diff / dayMs));
+}
+
+function getTodayInputValue() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
 function calculatePreviewTotal(
     subtotal: number,
     customPrice: number | null,
@@ -46,6 +81,10 @@ function calculatePreviewTotal(
 }
 
 export default function OrderEditForm({ order, dolls, action }: OrderEditFormProps) {
+    const [selectedDollId, setSelectedDollId] = useState(order.doll_id ?? "");
+    const [startDate, setStartDate] = useState(order.start_date ?? "");
+    const [endDate, setEndDate] = useState(order.end_date ?? "");
+
     const [subtotalAmount, setSubtotalAmount] = useState(order.subtotal_amount || order.total_amount || 0);
     const [customPriceAmount, setCustomPriceAmount] = useState<number | null>(order.custom_price_amount);
     const [discountType, setDiscountType] = useState<DiscountType>(
@@ -53,14 +92,29 @@ export default function OrderEditForm({ order, dolls, action }: OrderEditFormPro
     );
     const [discountValue, setDiscountValue] = useState(Number(order.discount_value ?? 0));
 
+    const selectedDoll = dolls.find((doll) => doll.id === selectedDollId);
+
+    const selectedRentalDays =
+        order.mode === "rent" && startDate && endDate
+            ? getRentalDays(startDate, endDate)
+            : 0;
+
+    const recalculatedSubtotal =
+        order.mode === "rent" &&
+        selectedDoll?.rent_price_per_day &&
+        selectedRentalDays > 0
+            ? selectedDoll.rent_price_per_day * selectedRentalDays
+            : subtotalAmount;
+    const todayInputValue = getTodayInputValue();
+
     const previewTotal = useMemo(() => {
         return calculatePreviewTotal(
-            subtotalAmount,
+            recalculatedSubtotal,
             customPriceAmount,
             discountType,
             discountValue
         );
-    }, [subtotalAmount, customPriceAmount, discountType, discountValue]);
+    }, [recalculatedSubtotal, customPriceAmount, discountType, discountValue]);
 
     return (
         <form action={action} className={styles.panel}>
@@ -69,7 +123,12 @@ export default function OrderEditForm({ order, dolls, action }: OrderEditFormPro
             <div className={styles.formGrid}>
                 <label className={styles.field}>
                     Păpușă
-                    <select name="doll_id" defaultValue={order.doll_id ?? ""} required>
+                    <select
+                        name="doll_id"
+                        value={selectedDollId}
+                        onChange={(event) => setSelectedDollId(event.target.value)}
+                        required
+                    >
                         {dolls.map((doll) => (
                             <option key={doll.id} value={doll.id}>
                                 {doll.name} — {doll.collection}
@@ -111,7 +170,17 @@ export default function OrderEditForm({ order, dolls, action }: OrderEditFormPro
                     <input
                         type="date"
                         name="start_date"
-                        defaultValue={order.start_date ?? ""}
+                        min={todayInputValue}
+                        value={startDate}
+                        onChange={(event) => {
+                            const nextStartDate = event.target.value;
+
+                            setStartDate(nextStartDate);
+
+                            if (endDate && nextStartDate && endDate < nextStartDate) {
+                                setEndDate(nextStartDate);
+                            }
+                        }}
                         required
                     />
                 </label>
@@ -121,7 +190,9 @@ export default function OrderEditForm({ order, dolls, action }: OrderEditFormPro
                     <input
                         type="date"
                         name="end_date"
-                        defaultValue={order.end_date ?? ""}
+                        min={startDate || todayInputValue}
+                        value={endDate}
+                        onChange={(event) => setEndDate(event.target.value)}
                         required
                     />
                 </label>
@@ -152,7 +223,8 @@ export default function OrderEditForm({ order, dolls, action }: OrderEditFormPro
                         type="number"
                         name="subtotal_amount"
                         min="0"
-                        value={subtotalAmount}
+                        value={recalculatedSubtotal}
+                        readOnly={order.mode === "rent"}
                         onChange={(event) => setSubtotalAmount(Number(event.target.value))}
                     />
                 </label>
@@ -216,7 +288,12 @@ export default function OrderEditForm({ order, dolls, action }: OrderEditFormPro
             </label>
 
             <div className={styles.summaryBox}>
-                <span>Total estimat după editare</span>
+                <span>
+                    Total estimat după editare
+                    {order.mode === "rent" && selectedRentalDays > 0
+                        ? ` · ${selectedRentalDays} zile`
+                        : ""}
+                </span>
                 <strong>{previewTotal.toLocaleString("ro-RO")} lei</strong>
             </div>
 

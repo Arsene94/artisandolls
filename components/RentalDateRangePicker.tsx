@@ -92,6 +92,20 @@ function formatMonthTitle(date: Date) {
     }).format(date);
 }
 
+function getToday() {
+    return normalizeDate(new Date());
+}
+
+function isBeforeToday(date: Date) {
+    return normalizeDate(date).getTime() < getToday().getTime();
+}
+
+function clampDateToToday(date: Date | null) {
+    if (!date) return null;
+
+    return isBeforeToday(date) ? getToday() : date;
+}
+
 export default function RentalDateRangePicker({
                                                   onChange,
                                                   initialStartDate = "",
@@ -100,12 +114,12 @@ export default function RentalDateRangePicker({
                                               }: RentalDateRangePickerProps) {
     const pickerRef = useRef<HTMLDivElement | null>(null);
 
-    const initialStartDateValue = parseDateValue(initialStartDate);
-    const initialEndDateValue = parseDateValue(initialEndDate);
+    const initialStartDateValue = clampDateToToday(parseDateValue(initialStartDate));
+    const initialEndDateValue = clampDateToToday(parseDateValue(initialEndDate));
 
     const [isOpen, setIsOpen] = useState(false);
     const [visibleMonth, setVisibleMonth] = useState(() =>
-        startOfMonth(initialStartDateValue ?? new Date())
+        startOfMonth(initialStartDateValue ?? getToday())
     );
     const [startDate, setStartDate] = useState<Date | null>(initialStartDateValue);
     const [endDate, setEndDate] = useState<Date | null>(initialEndDateValue);
@@ -155,6 +169,10 @@ export default function RentalDateRangePicker({
     function handleDateSelect(date: Date) {
         const selectedDate = normalizeDate(date);
 
+        if (isBeforeToday(selectedDate)) {
+            return;
+        }
+
         if (!startDate || endDate) {
             setStartDate(selectedDate);
             setEndDate(null);
@@ -173,7 +191,19 @@ export default function RentalDateRangePicker({
 
     function goToPreviousMonth() {
         setVisibleMonth((currentMonth) => {
-            return new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+            const previousMonth = new Date(
+                currentMonth.getFullYear(),
+                currentMonth.getMonth() - 1,
+                1
+            );
+
+            const todayMonth = startOfMonth(getToday());
+
+            if (previousMonth.getTime() < todayMonth.getTime()) {
+                return currentMonth;
+            }
+
+            return previousMonth;
         });
     }
 
@@ -244,6 +274,7 @@ export default function RentalDateRangePicker({
                             const isStart = isSameDay(date, startDate);
                             const isEnd = isSameDay(date, endDate);
                             const isInRange = isBetween(date, startDate, endDate);
+                            const isDisabled = isBeforeToday(date);
 
                             const className = [
                                 styles.day,
@@ -251,6 +282,7 @@ export default function RentalDateRangePicker({
                                 isStart ? styles.rangeStart : "",
                                 isEnd ? styles.rangeEnd : "",
                                 isInRange ? styles.inRange : "",
+                                isDisabled ? styles.disabledDay : "",
                             ]
                                 .filter(Boolean)
                                 .join(" ");
@@ -260,6 +292,8 @@ export default function RentalDateRangePicker({
                                     key={date.toISOString()}
                                     type="button"
                                     className={className}
+                                    disabled={isDisabled}
+                                    aria-disabled={isDisabled}
                                     onClick={() => handleDateSelect(date)}
                                 >
                                     {date.getDate()}

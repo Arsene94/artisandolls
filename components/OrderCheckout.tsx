@@ -53,6 +53,32 @@ function getBackHref(dollId: string, mode: CatalogMode, startDate: string, endDa
     return `/catalog/${dollId}?${params.toString()}`;
 }
 
+function parseDate(value: string) {
+    if (!value) return null;
+
+    const date = new Date(`${value}T00:00:00`);
+
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+
+    return date;
+}
+
+function getRentalDays(startDate: string, endDate: string) {
+    const start = parseDate(startDate);
+    const end = parseDate(endDate);
+
+    if (!start || !end) {
+        return 0;
+    }
+
+    const diff = end.getTime() - start.getTime();
+    const dayMs = 1000 * 60 * 60 * 24;
+
+    return Math.max(1, Math.ceil(diff / dayMs));
+}
+
 export default function OrderCheckout({
                                           doll,
                                           mode,
@@ -71,6 +97,32 @@ export default function OrderCheckout({
 
     const hasCompletePeriod = Boolean(checkoutPeriod.startDate && checkoutPeriod.endDate);
 
+    const initialRentalDays =
+        mode === "rent" ? getRentalDays(startDate, endDate) : 0;
+
+    const initialBaseTotal =
+        mode === "rent"
+            ? initialRentalDays * (doll.rentPricePerDay ?? 0)
+            : doll.buyPrice ?? 0;
+
+    const initialTotalAmount = Number(total);
+    const extrasTotal =
+        Number.isFinite(initialTotalAmount) && initialTotalAmount > initialBaseTotal
+            ? initialTotalAmount - initialBaseTotal
+            : 0;
+
+    const liveRentalDays =
+        mode === "rent"
+            ? getRentalDays(checkoutPeriod.startDate, checkoutPeriod.endDate)
+            : 0;
+
+    const liveBaseTotal =
+        mode === "rent"
+            ? liveRentalDays * (doll.rentPricePerDay ?? 0)
+            : doll.buyPrice ?? 0;
+
+    const liveTotalAmount = Math.max(0, liveBaseTotal + extrasTotal);
+
     const [periodError, setPeriodError] = useState("");
 
     const [form, setForm] = useState<OrderFormState>({
@@ -84,14 +136,12 @@ export default function OrderCheckout({
     });
 
     const totalLabel = useMemo(() => {
-        const parsedTotal = Number(total);
-
-        if (!Number.isFinite(parsedTotal) || parsedTotal <= 0) {
+        if (!Number.isFinite(liveTotalAmount) || liveTotalAmount <= 0) {
             return "Se confirmă după verificare";
         }
 
-        return `${parsedTotal.toLocaleString("ro-RO")} lei`;
-    }, [total]);
+        return `${liveTotalAmount.toLocaleString("ro-RO")} lei`;
+    }, [liveTotalAmount]);
 
     function updateField(field: keyof OrderFormState, value: string) {
         setForm((currentForm) => ({
@@ -142,7 +192,7 @@ export default function OrderCheckout({
                                 <input type="hidden" name="doll_slug" value={doll.id} />
                                 <input type="hidden" name="outfit_id" value={outfitId} />
                                 <input type="hidden" name="options" value={options} />
-                                <input type="hidden" name="total" value={total} />
+                                <input type="hidden" name="total" value={String(liveTotalAmount)} />
                                 <input type="hidden" name="start_date" value={checkoutPeriod.startDate} />
                                 <input type="hidden" name="end_date" value={checkoutPeriod.endDate} />
 
@@ -295,6 +345,30 @@ export default function OrderCheckout({
                                         {`${formatDate(checkoutPeriod.startDate)} — ${formatDate(checkoutPeriod.endDate)}`}
                                     </dd>
                                 </div>
+                                {mode === "rent" && (
+                                    <>
+                                        <div>
+                                            <dt>Zile selectate</dt>
+                                            <dd>{liveRentalDays || "-"} zile</dd>
+                                        </div>
+
+                                        <div>
+                                            <dt>Preț pe zi</dt>
+                                            <dd>
+                                                {doll.rentPricePerDay
+                                                    ? `${doll.rentPricePerDay.toLocaleString("ro-RO")} lei / zi`
+                                                    : "Indisponibil"}
+                                            </dd>
+                                        </div>
+                                    </>
+                                )}
+
+                                {extrasTotal > 0 && (
+                                    <div>
+                                        <dt>Extra-uri</dt>
+                                        <dd>{extrasTotal.toLocaleString("ro-RO")} lei</dd>
+                                    </div>
+                                )}
                                 <div>
                                     <dt>Total estimat</dt>
                                     <dd>{totalLabel}</dd>

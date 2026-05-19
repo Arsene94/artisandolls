@@ -64,7 +64,7 @@ export async function createOrderAction(formData: FormData) {
 
     const { data: doll, error: dollError } = await supabase
         .from("dolls")
-        .select("id, slug, name, available_for_rent, available_for_buy")
+        .select("id, slug, name, available_for_rent, available_for_buy, rent_price_per_day, buy_price")
         .eq("slug", dollSlug)
         .single();
 
@@ -117,7 +117,39 @@ export async function createOrderAction(formData: FormData) {
 
     const rentalDays = mode === "rent" ? getRentalDays(startDate, endDate) : null;
 
-    const totalAmount = getTotalAmount(getString(formData, "total"));
+    const selectedOptionIds = getSelectedOptions(getString(formData, "options"));
+
+    let customizationsTotal = 0;
+
+    if (selectedOptionIds.length > 0) {
+        const { data: selectedOptions, error: selectedOptionsError } = await supabase
+            .from("doll_customization_options")
+            .select("id, price, is_active")
+            .in("id", selectedOptionIds);
+
+        if (selectedOptionsError) {
+            throw new Error(selectedOptionsError.message);
+        }
+
+        const activeOptions = selectedOptions?.filter((option) => option.is_active) ?? [];
+
+        if (activeOptions.length !== selectedOptionIds.length) {
+            throw new Error("Unele customizări selectate nu mai sunt disponibile.");
+        }
+
+        customizationsTotal = activeOptions.reduce((sum, option) => {
+            return sum + Number(option.price ?? 0);
+        }, 0);
+    }
+
+    const outfitTotal = selectedOutfit?.price ?? 0;
+
+    const baseTotal =
+        mode === "rent"
+            ? (rentalDays ?? 0) * Number(doll.rent_price_per_day ?? 0)
+            : Number(doll.buy_price ?? 0);
+
+    const totalAmount = Math.max(0, baseTotal + outfitTotal + customizationsTotal);
 
     const customerEmail = getString(formData, "email").toLowerCase();
     const customerPhone = getString(formData, "phone");
@@ -160,7 +192,7 @@ export async function createOrderAction(formData: FormData) {
         outfit_label: selectedOutfit?.label ?? null,
         outfit_price: selectedOutfit?.price ?? 0,
         outfit_image: selectedOutfit?.image_path ?? selectedOutfit?.image_url ?? null,
-        selected_options: getSelectedOptions(getString(formData, "options")),
+        selected_options: selectedOptionIds,
 
         customer_id: customer.id,
         customer_name: customerName,
