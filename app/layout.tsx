@@ -28,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ro">
-      <body className={`${inter.variable} ${roboto.variable}`} data-scroll-behavior="smooth">
+    <html lang="ro" data-scroll-behavior="smooth">
+      <body className={`${inter.variable} ${roboto.variable}`}>
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
