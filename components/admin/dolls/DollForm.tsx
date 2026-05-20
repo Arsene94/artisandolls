@@ -250,6 +250,15 @@ export default function DollForm({ mode, doll, collections, action }: DollFormPr
                     />
                     Activă în catalog
                 </label>
+
+                <label className={styles.checkField}>
+                    <input
+                        name="show_on_home_hero"
+                        type="checkbox"
+                        defaultChecked={doll?.show_on_home_hero ?? false}
+                    />
+                    Afișează în hero pe homepage
+                </label>
             </div>
 
             <section className={styles.imagesPanel}>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Roboto } from 'next/font/google';
+import { getLocale } from "next-intl/server";
 import './globals.css';
-import SiteChrome from "@/components/SiteChrome";
 
 const inter = Inter({
   subsets: ['latin'],
@@ -17,20 +17,21 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: 'Artisan Dolls — Păpuși Artistice de Colecție',
-  description:
-    'Păpuși artistice de colecție, realizate manual și personalizate.',
+  title: 'Artisan Dolls',
+  description: 'Artisan Dolls',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="ro" data-scroll-behavior="smooth">
+    <html lang={locale} data-scroll-behavior="smooth">
       <body className={`${inter.variable} ${roboto.variable}`}>
-        <SiteChrome>{children}</SiteChrome>
+        {children}
       </body>
     </html>
   );

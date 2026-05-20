@@ -1,16 +1,35 @@
-import Link from "next/link";
-import {
-    formatDateRo,
-    formatOrderMode,
-    type OrderRow,
-} from "@/lib/orders";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import type { OrderRow } from "@/lib/orders";
+import { getIntlLocale } from "@/i18n/format";
 import styles from "./OrderSuccess.module.css";
 
 type OrderSuccessProps = {
     order: OrderRow;
 };
 
-export default function OrderSuccess({ order }: OrderSuccessProps) {
+function formatDate(value: string | null, locale: string) {
+    if (!value) return "";
+
+    const date = new Date(`${value}T00:00:00`);
+
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+    return new Intl.DateTimeFormat(getIntlLocale(locale), {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+    }).format(date);
+}
+
+export default async function OrderSuccess({ order }: OrderSuccessProps) {
+    const locale = await getLocale();
+    const t = await getTranslations("success");
+    const tCommon = await getTranslations("common");
+    const modeLabel = order.mode === "rent" ? tCommon("rent") : tCommon("buy");
+
     return (
         <main className={styles.page}>
             <section className={styles.hero}>
@@ -18,63 +37,62 @@ export default function OrderSuccess({ order }: OrderSuccessProps) {
 
                 <div className={styles.card}>
                     <span className={styles.successIcon}>✓</span>
-                    <span className="section-label">Comandă trimisă</span>
+                    <span className="section-label">{t("label")}</span>
 
                     <h1>
-                        Cererea ta a fost <em>înregistrată</em>
+                        {t("title")} <em>{t("titleEmphasis")}</em>
                     </h1>
 
                     <p>
-                        Am salvat detaliile pentru {formatOrderMode(order.mode).toLowerCase()}.
-                        Următorul pas este confirmarea disponibilității și a livrării.
+                        {t("description", { mode: modeLabel.toLowerCase() })}
                     </p>
 
                     <div className={styles.summary}>
                         <div>
-                            <span>Număr comandă</span>
+                            <span>{t("orderNumber")}</span>
                             <strong>{order.order_number}</strong>
                         </div>
 
                         <div>
-                            <span>Păpușă</span>
+                            <span>{t("doll")}</span>
                             <strong>{order.doll_name}</strong>
                         </div>
 
                         <div>
-                            <span>Mod</span>
-                            <strong>{formatOrderMode(order.mode)}</strong>
+                            <span>{t("mode")}</span>
+                            <strong>{modeLabel}</strong>
                         </div>
 
                         <div>
-                            <span>Perioadă</span>
+                            <span>{t("period")}</span>
                             <strong>
-                                {formatDateRo(order.start_date)} — {formatDateRo(order.end_date)}
+                                {formatDate(order.start_date, locale)} - {formatDate(order.end_date, locale)}
                             </strong>
                         </div>
 
                         <div>
-                            <span>Total estimat</span>
+                            <span>{t("estimatedTotal")}</span>
                             <strong>{order.total_label}</strong>
                         </div>
 
                         <div>
-                            <span>Client</span>
+                            <span>{t("client")}</span>
                             <strong>{order.customer_name}</strong>
                         </div>
 
                         <div>
-                            <span>Contact</span>
+                            <span>{t("contact")}</span>
                             <strong>{order.customer_phone}</strong>
                         </div>
                     </div>
 
                     <div className={styles.actions}>
                         <Link href="/" className="btn btn-gold">
-                            Înapoi acasă
+                            {tCommon("backHome")}
                         </Link>
 
                         <Link href="/catalog" className="btn btn-outline-light">
-                            Vezi catalogul
+                            {t("viewCatalog")}
                         </Link>
                     </div>
                 </div>

@@ -54,6 +54,15 @@ function getBoolean(formData: FormData, key: string) {
     return formData.get(key) === "on";
 }
 
+function revalidatePublicCollectionPaths() {
+    revalidatePath("/");
+    revalidatePath("/en");
+    revalidatePath("/nl");
+    revalidatePath("/catalog");
+    revalidatePath("/en/catalog");
+    revalidatePath("/nl/catalog");
+}
+
 function getCollectionType(formData: FormData): CollectionType {
     const value = getString(formData, "type");
 
@@ -92,7 +101,7 @@ export async function createCollectionAction(formData: FormData) {
 
     revalidatePath("/admin/collections");
     revalidatePath("/admin/dolls");
-    revalidatePath("/catalog");
+    revalidatePublicCollectionPaths();
 
     redirect("/admin/collections");
 }
@@ -119,7 +128,7 @@ export async function updateCollectionAction(id: string, formData: FormData) {
 
     revalidatePath("/admin/collections");
     revalidatePath("/admin/dolls");
-    revalidatePath("/catalog");
+    revalidatePublicCollectionPaths();
 
     redirect("/admin/collections");
 }
@@ -151,7 +160,7 @@ export async function deleteCollectionAction(id: string) {
 
     revalidatePath("/admin/collections");
     revalidatePath("/admin/dolls");
-    revalidatePath("/catalog");
+    revalidatePublicCollectionPaths();
 }
 
 export async function bulkDeleteCollectionsAction(ids: string[]) {
@@ -185,5 +194,5 @@ export async function bulkDeleteCollectionsAction(ids: string[]) {
 
     revalidatePath("/admin/collections");
     revalidatePath("/admin/dolls");
-    revalidatePath("/catalog");
+    revalidatePublicCollectionPaths();
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { getIntlLocale } from "@/i18n/format";
 import styles from "./RentalDateRangePicker.module.css";
-
-const WEEK_DAYS = ["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"];
 
 export type RentalRangeValue = {
     startDate: string;
@@ -67,8 +67,8 @@ function isBetween(date: Date, startDate: Date | null, endDate: Date | null) {
     return currentTime > startDate.getTime() && currentTime < endDate.getTime();
 }
 
-function formatDisplayDate(date: Date) {
-    return new Intl.DateTimeFormat("ro-RO", {
+function formatDisplayDate(date: Date, locale: string) {
+    return new Intl.DateTimeFormat(getIntlLocale(locale), {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -85,8 +85,8 @@ function formatHiddenDate(date: Date | null) {
     return `${year}-${month}-${day}`;
 }
 
-function formatMonthTitle(date: Date) {
-    return new Intl.DateTimeFormat("ro-RO", {
+function formatMonthTitle(date: Date, locale: string) {
+    return new Intl.DateTimeFormat(getIntlLocale(locale), {
         month: "long",
         year: "numeric",
     }).format(date);
@@ -108,11 +108,14 @@ function clampDateToToday(date: Date | null) {
 
 export default function RentalDateRangePicker({
                                                   onChange,
-                                                  initialStartDate = "",
-                                                  initialEndDate = "",
-                                                  placement = "top",
-                                              }: RentalDateRangePickerProps) {
+                                              initialStartDate = "",
+                                              initialEndDate = "",
+                                              placement = "top",
+                                          }: RentalDateRangePickerProps) {
+    const locale = useLocale();
+    const t = useTranslations("datePicker");
     const pickerRef = useRef<HTMLDivElement | null>(null);
+    const weekDays = t.raw("weekDays") as string[];
 
     const initialStartDateValue = clampDateToToday(parseDateValue(initialStartDate));
     const initialEndDateValue = clampDateToToday(parseDateValue(initialEndDate));
@@ -129,15 +132,15 @@ export default function RentalDateRangePicker({
 
     const displayValue = useMemo(() => {
         if (startDate && endDate) {
-            return `${formatDisplayDate(startDate)} — ${formatDisplayDate(endDate)}`;
+            return `${formatDisplayDate(startDate, locale)} - ${formatDisplayDate(endDate, locale)}`;
         }
 
         if (startDate) {
-            return `${formatDisplayDate(startDate)} — alege sfârșit`;
+            return `${formatDisplayDate(startDate, locale)} - ${t("chooseEnd")}`;
         }
 
         return "";
-    }, [startDate, endDate]);
+    }, [endDate, locale, startDate, t]);
 
     const calendarDays = useMemo(() => {
         const firstCalendarDay = startOfWeekMonday(visibleMonth);
@@ -220,18 +223,18 @@ export default function RentalDateRangePicker({
                     type="text"
                     readOnly
                     value={displayValue}
-                    placeholder="Alege data început — data sfârșit"
+                    placeholder={t("placeholder")}
                     className={styles.input}
                     onClick={() => setIsOpen(true)}
                     onFocus={() => setIsOpen(true)}
-                    aria-label="Alege perioada de închiriere"
+                    aria-label={t("ariaChoose")}
                 />
 
                 <button
                     type="button"
                     className={styles.calendarButton}
                     onClick={() => setIsOpen((current) => !current)}
-                    aria-label="Deschide calendarul"
+                    aria-label={t("ariaOpen")}
                     aria-expanded={isOpen}
                 >
                     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -251,19 +254,19 @@ export default function RentalDateRangePicker({
                     }`}
                 >
                     <div className={styles.calendarHeader}>
-                        <button type="button" onClick={goToPreviousMonth} aria-label="Luna anterioară">
+                        <button type="button" onClick={goToPreviousMonth} aria-label={t("previousMonth")}>
                             ‹
                         </button>
 
-                        <span>{formatMonthTitle(visibleMonth)}</span>
+                        <span>{formatMonthTitle(visibleMonth, locale)}</span>
 
-                        <button type="button" onClick={goToNextMonth} aria-label="Luna următoare">
+                        <button type="button" onClick={goToNextMonth} aria-label={t("nextMonth")}>
                             ›
                         </button>
                     </div>
 
                     <div className={styles.weekDays}>
-                        {WEEK_DAYS.map((day) => (
+                        {weekDays.map((day) => (
                             <span key={day}>{day}</span>
                         ))}
                     </div>
@@ -304,8 +307,8 @@ export default function RentalDateRangePicker({
 
                     <div className={styles.calendarHint}>
                         {startDate && !endDate
-                            ? "Alege data de sfârșit."
-                            : "Alege data de început, apoi data de sfârșit."}
+                            ? t("hintChooseEnd")
+                            : t("hintChooseStart")}
                     </div>
                 </div>
             )}

@@ -1,6 +1,8 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
+import { formatLei, isSupportedLocale } from "@/i18n/format";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import {getInitialOrderStatus, getRentalDays, type OrderRow} from "@/lib/orders/shared";
 import { notifyAdminsAboutOrder } from "@/lib/whatsapp";
@@ -30,11 +32,6 @@ function getSelectedOptions(value: string) {
         .filter(Boolean);
 }
 
-function getTotalAmount(value: string) {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : 0;
-}
-
 function normalizePhone(value: string) {
     return value.replace(/[^\d+]/g, "");
 }
@@ -43,6 +40,9 @@ export async function createOrderAction(formData: FormData) {
     const supabase = createSupabaseServiceClient();
 
     const mode = getMode(getString(formData, "mode"));
+    const rawLocale = getString(formData, "_locale");
+    const locale = isSupportedLocale(rawLocale) ? rawLocale : "ro";
+    const tCheckout = await getTranslations({ locale, namespace: "checkout" });
     const settings = await getPublicPlatformSettings();
 
     if (settings.maintenance_mode) {
@@ -211,8 +211,8 @@ export async function createOrderAction(formData: FormData) {
         total_amount: totalAmount,
         total_label:
             totalAmount > 0
-                ? `${totalAmount.toLocaleString("ro-RO")} lei`
-                : "Se confirmă după verificare",
+                ? formatLei(totalAmount, locale)
+                : tCheckout("pendingTotal"),
     };
 
     const { data: insertedOrder, error: insertError } = await supabase
@@ -266,5 +266,13 @@ export async function createOrderAction(formData: FormData) {
         whatsappError: whatsappResult.error,
     });
 
-    redirect(`/catalog/${dollSlug}/success?orderId=${order.id}`);
+    redirect({
+        href: {
+            pathname: `/catalog/${dollSlug}/success`,
+            query: {
+                orderId: order.id,
+            },
+        },
+        locale,
+    });
 }

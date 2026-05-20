@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import DollsCatalog from "@/components/DollsCatalog";
 import { getCollections, getDolls, type CatalogMode } from "@/lib/dolls";
 import PublicUnavailableNotice from "@/components/PublicUnavailableNotice";
@@ -6,15 +7,22 @@ import {
     getPublicPlatformSettings,
     getSafeCatalogMode,
 } from "@/lib/settings";
-
-export const metadata: Metadata = {
-    title: "Catalog păpuși — Artisan Dolls",
-    description: "Explorează colecția Artisan Dolls disponibilă pentru închiriere sau cumpărare.",
-};
+import type { Locale } from "@/i18n/routing";
 
 type CatalogPageProps = {
+    params: Promise<{ locale: Locale }>;
     searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata({ params }: CatalogPageProps): Promise<Metadata> {
+    const { locale } = await params;
+    const t = await getTranslations({ locale, namespace: "metadata" });
+
+    return {
+        title: t("catalogTitle"),
+        description: t("catalogDescription"),
+    };
+}
 
 function getSearchParamValue(value: string | string[] | undefined) {
     if (Array.isArray(value)) {
@@ -24,16 +32,20 @@ function getSearchParamValue(value: string | string[] | undefined) {
     return value ?? "";
 }
 
-export default async function CatalogPage({ searchParams }: CatalogPageProps) {
+export default async function CatalogPage({ params: pageParams, searchParams }: CatalogPageProps) {
+    const { locale } = await pageParams;
+    setRequestLocale(locale);
+
     const params = await searchParams;
+    const tNotice = await getTranslations({ locale, namespace: "notice" });
 
     const settings = await getPublicPlatformSettings();
 
     if (settings.maintenance_mode || !settings.catalog_enabled) {
         return (
             <PublicUnavailableNotice
-                title="Catalog indisponibil temporar"
-                description="Catalogul este momentan oprit din setările platformei. Pentru detalii, contactează-ne direct."
+                title={tNotice("catalogTitle")}
+                description={tNotice("catalogDescription")}
                 settings={settings}
             />
         );
@@ -46,8 +58,8 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
     if (!mode) {
         return (
             <PublicUnavailableNotice
-                title="Comenzile sunt indisponibile temporar"
-                description="Închirierea și cumpărarea sunt momentan oprite din setările platformei."
+                title={tNotice("ordersTitle")}
+                description={tNotice("ordersDescription")}
                 settings={settings}
             />
         );

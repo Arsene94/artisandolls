@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import OrderCheckout from "@/components/OrderCheckout";
 import { getDollBySlug, type CatalogMode } from "@/lib/dolls";
 import { createOrderAction } from "./actions";
@@ -8,18 +9,25 @@ import {
     getPublicPlatformSettings,
     isCatalogModeEnabled,
 } from "@/lib/settings";
-
-export const metadata: Metadata = {
-    title: "Finalizare comandă — Artisan Dolls",
-    description: "Completează datele de livrare pentru comanda Artisan Dolls.",
-};
+import type { Locale } from "@/i18n/routing";
 
 type CheckoutPageProps = {
     params: Promise<{
+        locale: Locale;
         id: string;
     }>;
     searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata({ params }: CheckoutPageProps): Promise<Metadata> {
+    const { locale } = await params;
+    const t = await getTranslations({ locale, namespace: "metadata" });
+
+    return {
+        title: t("checkoutTitle"),
+        description: t("checkoutDescription"),
+    };
+}
 
 function getSearchParamValue(value: string | string[] | undefined) {
     if (Array.isArray(value)) {
@@ -30,8 +38,11 @@ function getSearchParamValue(value: string | string[] | undefined) {
 }
 
 export default async function CheckoutPage({ params, searchParams }: CheckoutPageProps) {
-    const { id } = await params;
+    const { id, locale } = await params;
+    setRequestLocale(locale);
+
     const resolvedSearchParams = await searchParams;
+    const tNotice = await getTranslations({ locale, namespace: "notice" });
 
     const [doll, settings] = await Promise.all([
         getDollBySlug(id),
@@ -52,8 +63,8 @@ export default async function CheckoutPage({ params, searchParams }: CheckoutPag
     ) {
         return (
             <PublicUnavailableNotice
-                title="Checkout indisponibil"
-                description="Această opțiune de comandă este momentan oprită din setările platformei."
+                title={tNotice("checkoutTitle")}
+                description={tNotice("checkoutDescription")}
                 settings={settings}
             />
         );

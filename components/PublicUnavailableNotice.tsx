@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import type { PublicPlatformSettings } from "@/lib/settings/shared";
 
 type PublicUnavailableNoticeProps = {
@@ -23,11 +24,13 @@ function getContactHref(settings: PublicPlatformSettings) {
     return "/";
 }
 
-export default function PublicUnavailableNotice({
+export default async function PublicUnavailableNotice({
                                                     title,
                                                     description,
                                                     settings,
                                                 }: PublicUnavailableNoticeProps) {
+    const t = await getTranslations("common");
+
     return (
         <main id="hero">
             <div className="hero-bg-pattern" />
@@ -40,11 +43,11 @@ export default function PublicUnavailableNotice({
 
                     <div className="hero-cta">
                         <Link href="/" className="btn btn-outline-light">
-                            Înapoi acasă
+                            {t("backHome")}
                         </Link>
 
                         <a href={getContactHref(settings)} className="btn btn-gold">
-                            Contactează-ne
+                            {t("contactUs")}
                         </a>
                     </div>
                 </div>

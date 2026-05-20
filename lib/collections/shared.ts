@@ -7,6 +7,7 @@ export type CollectionRow = {
     type: CollectionType;
     description: string | null;
     badge: string | null;
+    main_image_path: string | null;
     image_path: string | null;
     image_url: string | null;
     display_order: number;

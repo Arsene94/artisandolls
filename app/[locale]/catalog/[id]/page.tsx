@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import DollDetails from "@/components/DollDetails";
 import { getOutfitsForCatalog } from "@/lib/outfits";
 import { getDollBySlug, type CatalogMode } from "@/lib/dolls";
@@ -9,9 +10,11 @@ import {
     getPublicPlatformSettings,
     getSafeCatalogMode,
 } from "@/lib/settings";
+import type { Locale } from "@/i18n/routing";
 
 type DollPageProps = {
     params: Promise<{
+        locale: Locale;
         id: string;
     }>;
     searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -26,12 +29,13 @@ function getSearchParamValue(value: string | string[] | undefined) {
 }
 
 export async function generateMetadata({ params }: DollPageProps): Promise<Metadata> {
-    const { id } = await params;
+    const { id, locale } = await params;
+    const t = await getTranslations({ locale, namespace: "metadata" });
     const doll = await getDollBySlug(id);
 
     if (!doll) {
         return {
-            title: "Păpușă indisponibilă — Artisan Dolls",
+            title: t("dollUnavailableTitle"),
         };
     }
 
@@ -42,8 +46,11 @@ export async function generateMetadata({ params }: DollPageProps): Promise<Metad
 }
 
 export default async function DollPage({ params, searchParams }: DollPageProps) {
-    const { id } = await params;
+    const { id, locale } = await params;
+    setRequestLocale(locale);
+
     const resolvedSearchParams = await searchParams;
+    const tNotice = await getTranslations({ locale, namespace: "notice" });
 
     const [doll, customizations, outfits, settings] = await Promise.all([
         getDollBySlug(id),
@@ -59,8 +66,8 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
     if (settings.maintenance_mode || !settings.catalog_enabled) {
         return (
             <PublicUnavailableNotice
-                title="Catalog indisponibil temporar"
-                description="Această pagină nu este disponibilă momentan."
+                title={tNotice("catalogTitle")}
+                description={tNotice("pageUnavailableDescription")}
                 settings={settings}
             />
         );
@@ -73,8 +80,8 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
     if (!mode) {
         return (
             <PublicUnavailableNotice
-                title="Comenzile sunt indisponibile temporar"
-                description="Închirierea și cumpărarea sunt momentan oprite."
+                title={tNotice("ordersTitle")}
+                description={tNotice("ordersShortDescription")}
                 settings={settings}
             />
         );

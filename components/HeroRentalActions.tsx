@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useMemo, useState } from "react";
 import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
 
@@ -28,9 +29,11 @@ type HeroRentalActionsProps = {
 
 export default function HeroRentalActions({
                                               catalogEnabled,
-                                              rentEnabled,
-                                              buyEnabled,
-                                          }: HeroRentalActionsProps) {
+                                          rentEnabled,
+                                          buyEnabled,
+                                      }: HeroRentalActionsProps) {
+    const t = useTranslations("heroActions");
+    const tCommon = useTranslations("common");
     const [range, setRange] = useState<RentalRangeValue>({
         startDate: "",
         endDate: "",
@@ -43,7 +46,7 @@ export default function HeroRentalActions({
         return (
             <div className="hero-cta fade-in fade-in-delay-3">
             <span className="btn btn-outline-light">
-                Catalog indisponibil temporar
+                {t("catalogUnavailable")}
             </span>
             </div>
         );
@@ -55,13 +58,13 @@ export default function HeroRentalActions({
 
             {rentEnabled && (
                 <Link href={rentHref} className="btn btn-gold">
-                    Închiriază
+                    {tCommon("rentVerb")}
                 </Link>
             )}
 
             {buyEnabled && (
                 <Link href={buyHref} className="btn btn-outline-light">
-                    Cumpără
+                    {tCommon("buyVerb")}
                 </Link>
             )}
         </div>

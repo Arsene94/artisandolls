@@ -19,6 +19,7 @@ export type Doll = {
     rentPricePerDay: number | null;
     buyPrice: number | null;
     tags: string[];
+    showOnHomeHero: boolean;
 };
 
 export type DollRow = {
@@ -39,6 +40,7 @@ export type DollRow = {
     rent_price_per_day: number | null;
     buy_price: number | null;
     tags: string[];
+    show_on_home_hero: boolean;
     display_order: number;
     is_active: boolean;
     created_at: string;
@@ -60,6 +62,7 @@ export function mapDollRowToDoll(row: DollRow): Doll {
         rentPricePerDay: row.rent_price_per_day,
         buyPrice: row.buy_price,
         tags: row.tags,
+        showOnHomeHero: row.show_on_home_hero ?? false,
     };
 }
 
@@ -99,6 +102,23 @@ export async function getDollBySlug(slug: string) {
         .select("*")
         .eq("slug", slug)
         .single();
+
+    if (error || !data) {
+        return null;
+    }
+
+    return mapDollRowToDoll(data as DollRow);
+}
+
+export async function getHomepageHeroDoll() {
+    const supabase = await createSupabaseServerClient();
+
+    const { data, error } = await supabase
+        .from("dolls")
+        .select("*")
+        .eq("is_active", true)
+        .eq("show_on_home_hero", true)
+        .maybeSingle();
 
     if (error || !data) {
         return null;

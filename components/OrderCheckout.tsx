@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { type CatalogMode, type Doll } from "@/lib/dolls";
 import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
 import Image from "next/image";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
+import { formatLei, formatLeiPerDay, getIntlLocale } from "@/i18n/format";
 import styles from "./OrderCheckout.module.css";
 import type { PublicPlatformSettings } from "@/lib/settings/shared";
 
@@ -31,17 +33,21 @@ type OrderFormState = {
     notes: string;
 };
 
-function formatDate(value: string) {
-    if (!value) return "Neselectată";
+function formatDate(value: string, locale: string, fallback: string) {
+    if (!value) return fallback;
 
     const [year, month, day] = value.split("-");
     if (!year || !month || !day) return value;
 
-    return `${day}.${month}.${year}`;
+    return new Intl.DateTimeFormat(getIntlLocale(locale), {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+    }).format(new Date(`${year}-${month}-${day}T00:00:00`));
 }
 
-function getModeLabel(mode: CatalogMode) {
-    return mode === "rent" ? "Închiriere" : "Cumpărare";
+function getModeLabel(mode: CatalogMode, rentLabel: string, buyLabel: string) {
+    return mode === "rent" ? rentLabel : buyLabel;
 }
 
 function getBackHref(dollId: string, mode: CatalogMode, startDate: string, endDate: string) {
@@ -88,8 +94,11 @@ export default function OrderCheckout({
                                           options,
                                           total,
                                           action,
-                                          settings,
-                                      }: OrderCheckoutProps) {
+                                      settings,
+                                  }: OrderCheckoutProps) {
+    const locale = useLocale();
+    const t = useTranslations("checkout");
+    const tCommon = useTranslations("common");
     const [checkoutPeriod, setCheckoutPeriod] = useState<RentalRangeValue>({
         startDate,
         endDate,
@@ -137,11 +146,12 @@ export default function OrderCheckout({
 
     const totalLabel = useMemo(() => {
         if (!Number.isFinite(liveTotalAmount) || liveTotalAmount <= 0) {
-            return "Se confirmă după verificare";
+            return t("pendingTotal");
         }
 
-        return `${liveTotalAmount.toLocaleString("ro-RO")} lei`;
-    }, [liveTotalAmount]);
+        return formatLei(liveTotalAmount, locale);
+    }, [liveTotalAmount, locale, t]);
+    const modeLabel = getModeLabel(mode, tCommon("rent"), tCommon("buy"));
 
     function updateField(field: keyof OrderFormState, value: string) {
         setForm((currentForm) => ({
@@ -174,20 +184,24 @@ export default function OrderCheckout({
 
                 <div className={styles.heroInner}>
                     <Link href={getBackHref(doll.id, mode, startDate, endDate)} className={styles.backLink}>
-                        ← Înapoi la păpușă
+                        {"<-"} {t("back")}
                     </Link>
 
                     <div className={styles.heroGrid}>
                         <div>
-                            <span className="section-label">Finalizare comandă</span>
+                            <span className="section-label">{t("label")}</span>
                             <h1>
-                                Date pentru <em>{getModeLabel(mode).toLowerCase()}</em>
+                                {t.rich("title", {
+                                    mode: modeLabel.toLowerCase(),
+                                    em: (chunks) => <em>{chunks}</em>,
+                                })}
                             </h1>
                             <p>
-                                Completează datele de contact și detaliile de livrare. După trimitere, vei ajunge pe pagina de confirmare.
+                                {t("subtitle")}
                             </p>
 
                             <form className={styles.formCard} action={action}>
+                                <input type="hidden" name="_locale" value={locale} />
                                 <input type="hidden" name="mode" value={mode} />
                                 <input type="hidden" name="doll_slug" value={doll.id} />
                                 <input type="hidden" name="outfit_id" value={outfitId} />
@@ -197,19 +211,19 @@ export default function OrderCheckout({
                                 <input type="hidden" name="end_date" value={checkoutPeriod.endDate} />
 
                                 <div className={styles.formHeader}>
-                                    <span className="section-label">Date client</span>
-                                    <h2>Unde și când livrăm?</h2>
+                                    <span className="section-label">{t("clientLabel")}</span>
+                                    <h2>{t("formTitle")}</h2>
                                 </div>
 
                                 <div className={styles.fieldsGrid}>
                                     <label className={styles.field}>
-                                        Nume complet
+                                        {t("fullName")}
                                         <input
                                             type="text"
                                             name="full_name"
                                             value={form.fullName}
                                             onChange={(event) => updateField("fullName", event.target.value)}
-                                            placeholder="Ex: Arsene Popescu"
+                                            placeholder={t("fullNamePlaceholder")}
                                             required
                                         />
                                     </label>
@@ -227,7 +241,7 @@ export default function OrderCheckout({
                                     </label>
 
                                     <label className={styles.field}>
-                                        Număr de telefon
+                                        {t("phone")}
                                         <input
                                             type="tel"
                                             name="phone"
@@ -239,7 +253,7 @@ export default function OrderCheckout({
                                     </label>
 
                                     <div className={`${styles.field} ${styles.rangeField}`}>
-                                        <span>{mode === "rent" ? "Perioadă livrare / retur" : "Perioadă livrare"}</span>
+                                        <span>{mode === "rent" ? t("deliveryReturnPeriod") : t("deliveryPeriod")}</span>
 
                                         <RentalDateRangePicker
                                             initialStartDate={checkoutPeriod.startDate}
@@ -250,7 +264,7 @@ export default function OrderCheckout({
 
                                         {!hasCompletePeriod && (
                                             <small className={styles.fieldError}>
-                                                Alege data de început și data de sfârșit înainte de confirmare.
+                                                {t("periodError")}
                                             </small>
                                         )}
 
@@ -258,7 +272,7 @@ export default function OrderCheckout({
                                     </div>
 
                                     <label className={styles.field}>
-                                        Ora de livrare
+                                        {t("deliveryTime")}
                                         <input
                                             type="time"
                                             name="delivery_time"
@@ -270,7 +284,7 @@ export default function OrderCheckout({
 
                                     {mode === "rent" && (
                                         <label className={styles.field}>
-                                            Ora de retur
+                                            {t("returnTime")}
                                             <input
                                                 type="time"
                                                 name="return_time"
@@ -283,42 +297,42 @@ export default function OrderCheckout({
                                 </div>
 
                                 <label className={styles.field}>
-                                    Adresa de livrare
+                                    {t("deliveryAddress")}
                                     <textarea
                                         value={form.deliveryAddress}
                                         name="delivery_address"
                                         onChange={(event) => updateField("deliveryAddress", event.target.value)}
-                                        placeholder="Stradă, număr, bloc, scară, etaj, apartament, oraș"
+                                        placeholder={t("deliveryAddressPlaceholder")}
                                         required
                                     />
                                 </label>
 
                                 <label className={styles.field}>
-                                    Observații opționale
+                                    {t("notes")}
                                     <textarea
                                         value={form.notes}
                                         name="notes"
                                         onChange={(event) => updateField("notes", event.target.value)}
-                                        placeholder="Ex: reper pentru curier, instrucțiuni speciale"
+                                        placeholder={t("notesPlaceholder")}
                                     />
                                 </label>
 
                                 {settings.order_terms && (
                                     <div className={styles.noticeBox}>
-                                        <strong>Termeni comandă</strong>
+                                        <strong>{t("orderTerms")}</strong>
                                         <p>{settings.order_terms}</p>
                                     </div>
                                 )}
 
                                 {settings.privacy_note && (
                                     <div className={styles.noticeBox}>
-                                        <strong>Notă confidențialitate</strong>
+                                        <strong>{t("privacyNote")}</strong>
                                         <p>{settings.privacy_note}</p>
                                     </div>
                                 )}
 
                                 <button type="submit" className="btn btn-gold" disabled={!hasCompletePeriod}>
-                                    Confirmă datele
+                                    {t("confirm")}
                                 </button>
                             </form>
                         </div>
@@ -335,29 +349,29 @@ export default function OrderCheckout({
                             <div>
                                 <span>{doll.collection}</span>
                                 <h2>{doll.name}</h2>
-                                <p>{getModeLabel(mode)}</p>
+                                <p>{modeLabel}</p>
                             </div>
 
                             <dl>
                                 <div>
-                                    <dt>{mode === "rent" ? "Perioadă livrare / retur" : "Perioadă livrare"}</dt>
+                                    <dt>{mode === "rent" ? t("deliveryReturnPeriod") : t("deliveryPeriod")}</dt>
                                     <dd>
-                                        {`${formatDate(checkoutPeriod.startDate)} — ${formatDate(checkoutPeriod.endDate)}`}
+                                        {`${formatDate(checkoutPeriod.startDate, locale, tCommon("noSelection"))} - ${formatDate(checkoutPeriod.endDate, locale, tCommon("noSelection"))}`}
                                     </dd>
                                 </div>
                                 {mode === "rent" && (
                                     <>
                                         <div>
-                                            <dt>Zile selectate</dt>
-                                            <dd>{liveRentalDays || "-"} zile</dd>
+                                            <dt>{t("selectedDays")}</dt>
+                                            <dd>{liveRentalDays ? tCommon("days", { count: liveRentalDays }) : "-"}</dd>
                                         </div>
 
                                         <div>
-                                            <dt>Preț pe zi</dt>
+                                            <dt>{t("pricePerDay")}</dt>
                                             <dd>
                                                 {doll.rentPricePerDay
-                                                    ? `${doll.rentPricePerDay.toLocaleString("ro-RO")} lei / zi`
-                                                    : "Indisponibil"}
+                                                    ? formatLeiPerDay(doll.rentPricePerDay, locale, tCommon("perDay"))
+                                                    : tCommon("unavailable")}
                                             </dd>
                                         </div>
                                     </>
@@ -365,12 +379,12 @@ export default function OrderCheckout({
 
                                 {extrasTotal > 0 && (
                                     <div>
-                                        <dt>Extra-uri</dt>
-                                        <dd>{extrasTotal.toLocaleString("ro-RO")} lei</dd>
+                                        <dt>{t("extras")}</dt>
+                                        <dd>{formatLei(extrasTotal, locale)}</dd>
                                     </div>
                                 )}
                                 <div>
-                                    <dt>Total estimat</dt>
+                                    <dt>{t("estimatedTotal")}</dt>
                                     <dd>{totalLabel}</dd>
                                 </div>
                             </dl>

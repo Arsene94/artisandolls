@@ -49,6 +49,21 @@ function getBoolean(formData: FormData, key: string) {
     return formData.get(key) === "on";
 }
 
+function revalidatePublicDollPaths(slug?: string) {
+    revalidatePath("/");
+    revalidatePath("/en");
+    revalidatePath("/nl");
+    revalidatePath("/catalog");
+    revalidatePath("/en/catalog");
+    revalidatePath("/nl/catalog");
+
+    if (slug) {
+        revalidatePath(`/catalog/${slug}`);
+        revalidatePath(`/en/catalog/${slug}`);
+        revalidatePath(`/nl/catalog/${slug}`);
+    }
+}
+
 function getStringArrayFromJson(formData: FormData, key: string) {
     const raw = getString(formData, key);
 
@@ -110,6 +125,7 @@ async function getDollPayload(
         rent_price_per_day: getNullableNumber(formData, "rent_price_per_day"),
         buy_price: getNullableNumber(formData, "buy_price"),
         tags,
+        show_on_home_hero: getBoolean(formData, "show_on_home_hero"),
         display_order: getNullableNumber(formData, "display_order") ?? 0,
         is_active: getBoolean(formData, "is_active"),
     };
@@ -119,13 +135,24 @@ export async function createDollAction(formData: FormData) {
     const supabase = await requireAdminSupabase();
     const payload = await getDollPayload(supabase, formData);
 
+    if (payload.show_on_home_hero) {
+        const { error: clearError } = await supabase
+            .from("dolls")
+            .update({ show_on_home_hero: false })
+            .eq("show_on_home_hero", true);
+
+        if (clearError) {
+            throw new Error(clearError.message);
+        }
+    }
+
     const { error } = await supabase.from("dolls").insert(payload);
 
     if (error) {
         throw new Error(error.message);
     }
 
-    revalidatePath("/catalog");
+    revalidatePublicDollPaths(payload.slug);
     revalidatePath("/admin/dolls");
 
     redirect("/admin/dolls");
@@ -134,6 +161,18 @@ export async function createDollAction(formData: FormData) {
 export async function updateDollAction(id: string, formData: FormData) {
     const supabase = await requireAdminSupabase();
     const payload = await getDollPayload(supabase, formData);
+
+    if (payload.show_on_home_hero) {
+        const { error: clearError } = await supabase
+            .from("dolls")
+            .update({ show_on_home_hero: false })
+            .eq("show_on_home_hero", true)
+            .neq("id", id);
+
+        if (clearError) {
+            throw new Error(clearError.message);
+        }
+    }
 
     const { error } = await supabase
         .from("dolls")
@@ -144,8 +183,7 @@ export async function updateDollAction(id: string, formData: FormData) {
         throw new Error(error.message);
     }
 
-    revalidatePath("/catalog");
-    revalidatePath(`/catalog/${payload.slug}`);
+    revalidatePublicDollPaths(payload.slug);
     revalidatePath("/admin/dolls");
 
     redirect("/admin/dolls");
@@ -163,7 +201,7 @@ export async function deleteDollAction(id: string) {
         throw new Error(error.message);
     }
 
-    revalidatePath("/catalog");
+    revalidatePublicDollPaths();
     revalidatePath("/admin/dolls");
 }
 
@@ -183,6 +221,6 @@ export async function bulkDeleteDollsAction(ids: string[]) {
         throw new Error(error.message);
     }
 
-    revalidatePath("/catalog");
+    revalidatePublicDollPaths();
     revalidatePath("/admin/dolls");
 }

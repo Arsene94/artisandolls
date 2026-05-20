@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { type CatalogMode, type Doll } from "@/lib/dolls";
 import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
 import Image from "next/image";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
+import { formatLei, formatLeiPerDay } from "@/i18n/format";
 import type { CustomizationGroupWithOptions } from "@/lib/customizations/shared";
 import CustomizationIcon from "@/components/icons/CustomizationIcon";
 import type { OutfitOptionForCatalog } from "@/lib/outfits/shared";
@@ -22,7 +24,7 @@ type DollDetailsProps = {
     settings: PublicPlatformSettings;
 };
 
-function formatDate(value: string) {
+function formatDate(value: string, locale: string) {
     if (!value) return "";
 
     const [year, month, day] = value.split("-");
@@ -31,7 +33,11 @@ function formatDate(value: string) {
         return value;
     }
 
-    return `${day}.${month}.${year}`;
+    return new Intl.DateTimeFormat(locale === "en" ? "en-US" : locale === "nl" ? "nl-NL" : "ro-RO", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+    }).format(new Date(`${year}-${month}-${day}T00:00:00`));
 }
 
 function parseDate(value: string) {
@@ -60,8 +66,8 @@ function getRentalDays(startDate: string, endDate: string) {
     return Math.max(1, Math.ceil(diff / dayMs));
 }
 
-function getModeLabel(mode: CatalogMode) {
-    return mode === "rent" ? "Închiriere" : "Cumpărare";
+function getModeLabel(mode: CatalogMode, rentLabel: string, buyLabel: string) {
+    return mode === "rent" ? rentLabel : buyLabel;
 }
 
 function getCatalogHref(mode: CatalogMode, period: RentalRangeValue) {
@@ -146,33 +152,36 @@ function CustomizationPicker({
                                  onToggle,
                                  onOutfitSelect,
                              }: CustomizationPickerProps) {
+    const t = useTranslations("details");
+    const tCommon = useTranslations("common");
+    const locale = useLocale();
     const [isOutfitOpen, setIsOutfitOpen] = useState(false);
     const outfitOptions = outfits;
     const selectedOutfit = getSelectedOutfit(selectedOutfitId, outfitOptions);
+    const modeLabel = getModeLabel(mode, tCommon("rent"), tCommon("buy")).toLowerCase();
 
     return (
         <div className={styles.customizationPanel}>
             <div className={styles.customizationHeader}>
                 <div>
-                    <span className="section-label">Customizări</span>
+                    <span className="section-label">{t("customizationsLabel")}</span>
                     <h2>
                         {mode === "rent"
-                            ? "Opțiuni pentru închiriere"
-                            : "Opțiuni pentru cumpărare"}
+                            ? t("rentOptions")
+                            : t("buyOptions")}
                     </h2>
                 </div>
 
                 <span className={styles.modePill}>
-                    {mode === "rent" ? "Închiriere" : "Cumpărare"}
+                    {getModeLabel(mode, tCommon("rent"), tCommon("buy"))}
                 </span>
             </div>
 
             <div className={styles.outfitSelector}>
                 <div className={styles.groupHeader}>
-                    <h3>Ținută</h3>
+                    <h3>{t("outfit")}</h3>
                     <p>
-                        Alege o ținută separată pentru {mode === "rent" ? "închiriere" : "cumpărare"}.
-                        Fiecare ținută are preț separat.
+                        {t("outfitDescription", { mode: modeLabel })}
                     </p>
                 </div>
 
@@ -188,13 +197,13 @@ function CustomizationPicker({
 
                             <span>
                     <strong>{selectedOutfit.label}</strong>
-                    <small>+{selectedOutfit.price.toLocaleString("ro-RO")} lei</small>
+                    <small>+{formatLei(selectedOutfit.price, locale)}</small>
                 </span>
                         </>
                     ) : (
                         <span>
-                <strong>Alege o ținută</strong>
-                <small>Nicio ținută selectată</small>
+                <strong>{t("chooseOutfit")}</strong>
+                <small>{t("noOutfitSelected")}</small>
             </span>
                     )}
 
@@ -211,11 +220,11 @@ function CustomizationPicker({
                                 setIsOutfitOpen(false);
                             }}
                         >
-                            <span className={styles.noOutfitPreview}>Fără</span>
+                            <span className={styles.noOutfitPreview}>{t("without")}</span>
 
                             <span>
-                    <strong>Fără ținută extra</strong>
-                    <small>+0 lei</small>
+                    <strong>{t("noExtraOutfit")}</strong>
+                    <small>+{formatLei(0, locale)}</small>
                 </span>
                         </button>
 
@@ -237,7 +246,7 @@ function CustomizationPicker({
                                     <span>
                             <strong>{outfit.label}</strong>
                             <small>{outfit.description}</small>
-                            <em>+{outfit.price.toLocaleString("ro-RO")} lei</em>
+                            <em>+{formatLei(outfit.price, locale)}</em>
                         </span>
                                 </button>
                             );
@@ -295,7 +304,7 @@ function CustomizationPicker({
                                         <span className={styles.customOptionContent}>
                                             <span className={styles.customOptionTop}>
                                                 <strong>{option.label}</strong>
-                                                <em>+{option.price.toLocaleString("ro-RO")} lei</em>
+                                                <em>+{formatLei(option.price, locale)}</em>
                                             </span>
 
                                             <span>{option.description ?? ""}</span>
@@ -339,6 +348,9 @@ export default function DollDetails({
                                         outfits,
                                         settings,
                                     }: DollDetailsProps) {
+    const t = useTranslations("details");
+    const tCommon = useTranslations("common");
+    const locale = useLocale();
     const galleryImages = useMemo(() => getGalleryImages(doll), [doll]);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -405,6 +417,7 @@ export default function DollDetails({
 
     const canUseCurrentMode =
         mode === "rent" ? settings.rent_enabled : settings.buy_enabled;
+    const currentModeLabel = getModeLabel(mode, tCommon("rent"), tCommon("buy"));
 
 
     const checkoutHref = getCheckoutHref(
@@ -467,7 +480,7 @@ export default function DollDetails({
 
                 <div className={styles.heroInner}>
                     <Link href={getCatalogHref(mode, period)} className={styles.backLink}>
-                        ← Înapoi la catalog
+                        {"<-"} {t("back")}
                     </Link>
 
                     <div className={styles.heroGrid}>
@@ -491,7 +504,7 @@ export default function DollDetails({
                                             type="button"
                                             className={`${styles.galleryArrow} ${styles.galleryArrowLeft}`}
                                             onClick={goToPreviousImage}
-                                            aria-label="Imaginea anterioară"
+                                            aria-label={t("previousImage")}
                                         >
                                             ‹
                                         </button>
@@ -500,7 +513,7 @@ export default function DollDetails({
                                             type="button"
                                             className={`${styles.galleryArrow} ${styles.galleryArrowRight}`}
                                             onClick={goToNextImage}
-                                            aria-label="Imaginea următoare"
+                                            aria-label={t("nextImage")}
                                         >
                                             ›
                                         </button>
@@ -515,7 +528,7 @@ export default function DollDetails({
                                         type="button"
                                         className={selectedImageIndex === index ? styles.activeThumbnail : ""}
                                         onClick={() => setSelectedImageIndex(index)}
-                                        aria-label={`Vezi imaginea ${index + 1}`}
+                                        aria-label={t("viewImage", { index: index + 1 })}
                                     >
                                         <Image
                                             src={getSupabaseImageUrl(image, "thumb")}
@@ -528,39 +541,36 @@ export default function DollDetails({
                             </div>
 
                             <div className={styles.descriptionCard}>
-                                <span className="section-label">Descriere</span>
-                                <h2>Detalii despre piesă</h2>
+                                <span className="section-label">{t("descriptionLabel")}</span>
+                                <h2>{t("descriptionTitle")}</h2>
                                 <p>
-                                    {doll.name} este o piesă creată pentru colecționari care caută o prezență vizuală puternică,
-                                    finisaje atent lucrate și o experiență premium. Fiecare detaliu este gândit pentru prezentare,
-                                    păstrare și integrare într-o colecție personală.
+                                    {t("descriptionParagraph1", { name: doll.name })}
                                 </p>
                                 <p>
-                                    Poate fi aleasă pentru sesiuni foto, decor tematic, colecții private sau comandă personalizată,
-                                    în funcție de disponibilitate și modul selectat.
+                                    {t("descriptionParagraph2")}
                                 </p>
                             </div>
 
                             <div className={styles.specsCard}>
-                                <span className="section-label">Specificații</span>
-                                <h2>Informații rapide</h2>
+                                <span className="section-label">{t("specsLabel")}</span>
+                                <h2>{t("specsTitle")}</h2>
 
                                 <div className={styles.specList}>
                                     <div>
-                                        <span>Colecție</span>
+                                        <span>{t("collection")}</span>
                                         <strong>{doll.collection}</strong>
                                     </div>
                                     <div>
-                                        <span>Status</span>
+                                        <span>{t("status")}</span>
                                         <strong>{doll.badge}</strong>
                                     </div>
                                     <div>
-                                        <span>Închiriere</span>
-                                        <strong>{doll.availableForRent ? "Disponibilă" : "Indisponibilă"}</strong>
+                                        <span>{t("rent")}</span>
+                                        <strong>{doll.availableForRent ? tCommon("available") : tCommon("unavailable")}</strong>
                                     </div>
                                     <div>
-                                        <span>Cumpărare</span>
-                                        <strong>{doll.availableForBuy ? "Disponibilă" : "Indisponibilă"}</strong>
+                                        <span>{t("buy")}</span>
+                                        <strong>{doll.availableForBuy ? tCommon("available") : tCommon("unavailable")}</strong>
                                     </div>
                                 </div>
                             </div>
@@ -585,7 +595,7 @@ export default function DollDetails({
                                     className={mode === "rent" ? styles.activeMode : ""}
                                     onClick={() => setMode("rent")}
                                 >
-                                    Închiriere
+                                    {tCommon("rent")}
                                 </button>
 
                                 <button
@@ -593,13 +603,13 @@ export default function DollDetails({
                                     className={mode === "buy" ? styles.activeMode : ""}
                                     onClick={() => setMode("buy")}
                                 >
-                                    Cumpărare
+                                    {tCommon("buy")}
                                 </button>
                             </div>
 
                             {!isAvailableForSelectedMode && (
                                 <div className={styles.notice}>
-                                    Această piesă nu este disponibilă momentan pentru {getModeLabel(mode).toLowerCase()}.
+                                    {t("notAvailableMode", { mode: currentModeLabel.toLowerCase() })}
                                 </div>
                             )}
 
@@ -616,33 +626,33 @@ export default function DollDetails({
                             {mode === "rent" && (
                                 <div className={styles.pricePanel}>
                                     <div className={styles.priceRow}>
-                                        <span>Preț pe zi</span>
+                                        <span>{t("pricePerDay")}</span>
                                         <strong>
                                             {doll.rentPricePerDay
-                                                ? `${doll.rentPricePerDay} lei / zi`
-                                                : "Indisponibil"}
+                                                ? formatLeiPerDay(doll.rentPricePerDay, locale, tCommon("perDay"))
+                                                : tCommon("unavailable")}
                                         </strong>
                                     </div>
 
                                     {outfitTotal > 0 && (
                                         <div className={styles.priceRow}>
-                                            <span>Ținută</span>
-                                            <strong>{outfitTotal.toLocaleString("ro-RO")} lei</strong>
+                                            <span>{t("outfit")}</span>
+                                            <strong>{formatLei(outfitTotal, locale)}</strong>
                                         </div>
                                     )}
 
                                     {customizationTotal > 0 && (
                                         <div className={styles.priceRow}>
-                                            <span>Alte customizări</span>
-                                            <strong>{customizationTotal.toLocaleString("ro-RO")} lei</strong>
+                                            <span>{t("otherCustomizations")}</span>
+                                            <strong>{formatLei(customizationTotal, locale)}</strong>
                                         </div>
                                     )}
 
                                     {!hasCompletePeriod && (
                                         <div className={styles.periodBox}>
-                                            <span className={styles.panelLabel}>Alege perioada</span>
+                                            <span className={styles.panelLabel}>{t("choosePeriod")}</span>
                                             <p>
-                                                Pentru închiriere avem nevoie de data de început și data de sfârșit.
+                                                {t("periodHelp")}
                                             </p>
 
                                             <RentalDateRangePicker
@@ -657,33 +667,33 @@ export default function DollDetails({
                                     {hasCompletePeriod && (
                                         <>
                                             <div className={styles.priceRow}>
-                                                <span>Perioadă</span>
+                                                <span>{t("period")}</span>
                                                 <strong>
-                                                    {formatDate(period.startDate)} — {formatDate(period.endDate)}
+                                                    {formatDate(period.startDate, locale)} - {formatDate(period.endDate, locale)}
                                                 </strong>
                                             </div>
 
                                             <div className={styles.priceRow}>
-                                                <span>Zile selectate</span>
-                                                <strong>{rentalDays} zile</strong>
+                                                <span>{t("selectedDays")}</span>
+                                                <strong>{tCommon("days", { count: rentalDays })}</strong>
                                             </div>
 
                                             <div className={styles.totalRow}>
-                                                <span>Total estimat</span>
-                                                <strong>{rentalTotal.toLocaleString("ro-RO")} lei</strong>
+                                                <span>{t("estimatedTotal")}</span>
+                                                <strong>{formatLei(rentalTotal, locale)}</strong>
                                             </div>
                                         </>
                                     )}
 
                                     {canUseCurrentMode ? (
                                         <Link href={checkoutHref} className="btn btn-gold">
-                                            Continuă
+                                            {tCommon("continue")}
                                         </Link>
                                     ) : (
                                         <button type="button" className="btn btn-outline-light" disabled>
                                             {mode === "rent"
-                                                ? "Închirierile sunt momentan indisponibile"
-                                                : "Cumpărările sunt momentan indisponibile"}
+                                                ? t("rentUnavailable")
+                                                : t("buyUnavailable")}
                                         </button>
                                     )}
                                 </div>
@@ -692,36 +702,36 @@ export default function DollDetails({
                             {mode === "buy" && (
                                 <div className={styles.pricePanel}>
                                     <div className={styles.priceRow}>
-                                        <span>Preț de bază</span>
+                                        <span>{t("basePrice")}</span>
                                         <strong>
                                             {doll.buyPrice
-                                                ? `${doll.buyPrice.toLocaleString("ro-RO")} lei`
-                                                : "Indisponibil"}
+                                                ? formatLei(doll.buyPrice, locale)
+                                                : tCommon("unavailable")}
                                         </strong>
                                     </div>
 
                                     <div className={styles.priceRow}>
-                                        <span>Ținută</span>
-                                        <strong>{outfitTotal.toLocaleString("ro-RO")} lei</strong>
+                                        <span>{t("outfit")}</span>
+                                        <strong>{formatLei(outfitTotal, locale)}</strong>
                                     </div>
 
                                     <div className={styles.priceRow}>
-                                        <span>Alte customizări</span>
-                                        <strong>{customizationTotal.toLocaleString("ro-RO")} lei</strong>
+                                        <span>{t("otherCustomizations")}</span>
+                                        <strong>{formatLei(customizationTotal, locale)}</strong>
                                     </div>
 
                                     <div className={styles.totalRow}>
-                                        <span>Total estimat</span>
-                                        <strong>{buyTotal.toLocaleString("ro-RO")} lei</strong>
+                                        <span>{t("estimatedTotal")}</span>
+                                        <strong>{formatLei(buyTotal, locale)}</strong>
                                     </div>
 
                                     {isAvailableForSelectedMode ? (
                                         <Link href={checkoutHref} className="btn btn-gold">
-                                            Continuă cu achiziția
+                                            {t("continuePurchase")}
                                         </Link>
                                     ) : (
                                         <button type="button" className="btn btn-gold" disabled>
-                                            Continuă cu achiziția
+                                            {t("continuePurchase")}
                                         </button>
                                     )}
                                 </div>

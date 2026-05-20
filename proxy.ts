@@ -1,11 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import createMiddleware from "next-intl/middleware";
+import { routing } from "@/i18n/routing";
+
+const handleI18nRouting = createMiddleware(routing);
 
 function isAdminUser(user: { app_metadata?: Record<string, unknown> } | null) {
     return user?.app_metadata?.role === "admin";
 }
 
-export async function proxy(request: NextRequest) {
+async function handleAdminAuth(request: NextRequest) {
     let response = NextResponse.next({
         request,
     });
@@ -71,6 +75,16 @@ export async function proxy(request: NextRequest) {
     return response;
 }
 
+export async function proxy(request: NextRequest) {
+    const pathname = request.nextUrl.pathname;
+
+    if (pathname.startsWith("/admin")) {
+        return handleAdminAuth(request);
+    }
+
+    return handleI18nRouting(request);
+}
+
 export const config = {
-    matcher: ["/admin/:path*"],
+    matcher: ["/admin/:path*", "/((?!api|_next|_vercel|.*\\..*).*)"],
 };

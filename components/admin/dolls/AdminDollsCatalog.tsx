@@ -127,7 +127,10 @@ export default function AdminDollsCatalog({ dolls }: AdminDollsCatalogProps) {
 
                         <div>
                             <strong>{doll.badge}</strong>
-                            <small>{doll.is_active ? "Activă" : "Inactivă"}</small>
+                            <small>
+                                {doll.is_active ? "Activă" : "Inactivă"}
+                                {doll.show_on_home_hero ? " · Hero homepage" : ""}
+                            </small>
                         </div>
 
                         <div>

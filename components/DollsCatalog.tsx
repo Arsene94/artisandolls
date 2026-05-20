@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 import { type CatalogMode, type Doll } from "@/lib/dolls";
 import Image from "next/image";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
+import { formatLei, formatLeiPerDay } from "@/i18n/format";
 import styles from "./DollsCatalog.module.css";
 import RentalDateRangePicker, { type RentalRangeValue } from "@/components/RentalDateRangePicker";
 import type { PublicPlatformSettings } from "@/lib/settings/shared";
@@ -22,20 +23,24 @@ type DollsCatalogProps = {
 type AvailabilityFilter = "all" | "available" | "rent" | "buy" | "custom" | "sold_out";
 type SortValue = "featured" | "name" | "price_asc" | "price_desc";
 
-function getModeLabel(mode: CatalogMode) {
-    return mode === "rent" ? "Închiriere" : "Cumpărare";
+function getModeLabel(mode: CatalogMode, rentLabel: string, buyLabel: string) {
+    return mode === "rent" ? rentLabel : buyLabel;
 }
 
-function getActionLabel(mode: CatalogMode) {
-    return mode === "rent" ? "Alege pentru închiriere" : "Alege pentru cumpărare";
-}
-
-function getPriceLabel(doll: Doll, mode: CatalogMode) {
+function getPriceLabel(
+    doll: Doll,
+    mode: CatalogMode,
+    locale: string,
+    unavailableLabel: string,
+    perDayLabel: string
+) {
     if (mode === "rent") {
-        return doll.rentPricePerDay ? `${doll.rentPricePerDay} lei / zi` : "Indisponibil";
+        return doll.rentPricePerDay
+            ? formatLeiPerDay(doll.rentPricePerDay, locale, perDayLabel)
+            : unavailableLabel;
     }
 
-    return doll.buyPrice ? `${doll.buyPrice.toLocaleString("ro-RO")} lei` : "Indisponibil";
+    return doll.buyPrice ? formatLei(doll.buyPrice, locale) : unavailableLabel;
 }
 
 function isAvailableForMode(doll: Doll, mode: CatalogMode) {
@@ -84,10 +89,15 @@ export default function DollsCatalog({
                                          initialMode,
                                          initialStartDate,
                                          initialEndDate,
-                                         settings,
-                                     }: DollsCatalogProps) {
+                                     settings,
+                                 }: DollsCatalogProps) {
+    const t = useTranslations("catalog");
+    const tCommon = useTranslations("common");
+    const locale = useLocale();
     const router = useRouter();
     const hasInitializedPeriodRef = useRef(false);
+    const rentLabel = tCommon("rent");
+    const buyLabel = tCommon("buy");
 
     const [mode, setMode] = useState<CatalogMode>(initialMode);
     const [search, setSearch] = useState("");
@@ -98,6 +108,7 @@ export default function DollsCatalog({
         startDate: initialStartDate,
         endDate: initialEndDate,
     });
+    const currentModeLabel = getModeLabel(mode, rentLabel, buyLabel);
 
     const filteredDolls = useMemo(() => {
         const normalizedSearch = search.trim().toLowerCase();
@@ -144,7 +155,7 @@ export default function DollsCatalog({
 
             return 0;
         });
-    }, [availability, collection, mode, search, sort]);
+    }, [availability, collection, dolls, mode, search, sort]);
 
     useEffect(() => {
         if (!hasInitializedPeriodRef.current) {
@@ -167,23 +178,26 @@ export default function DollsCatalog({
 
                 <div className={styles.heroInner}>
                     <Link href="/" className={styles.backLink}>
-                        ← Înapoi la prezentare
+                        {"<-"} {t("back")}
                     </Link>
 
-                    <span className="section-label">Catalog Artisan Dolls</span>
+                    <span className="section-label">{t("label")}</span>
 
                     <h1 className={styles.title}>
-                        Alege păpușa pentru <em>{getModeLabel(mode).toLowerCase()}</em>
+                        {t.rich("title", {
+                            mode: currentModeLabel.toLowerCase(),
+                            em: (chunks) => <em>{chunks}</em>,
+                        })}
                     </h1>
 
                     <p className={styles.subtitle}>
-                        Am păstrat selecția făcută în hero. Poți schimba modul, poți filtra colecțiile și poți compara piesele disponibile.
+                        {t("subtitle")}
                     </p>
 
                     <div className={styles.summary}>
                         <div>
-                            <span>Mod selectat</span>
-                            <strong>{getModeLabel(mode)}</strong>
+                            <span>{t("selectedMode")}</span>
+                            <strong>{currentModeLabel}</strong>
                         </div>
 
                         <div className={styles.periodPickerCard}>
@@ -197,8 +211,8 @@ export default function DollsCatalog({
                         </div>
 
                         <div>
-                            <span>Rezultate</span>
-                            <strong>{filteredDolls.length} piese</strong>
+                            <span>{t("results")}</span>
+                            <strong>{tCommon("pieces", { count: filteredDolls.length })}</strong>
                         </div>
                     </div>
                 </div>
@@ -207,8 +221,8 @@ export default function DollsCatalog({
             <section className={styles.catalogSection}>
                 <aside className={styles.filters}>
                     <div className={styles.filterHeader}>
-                        <span className="section-label">Filtre</span>
-                        <h2>Rafinează selecția</h2>
+                        <span className="section-label">{t("filtersLabel")}</span>
+                        <h2>{t("filtersTitle")}</h2>
                     </div>
 
                     <div className={styles.modeToggle}>
@@ -218,7 +232,7 @@ export default function DollsCatalog({
                                 className={mode === "rent" ? styles.activeMode : ""}
                                 onClick={() => setMode("rent")}
                             >
-                                Închiriere
+                                {rentLabel}
                             </button>
                         )}
 
@@ -228,25 +242,25 @@ export default function DollsCatalog({
                                 className={mode === "buy" ? styles.activeMode : ""}
                                 onClick={() => setMode("buy")}
                             >
-                                Cumpărare
+                                {buyLabel}
                             </button>
                         )}
                     </div>
 
                     <label className={styles.field}>
-                        Caută
+                        {t("search")}
                         <input
                             type="search"
                             value={search}
                             onChange={(event) => setSearch(event.target.value)}
-                            placeholder="Ex: Aurora, Noir, couture"
+                            placeholder={t("searchPlaceholder")}
                         />
                     </label>
 
                     <label className={styles.field}>
-                        Colecție
+                        {t("collection")}
                         <select value={collection} onChange={(event) => setCollection(event.target.value)}>
-                            <option value="all">Toate colecțiile</option>
+                            <option value="all">{t("allCollections")}</option>
                             {collections.map((collectionName) => (
                                 <option key={collectionName} value={collectionName}>
                                     {collectionName}
@@ -256,31 +270,31 @@ export default function DollsCatalog({
                     </label>
 
                     <label className={styles.field}>
-                        Disponibilitate
+                        {t("availability")}
                         <select
                             value={availability}
                             onChange={(event) => setAvailability(event.target.value as AvailabilityFilter)}
                         >
-                            <option value="all">Toate</option>
-                            <option value="available">Disponibile acum</option>
+                            <option value="all">{t("availabilityAll")}</option>
+                            <option value="available">{t("availabilityNow")}</option>
                             {settings.rent_enabled && (
-                                <option value="rent">Disponibile pentru închiriere</option>
+                                <option value="rent">{t("availabilityRent")}</option>
                             )}
                             {settings.buy_enabled && (
-                                <option value="buy">Disponibile pentru cumpărare</option>
+                                <option value="buy">{t("availabilityBuy")}</option>
                             )}
-                            <option value="custom">Personalizabile</option>
-                            <option value="sold_out">Sold out</option>
+                            <option value="custom">{t("availabilityCustom")}</option>
+                            <option value="sold_out">{t("availabilitySoldOut")}</option>
                         </select>
                     </label>
 
                     <label className={styles.field}>
-                        Sortare
+                        {t("sort")}
                         <select value={sort} onChange={(event) => setSort(event.target.value as SortValue)}>
-                            <option value="featured">Recomandate</option>
-                            <option value="name">Nume A-Z</option>
-                            <option value="price_asc">Preț crescător</option>
-                            <option value="price_desc">Preț descrescător</option>
+                            <option value="featured">{t("sortFeatured")}</option>
+                            <option value="name">{t("sortName")}</option>
+                            <option value="price_asc">{t("sortPriceAsc")}</option>
+                            <option value="price_desc">{t("sortPriceDesc")}</option>
                         </select>
                     </label>
                 </aside>
@@ -309,7 +323,15 @@ export default function DollsCatalog({
                                             <h3>{doll.name}</h3>
                                         </div>
 
-                                        <strong className={styles.price}>{getPriceLabel(doll, mode)}</strong>
+                                        <strong className={styles.price}>
+                                            {getPriceLabel(
+                                                doll,
+                                                mode,
+                                                locale,
+                                                tCommon("unavailable"),
+                                                tCommon("perDay")
+                                            )}
+                                        </strong>
                                     </div>
 
                                     <p>{doll.description}</p>
@@ -323,8 +345,8 @@ export default function DollsCatalog({
                                     <div className={styles.cardFooter}>
                                         <span className={availableForSelectedMode ? styles.available : styles.unavailable}>
                                             {availableForSelectedMode
-                                                ? `Disponibilă pentru ${getModeLabel(mode).toLowerCase()}`
-                                                : `Indisponibilă pentru ${getModeLabel(mode).toLowerCase()}`}
+                                                ? t("availableFor", { mode: currentModeLabel.toLowerCase() })
+                                                : t("unavailableFor", { mode: currentModeLabel.toLowerCase() })}
                                         </span>
 
                                         <Link
@@ -332,7 +354,11 @@ export default function DollsCatalog({
                                             className={availableForSelectedMode ? "btn btn-gold" : "btn btn-outline-light"}
                                             aria-disabled={!availableForSelectedMode}
                                         >
-                                            {availableForSelectedMode ? getActionLabel(mode) : "Vezi detalii"}
+                                            {availableForSelectedMode
+                                                ? mode === "rent"
+                                                    ? t("chooseRent")
+                                                    : t("chooseBuy")
+                                                : t("viewDetails")}
                                         </Link>
                                     </div>
                                 </div>
@@ -342,9 +368,9 @@ export default function DollsCatalog({
 
                     {filteredDolls.length === 0 && (
                         <div className={styles.emptyState}>
-                            <span className="section-label">Niciun rezultat</span>
-                            <h3>Nu am găsit piese pentru filtrele selectate.</h3>
-                            <p>Încearcă să schimbi colecția, disponibilitatea sau termenul de căutare.</p>
+                            <span className="section-label">{t("emptyLabel")}</span>
+                            <h3>{t("emptyTitle")}</h3>
+                            <p>{t("emptyDescription")}</p>
                         </div>
                     )}
                 </div>
