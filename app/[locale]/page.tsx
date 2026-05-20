@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import ArtisanDollsLanding from "@/components/ArtisanDollsLanding";
 import PublicUnavailableNotice from "@/components/PublicUnavailableNotice";
-import { getCollectionRows } from "@/lib/collections";
-import { getHomepageHeroDoll } from "@/lib/dolls";
+import { getDolls, getHomepageHeroDoll } from "@/lib/dolls";
 import { getPublicPlatformSettings } from "@/lib/settings";
 import type { Locale } from "@/i18n/routing";
 
@@ -27,9 +26,9 @@ export default async function Home({ params }: HomePageProps) {
 
   const tNotice = await getTranslations({ locale, namespace: "notice" });
 
-  const [settings, collections, heroDoll] = await Promise.all([
+  const [settings, galleryDolls, heroDoll] = await Promise.all([
     getPublicPlatformSettings(),
-    getCollectionRows(false),
+    getDolls(),
     getHomepageHeroDoll(),
   ]);
 
@@ -46,7 +45,7 @@ export default async function Home({ params }: HomePageProps) {
   return (
       <ArtisanDollsLanding
           settings={settings}
-          collections={collections}
+          galleryDolls={galleryDolls}
           heroDoll={heroDoll}
       />
   );

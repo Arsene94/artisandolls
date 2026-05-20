@@ -3,14 +3,13 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import HeroEffect from "@/components/HeroEffect";
 import HeroRentalActions from "@/components/HeroRentalActions";
-import type { CollectionRow } from "@/lib/collections/shared";
 import type { Doll } from "@/lib/dolls";
 import type { PublicPlatformSettings } from "@/lib/settings/shared";
 import { getSupabaseImageUrlServer } from "@/lib/supabase/images-server";
 
 type ArtisanDollsLandingProps = {
     settings: PublicPlatformSettings;
-    collections: CollectionRow[];
+    galleryDolls: Doll[];
     heroDoll: Doll | null;
 };
 
@@ -32,7 +31,7 @@ function getContactHref(settings: PublicPlatformSettings) {
 
 export default async function ArtisanDollsLanding({
                                                       settings,
-                                                      collections,
+                                                      galleryDolls,
                                                       heroDoll,
                                                   }: ArtisanDollsLandingProps) {
     const t = await getTranslations("home");
@@ -41,15 +40,14 @@ export default async function ArtisanDollsLanding({
         ? await getSupabaseImageUrlServer(heroDoll.image, "hero")
         : `https://placehold.co/440x520/090009/ff4fa3?text=${encodeURIComponent(t("hero.fallbackImageText"))}`;
 
-    const collectionCards = await Promise.all(
-        collections.map(async (collection) => {
-            const imageValue = collection.image_path ?? collection.image_url ?? "";
-            const image = imageValue
-                ? await getSupabaseImageUrlServer(imageValue, "card")
-                : `https://placehold.co/480x580/120612/ff9bd0?text=${encodeURIComponent(collection.name)}`;
+    const galleryCards = await Promise.all(
+        galleryDolls.slice(0, 6).map(async (doll) => {
+            const image = doll.image
+                ? await getSupabaseImageUrlServer(doll.image, "card")
+                : `https://placehold.co/480x580/120612/ff9bd0?text=${encodeURIComponent(doll.name)}`;
 
             return {
-                ...collection,
+                ...doll,
                 image,
             };
         })
@@ -198,30 +196,25 @@ export default async function ArtisanDollsLanding({
                         <p className="section-subtitle">{t("gallery.subtitle")}</p>
                     </div>
 
-                    {collectionCards.length > 0 ? (
+                    {galleryCards.length > 0 ? (
                         <div className="gallery-grid">
-                            {collectionCards.map((collection, index) => (
+                            {galleryCards.map((doll, index) => (
                                 <article
-                                    key={collection.id}
+                                    key={doll.id}
                                     className={`gallery-item fade-in fade-in-delay-${Math.min(index, 4)}`}
                                 >
                                     <Image
-                                        src={collection.image}
-                                        alt={t("gallery.imageAlt", { name: collection.name })}
+                                        src={doll.image}
+                                        alt={t("gallery.imageAlt", { name: doll.name })}
                                         width={600}
                                         height={580}
                                         sizes="(max-width: 760px) 100vw, 33vw"
-                                        unoptimized={collection.image.includes("placehold.co")}
+                                        unoptimized={doll.image.includes("placehold.co")}
                                     />
                                     <div className="gallery-overlay">
-                                        <span className="price-tag">
-                                            {collection.badge ??
-                                                (collection.type === "series"
-                                                    ? t("gallery.series")
-                                                    : t("gallery.category"))}
-                                        </span>
-                                        <h4>{collection.name}</h4>
-                                        <p>{collection.description}</p>
+                                        <span className="price-tag">{doll.badge}</span>
+                                        <h4>{doll.name}</h4>
+                                        <p>{doll.description}</p>
                                     </div>
                                 </article>
                             ))}
