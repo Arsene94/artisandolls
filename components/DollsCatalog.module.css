@@ -253,7 +253,9 @@
 
 .imageWrap {
     position: relative;
-    height: 600px;
+    aspect-ratio: 4 / 5;
+    height: auto;
+    max-height: 520px;
     overflow: hidden;
     background: var(--color-beige-dark);
 }
@@ -427,5 +429,9 @@
     .cardFooter :global(.btn) {
         width: 100%;
         text-align: center;
+    }
+
+    .imageWrap {
+        max-height: 420px;
     }
 }
