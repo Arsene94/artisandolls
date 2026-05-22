@@ -1,11 +1,20 @@
 import type { Metadata } from 'next';
-import { Inter, Roboto } from 'next/font/google';
+import { Inter, Playfair_Display, Roboto } from 'next/font/google';
 import { getLocale } from "next-intl/server";
 import './globals.css';
 
 const inter = Inter({
   subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
   variable: '--font-inter',
+  display: 'swap',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+  weight: ['400', '600', '700'],
+  variable: '--font-playfair',
   display: 'swap',
 });
 
@@ -17,8 +26,8 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: 'Artisan Dolls',
-  description: 'Artisan Dolls',
+  title: 'Velvet Companions',
+  description: 'Închiriere și achiziție discretă de companioni realiști premium.',
 };
 
 export default async function RootLayout({
@@ -30,7 +39,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} data-scroll-behavior="smooth">
-      <body className={`${inter.variable} ${roboto.variable}`}>
+      <body className={`${inter.variable} ${playfair.variable} ${roboto.variable} font-sans antialiased bg-silk text-velvet-900`}>
         {children}
       </body>
     </html>

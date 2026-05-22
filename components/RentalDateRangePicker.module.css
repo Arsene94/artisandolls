@@ -1,58 +1,57 @@
 .root {
     position: relative;
     width: min(100%, 360px);
-    z-index: 9999;
 }
 
 .inputShell {
     width: 100%;
-    min-height: 52px;
+    min-height: 48px;
     display: flex;
     align-items: center;
-    background: rgba(9, 0, 9, 0.54);
-    border: 1.5px solid rgba(255, 155, 208, 0.55);
-    box-shadow:
-            0 14px 40px rgba(0, 0, 0, 0.28),
-            0 0 0 1px rgba(255, 79, 163, 0.08) inset;
+    background: #0F0406;
+    border: 1px solid rgba(252, 250, 247, 0.1);
+    border-radius: 0.75rem;
+    box-shadow: none;
     backdrop-filter: blur(14px);
-    transition: var(--transition);
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .inputShell:hover,
 .inputShell:focus-within {
-    border-color: var(--color-gold-light);
-    background: rgba(255, 79, 163, 0.12);
-    transform: translateY(-2px);
+    border-color: #D4AF37;
+    background: #0F0406;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
 }
 
 .input {
     width: 100%;
-    height: 52px;
+    height: 48px;
     border: 0;
     outline: 0;
     background: transparent;
-    color: var(--color-white);
-    padding: 0 14px 0 16px;
+    color: #ffffff;
+    padding: 0 0.75rem;
     font-family: var(--font-sans);
-    font-size: 0.84rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0;
     cursor: pointer;
 }
 
 .input::placeholder {
-    color: rgba(255, 255, 255, 0.68);
+    color: rgba(252, 250, 247, 0.3);
 }
 
 .calendarButton {
     width: 48px;
-    height: 52px;
+    height: 48px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     border: 0;
-    border-left: 1px solid rgba(255, 155, 208, 0.22);
+    border-left: 1px solid rgba(252, 250, 247, 0.1);
     background: transparent;
     cursor: pointer;
 }
@@ -60,7 +59,7 @@
 .calendarButton svg {
     width: 18px;
     height: 18px;
-    stroke: var(--color-gold-light);
+    stroke: #D4AF37;
     fill: none;
     stroke-width: 1.8;
     stroke-linecap: round;
@@ -72,8 +71,9 @@
     left: 0;
     width: min(92vw, 360px);
     padding: 16px;
-    background: rgba(9, 0, 9, 0.96);
-    border: 1px solid rgba(255, 155, 208, 0.34);
+    background: rgba(15, 4, 6, 0.98);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 1rem;
     box-shadow: 0 22px 70px rgba(0, 0, 0, 0.42);
     backdrop-filter: blur(18px);
     z-index: 9999;
@@ -97,7 +97,7 @@
 }
 
 .calendarHeader span {
-    color: var(--color-white);
+    color: #ffffff;
     font-family: var(--font-serif);
     font-size: 1rem;
     font-weight: 500;
@@ -107,9 +107,10 @@
 .calendarHeader button {
     width: 34px;
     height: 34px;
-    border: 1px solid rgba(255, 155, 208, 0.25);
+    border: 1px solid rgba(212, 175, 55, 0.18);
+    border-radius: 0.75rem;
     background: rgba(255, 255, 255, 0.04);
-    color: var(--color-gold-light);
+    color: #D4AF37;
     cursor: pointer;
     font-size: 1.4rem;
     line-height: 1;
@@ -117,8 +118,8 @@
 }
 
 .calendarHeader button:hover {
-    background: rgba(255, 79, 163, 0.18);
-    border-color: var(--color-gold-light);
+    background: rgba(179, 57, 81, 0.18);
+    border-color: #D4AF37;
 }
 
 .weekDays {
@@ -129,7 +130,7 @@
 }
 
 .weekDays span {
-    color: rgba(255, 255, 255, 0.48);
+    color: rgba(212, 175, 55, 0.72);
     font-size: 0.68rem;
     font-weight: 700;
     text-align: center;
@@ -145,6 +146,7 @@
 .day {
     height: 38px;
     border: 1px solid transparent;
+    border-radius: 0.65rem;
     background: transparent;
     color: rgba(255, 255, 255, 0.78);
     font-family: var(--font-sans);
@@ -155,9 +157,9 @@
 }
 
 .day:hover {
-    background: rgba(255, 79, 163, 0.16);
-    border-color: rgba(255, 155, 208, 0.28);
-    color: var(--color-white);
+    background: rgba(179, 57, 81, 0.18);
+    border-color: rgba(212, 175, 55, 0.22);
+    color: #ffffff;
 }
 
 .outsideMonth {
@@ -165,15 +167,15 @@
 }
 
 .inRange {
-    background: rgba(255, 79, 163, 0.18);
-    color: var(--color-white);
+    background: rgba(179, 57, 81, 0.24);
+    color: #ffffff;
 }
 
 .rangeStart,
 .rangeEnd {
-    background: var(--color-gold);
-    color: var(--color-white);
-    border-color: var(--color-gold-light);
+    background: #B33951;
+    color: #ffffff;
+    border-color: #D4AF37;
 }
 
 .calendarHint {
