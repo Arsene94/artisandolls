@@ -8,6 +8,7 @@ import FAQ from "@/components/landing/FAQ";
 import Hero from "@/components/landing/Hero";
 import HygieneCallout from "@/components/landing/HygieneCallout";
 import SensoryBenefits from "@/components/landing/SensoryBenefits";
+import TrustRibbon from "@/components/landing/TrustRibbon";
 import type { Doll } from "@/lib/dolls";
 import type { PublicPlatformSettings } from "@/lib/settings/shared";
 import { getSupabaseImageUrlServer } from "@/lib/supabase/images-server";
@@ -18,19 +19,17 @@ type ArtisanDollsLandingProps = {
     heroDoll: Doll | null;
 };
 
+function brandedPlaceholder(text: string, size: { w: number; h: number }) {
+    const safe = encodeURIComponent(text.slice(0, 32));
+    return `https://placehold.co/${size.w}x${size.h}/0F0406/C9A24A?font=montserrat&text=${safe}`;
+}
+
 function fallbackHero(text: string) {
-    void text;
-    return "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+    return brandedPlaceholder(text, { w: 960, h: 1200 });
 }
 
 function fallbackCard(name: string) {
-    const fallbacks: Record<string, string> = {
-        Serena: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-        Aria: "https://images.unsplash.com/photo-1615486171448-4fdcb54c4897?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-        Elena: "https://images.unsplash.com/photo-1512413914486-1eb8a614d35e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-    };
-
-    return fallbacks[name] ?? `https://placehold.co/600x600/0F0406/D4AF37?text=${encodeURIComponent(name)}`;
+    return brandedPlaceholder(name, { w: 600, h: 720 });
 }
 
 function extractHeight(doll: Doll): string | undefined {
@@ -54,7 +53,7 @@ export default async function ArtisanDollsLanding({
             imageUrl: doll.image
                 ? await getSupabaseImageUrlServer(doll.image, "card")
                 : fallbackCard(doll.name),
-        }))
+        })),
     );
 
     return (
@@ -75,14 +74,21 @@ export default async function ArtisanDollsLanding({
                 rentEnabled={settings.rent_enabled}
                 buyEnabled={settings.buy_enabled}
             />
-            <SensoryBenefits />
-            <CompanionCollection dolls={cardDolls} />
+            <CompanionCollection
+                dolls={cardDolls}
+                currency={settings.currency}
+                whatsappPhone={settings.whatsapp_phone}
+                contactPhone={settings.contact_phone}
+                contactEmail={settings.contact_email}
+            />
             <ExperiencePackages
                 catalogEnabled={settings.catalog_enabled}
                 rentEnabled={settings.rent_enabled}
                 buyEnabled={settings.buy_enabled}
             />
+            <TrustRibbon />
             <HygieneCallout />
+            <SensoryBenefits />
             <ContactSection
                 contactPhone={settings.contact_phone}
                 whatsappPhone={settings.whatsapp_phone}

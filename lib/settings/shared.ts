@@ -1,3 +1,5 @@
+import type { PaymentProviderId } from "@/lib/payments/types";
+
 export type PlatformSettingsRow = {
     id: "default";
     business_name: string;
@@ -18,6 +20,18 @@ export type PlatformSettingsRow = {
     order_terms: string | null;
     privacy_note: string | null;
     admin_notes: string | null;
+
+    online_payment_enabled: boolean;
+    online_payment_provider: PaymentProviderId;
+    stripe_account_id: string | null;
+    stripe_publishable_key: string | null;
+    netopia_pos_signature: string | null;
+    netopia_live_mode: boolean;
+
+    shop_checkout_mode: "own" | "ucp";
+    ucp_enabled: boolean;
+    ucp_api_key_hash: string | null;
+
     created_at: string;
     updated_at: string;
 };
@@ -41,4 +55,9 @@ export type PublicPlatformSettings = Pick<
     | "default_return_end_time"
     | "order_terms"
     | "privacy_note"
+    | "online_payment_enabled"
+    | "online_payment_provider"
+    | "stripe_publishable_key"
+    | "shop_checkout_mode"
+    | "ucp_enabled"
 >;

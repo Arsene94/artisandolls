@@ -1,22 +1,29 @@
-"use client";
-
-import { usePathname } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CookieConsent from "@/components/CookieConsent";
+import { getPublicPlatformSettings } from "@/lib/settings";
 
-export default function SiteChrome({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-    const isAdminPath = pathname.startsWith("/admin");
-
-    if (isAdminPath) {
-        return <>{children}</>;
-    }
+export default async function SiteChrome({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    const t = await getTranslations("nav");
+    const settings = await getPublicPlatformSettings().catch(() => null);
+    const brandName = settings?.business_name?.trim() || "Velvet Studio";
 
     return (
         <>
-            <Navbar />
-            {children}
-            <Footer />
+            <a href="#main-content" className="skip-to-content">
+                {t("skipToContent")}
+            </a>
+            <Navbar brandName={brandName.toUpperCase()} />
+            <main id="main-content" tabIndex={-1}>
+                {children}
+            </main>
+            <Footer brandName={brandName.toUpperCase()} />
+            <CookieConsent />
         </>
     );
 }

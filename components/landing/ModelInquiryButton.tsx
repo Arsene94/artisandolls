@@ -1,80 +1,237 @@
 "use client";
 
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
 
 type ModelInquiryButtonProps = {
     modelName: string;
     label: string;
+    whatsappPhone?: string | null;
+    contactEmail?: string | null;
+    contactPhone?: string | null;
+    variant?: "primary" | "ghost";
 };
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^\+?[0-9]{7,15}$/;
+
+function isValidContact(value: string) {
+    const trimmed = value.trim();
+    if (EMAIL_PATTERN.test(trimmed)) return true;
+    if (PHONE_PATTERN.test(trimmed.replace(/[\s-]/g, ""))) return true;
+    return false;
+}
+
+function detectInputMode(value: string): "email" | "tel" {
+    return value.includes("@") ? "email" : "tel";
+}
+
+function focusableSelector() {
+    return [
+        "a[href]",
+        "button:not([disabled])",
+        "input:not([disabled]):not([type='hidden'])",
+        "select:not([disabled])",
+        "textarea:not([disabled])",
+        "[tabindex]:not([tabindex='-1'])",
+    ].join(",");
+}
 
 export default function ModelInquiryButton({
     modelName,
     label,
+    whatsappPhone = null,
+    contactEmail = null,
+    contactPhone = null,
+    variant = "primary",
 }: ModelInquiryButtonProps) {
     const t = useTranslations("home.contact");
+    const tCheckout = useTranslations("checkout");
+    const reactId = useId();
+    const titleId = `${reactId}-inquiry-title`;
+    const descriptionId = `${reactId}-inquiry-description`;
+    const inputId = `${reactId}-inquiry-input`;
+    const errorId = `${reactId}-inquiry-error`;
+    const ageId = `${reactId}-inquiry-age`;
+
     const [open, setOpen] = useState(false);
     const [contact, setContact] = useState("");
+    const [age, setAge] = useState(false);
     const [sent, setSent] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [ageError, setAgeError] = useState<string | null>(null);
+    const dialogRef = useRef<HTMLDivElement>(null);
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    const close = () => {
+    const close = useCallback(() => {
         setOpen(false);
-        window.setTimeout(() => {
-            setSent(false);
-            setContact("");
-        }, 300);
-    };
+        setSent(false);
+        setError(null);
+        setAgeError(null);
+    }, []);
 
-    const submit = () => {
-        if (!contact.trim()) {
-            return;
+    const buildHref = useCallback(
+        (contactValue: string) => {
+            const message = `${t("modalTitleTemplate", { name: modelName })}\n${t("contactLabel")}: ${contactValue}`;
+            if (whatsappPhone) {
+                const digits = whatsappPhone.replace(/[^\d]/g, "");
+                return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+            }
+            if (contactEmail) {
+                const params = new URLSearchParams({
+                    subject: t("modalTitleTemplate", { name: modelName }),
+                    body: message,
+                });
+                return `mailto:${contactEmail}?${params.toString()}`;
+            }
+            if (contactPhone) {
+                return `tel:${contactPhone.replace(/[^\d+]/g, "")}`;
+            }
+            return null;
+        },
+        [contactEmail, contactPhone, modelName, t, whatsappPhone],
+    );
+
+    const submit = useCallback(() => {
+        const value = contact.trim();
+        let blocked = false;
+        if (!isValidContact(value)) {
+            setError(t("validationContact"));
+            blocked = true;
+        } else {
+            setError(null);
         }
+        if (!age) {
+            setAgeError(tCheckout("ageRequired"));
+            blocked = true;
+        } else {
+            setAgeError(null);
+        }
+        if (blocked) return;
 
+        const href = buildHref(value);
+        if (href) {
+            const navigated = window.open(href, "_blank", "noopener,noreferrer");
+            if (!navigated) {
+                window.location.href = href;
+            }
+        }
         setSent(true);
-        window.setTimeout(close, 1200);
-    };
+        setContact("");
+    }, [age, buildHref, contact, t, tCheckout]);
+
+    useEffect(() => {
+        if (!open) return;
+        const previousFocus = document.activeElement as HTMLElement | null;
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        const id = window.requestAnimationFrame(() => inputRef.current?.focus());
+        return () => {
+            window.cancelAnimationFrame(id);
+            document.body.style.overflow = previousOverflow;
+            previousFocus?.focus?.();
+        };
+    }, [open]);
+
+    useEffect(() => {
+        if (!open) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                e.preventDefault();
+                close();
+                triggerRef.current?.focus();
+                return;
+            }
+            if (e.key === "Tab") {
+                const dialog = dialogRef.current;
+                if (!dialog) return;
+                const focusables = dialog.querySelectorAll<HTMLElement>(focusableSelector());
+                if (focusables.length === 0) return;
+                const first = focusables[0];
+                const last = focusables[focusables.length - 1];
+                const active = document.activeElement as HTMLElement | null;
+                if (e.shiftKey && (active === first || !dialog.contains(active))) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && active === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        };
+        document.addEventListener("keydown", onKeyDown);
+        return () => document.removeEventListener("keydown", onKeyDown);
+    }, [close, open]);
+
+    const backdropClick = useMemo(
+        () => (e: React.MouseEvent<HTMLDivElement>) => {
+            if (e.target === e.currentTarget) close();
+        },
+        [close],
+    );
+
+    const triggerClass =
+        variant === "primary"
+            ? "inline-flex items-center justify-center gap-1.5 min-h-11 bg-gold hover:bg-gold-light text-velvet-950 text-xs font-semibold tracking-[0.12em] uppercase px-5 py-2.5 rounded-full transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-900"
+            : "inline-flex items-center justify-center gap-1.5 min-h-11 border border-gold/40 hover:border-gold text-gold hover:text-gold-light text-xs font-semibold tracking-[0.12em] uppercase px-5 py-2.5 rounded-full transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-900";
 
     return (
         <>
             <button
+                ref={triggerRef}
                 type="button"
                 onClick={() => setOpen(true)}
-                className="bg-velvet-500 hover:bg-velvet-700 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all inline-flex items-center cursor-pointer"
+                aria-haspopup="dialog"
+                aria-expanded={open}
+                className={triggerClass}
             >
-                {label}
+                <span>{label}</span>
                 <svg
-                    className="w-3 h-3 ml-1"
+                    className="w-3.5 h-3.5"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="3"
+                    strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     aria-hidden="true"
+                    focusable="false"
                 >
-                    <polyline points="9 6 15 12 9 18" />
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
                 </svg>
             </button>
 
-            {open && (
+            {open ? (
                 <div
-                    className="fixed inset-0 z-[100] bg-velvet-950/80 backdrop-blur-sm flex justify-center items-center opacity-100 transition-all duration-300"
-                    onClick={(event) => {
-                        if (event.target === event.currentTarget) {
-                            close();
-                        }
-                    }}
+                    className="fixed inset-0 z-[100] bg-velvet-950/85 backdrop-blur-sm flex justify-center items-center p-4 overflow-y-auto"
+                    onMouseDown={backdropClick}
                 >
-                    <div className="bg-velvet-900 text-white p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4 border border-gold/20 scale-100 transition-transform duration-300">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-2xl font-bold font-serif text-white">
+                    <div
+                        ref={dialogRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby={titleId}
+                        aria-describedby={descriptionId}
+                        className="bg-velvet-900 text-silk p-7 sm:p-8 rounded-3xl shadow-2xl max-w-md w-full border border-gold/30"
+                        data-surface="dark"
+                    >
+                        <div className="flex justify-between items-start mb-5 gap-3">
+                            <h2
+                                id={titleId}
+                                className="font-display italic text-2xl text-silk"
+                            >
                                 {t("modalTitleTemplate", { name: modelName })}
-                            </h3>
+                            </h2>
                             <button
                                 type="button"
-                                onClick={close}
-                                className="text-silk/60 hover:text-gold transition focus:outline-none p-1 cursor-pointer"
-                                aria-label="Close"
+                                onClick={() => {
+                                    close();
+                                    triggerRef.current?.focus();
+                                }}
+                                className="inline-flex w-11 h-11 items-center justify-center rounded-full text-silk/85 hover:text-gold hover:bg-velvet-800 transition motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                                aria-label={t("modalClose")}
                             >
                                 <svg
                                     className="w-5 h-5"
@@ -85,6 +242,7 @@ export default function ModelInquiryButton({
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     aria-hidden="true"
+                                    focusable="false"
                                 >
                                     <line x1="18" y1="6" x2="6" y2="18" />
                                     <line x1="6" y1="6" x2="18" y2="18" />
@@ -92,43 +250,123 @@ export default function ModelInquiryButton({
                             </button>
                         </div>
 
-                        <p className="text-sm text-silk/70 mb-6">
+                        <p id={descriptionId} className="text-sm text-silk/85 mb-5 leading-relaxed">
                             {t("modalDescriptionTemplate", { name: modelName })}
                         </p>
 
-                        <div className="space-y-4">
-                            <input
-                                type="text"
-                                value={contact}
-                                onChange={(event) => setContact(event.target.value)}
-                                className="w-full bg-velvet-950 border border-silk/10 rounded-xl px-4 py-3 focus:outline-none focus:border-gold transition text-sm text-white placeholder-silk/30"
-                                placeholder={t("modalPlaceholder")}
-                            />
-                            <button
-                                type="button"
-                                onClick={submit}
-                                className={`w-full bg-gradient-to-r ${
-                                    sent ? "from-green-600 to-green-700 text-white" : "from-gold to-gold-dark text-velvet-900"
-                                } font-extrabold py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-lg cursor-pointer transition-colors`}
+                        {sent ? (
+                            <div
+                                role="status"
+                                aria-live="polite"
+                                className="rounded-2xl border border-gold/30 bg-velvet-800 p-5 text-center"
                             >
-                                {sent ? t("modalSent") : t("modalSubmit")}
                                 <svg
-                                    className="inline w-3.5 h-3.5 ml-1"
+                                    className="w-8 h-8 text-gold mx-auto mb-2"
                                     viewBox="0 0 24 24"
                                     fill="currentColor"
                                     aria-hidden="true"
+                                    focusable="false"
                                 >
-                                    <path d="M12 1a5 5 0 00-5 5v4H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2v-9a2 2 0 00-2-2h-2V6a5 5 0 00-5-5zm-3 9V6a3 3 0 016 0v4H9z" />
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                                 </svg>
-                            </button>
-                        </div>
+                                <p className="font-semibold text-silk">{t("modalSent")}</p>
+                                <p className="text-xs text-silk/80 mt-1">{t("modalFooter")}</p>
+                            </div>
+                        ) : (
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    submit();
+                                }}
+                                className="space-y-4"
+                                noValidate
+                            >
+                                <div>
+                                    <label
+                                        htmlFor={inputId}
+                                        className="block text-[0.72rem] uppercase tracking-[0.18em] text-silk/70 mb-2"
+                                    >
+                                        {t("contactLabel")}
+                                    </label>
+                                    <input
+                                        ref={inputRef}
+                                        id={inputId}
+                                        type="text"
+                                        value={contact}
+                                        onChange={(e) => {
+                                            setContact(e.target.value);
+                                            if (error) setError(null);
+                                        }}
+                                        inputMode={detectInputMode(contact)}
+                                        autoComplete="email"
+                                        aria-required="true"
+                                        aria-invalid={error ? "true" : "false"}
+                                        aria-describedby={error ? errorId : undefined}
+                                        className="w-full bg-velvet-950 border border-silk/25 rounded-xl px-4 py-3 focus:outline-none focus:border-gold focus-visible:ring-2 focus-visible:ring-gold transition text-sm text-silk placeholder-silk/55"
+                                        placeholder={t("modalPlaceholder")}
+                                    />
+                                    {error ? (
+                                        <p id={errorId} role="alert" className="text-xs text-danger mt-1.5">
+                                            {error}
+                                        </p>
+                                    ) : null}
+                                </div>
 
-                        <p className="text-[10px] text-silk/40 mt-4 text-center">
+                                <label
+                                    htmlFor={ageId}
+                                    className="flex items-start gap-3 p-3 rounded-xl bg-velvet-950/60 border border-velvet-800 cursor-pointer"
+                                >
+                                    <input
+                                        id={ageId}
+                                        type="checkbox"
+                                        checked={age}
+                                        onChange={(e) => {
+                                            setAge(e.target.checked);
+                                            if (ageError) setAgeError(null);
+                                        }}
+                                        className="mt-0.5 w-5 h-5 rounded border-silk/30 bg-velvet-900"
+                                        aria-required="true"
+                                        aria-invalid={ageError ? "true" : "false"}
+                                    />
+                                    <span className="text-[0.78rem] text-silk/85 leading-snug">
+                                        {tCheckout("ageConfirmDescription")}
+                                    </span>
+                                </label>
+                                {ageError ? (
+                                    <p role="alert" className="text-xs text-danger -mt-2">
+                                        {ageError}
+                                    </p>
+                                ) : null}
+
+                                <button
+                                    type="submit"
+                                    className="w-full inline-flex items-center justify-center gap-2 bg-gold hover:bg-gold-light text-velvet-950 font-semibold py-3.5 rounded-xl text-xs uppercase tracking-[0.16em] transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-900"
+                                >
+                                    <span>{t("modalSubmit")}</span>
+                                    <svg
+                                        className="w-3.5 h-3.5"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        aria-hidden="true"
+                                        focusable="false"
+                                    >
+                                        <path d="M5 12h14" />
+                                        <path d="m12 5 7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </form>
+                        )}
+
+                        <p className="text-[11px] text-silk/65 mt-5 text-center leading-relaxed">
                             {t("modalFooter")}
                         </p>
                     </div>
                 </div>
-            )}
+            ) : null}
         </>
     );
 }

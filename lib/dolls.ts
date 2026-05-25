@@ -1,5 +1,6 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { cached, CACHE_KEYS } from "@/lib/upstash/cache";
 
 export type CatalogMode = "rent" | "buy";
 
@@ -89,42 +90,39 @@ export async function getDollRows(includeInactive = false) {
 }
 
 export async function getDolls() {
-    const rows = await getDollRows(false);
-
-    return rows.map(mapDollRowToDoll);
+    return cached(CACHE_KEYS.dolls, 300, async () => {
+        const rows = await getDollRows(false);
+        return rows.map(mapDollRowToDoll);
+    });
 }
 
 export async function getDollBySlug(slug: string) {
-    const supabase = await createSupabaseServerClient();
+    return cached(CACHE_KEYS.dollBySlug(slug), 300, async () => {
+        const supabase = await createSupabaseServerClient();
+        const { data, error } = await supabase
+            .from("dolls")
+            .select("*")
+            .eq("slug", slug)
+            .single();
 
-    const { data, error } = await supabase
-        .from("dolls")
-        .select("*")
-        .eq("slug", slug)
-        .single();
-
-    if (error || !data) {
-        return null;
-    }
-
-    return mapDollRowToDoll(data as DollRow);
+        if (error || !data) return null;
+        return mapDollRowToDoll(data as DollRow);
+    });
 }
 
 export async function getHomepageHeroDoll() {
-    const supabase = await createSupabaseServerClient();
+    return cached(CACHE_KEYS.heroDoll, 300, async () => {
+        const supabase = await createSupabaseServerClient();
+        const { data, error } = await supabase
+            .from("dolls")
+            .select("*")
+            .eq("is_active", true)
+            .eq("show_on_home_hero", true)
+            .maybeSingle();
 
-    const { data, error } = await supabase
-        .from("dolls")
-        .select("*")
-        .eq("is_active", true)
-        .eq("show_on_home_hero", true)
-        .maybeSingle();
-
-    if (error || !data) {
-        return null;
-    }
-
-    return mapDollRowToDoll(data as DollRow);
+        if (error || !data) return null;
+        return mapDollRowToDoll(data as DollRow);
+    });
 }
 
 export async function getDollRowBySlug(slug: string) {
@@ -144,17 +142,18 @@ export async function getDollRowBySlug(slug: string) {
 }
 
 export async function getCollections() {
-    const supabase = await createSupabaseServerClient();
+    return cached(CACHE_KEYS.collections, 600, async () => {
+        const supabase = await createSupabaseServerClient();
+        const { data, error } = await supabase
+            .from("doll_collections")
+            .select("name")
+            .eq("is_active", true)
+            .order("display_order", { ascending: true });
 
-    const { data, error } = await supabase
-        .from("doll_collections")
-        .select("name")
-        .eq("is_active", true)
-        .order("display_order", { ascending: true });
+        if (error) {
+            throw new Error(error.message);
+        }
 
-    if (error) {
-        throw new Error(error.message);
-    }
-
-    return (data ?? []).map((collection) => collection.name);
+        return (data ?? []).map((collection) => collection.name);
+    });
 }

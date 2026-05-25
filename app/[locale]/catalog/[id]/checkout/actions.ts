@@ -2,15 +2,26 @@
 
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
-import { formatLei, isSupportedLocale } from "@/i18n/format";
+import { formatPrice, isSupportedLocale } from "@/i18n/format";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
-import {getInitialOrderStatus, getRentalDays, type OrderRow} from "@/lib/orders/shared";
+import { getInitialOrderStatus, getRentalDays, type OrderRow } from "@/lib/orders/shared";
 import { notifyAdminsAboutOrder } from "@/lib/whatsapp";
 import type { CatalogMode } from "@/lib/dolls";
 import {
     getPublicPlatformSettings,
     isCatalogModeEnabled,
 } from "@/lib/settings";
+import { clientIp, normalisePhone as normalisePhoneId } from "@/lib/upstash/identify";
+import { orderLimiter, safeLimit } from "@/lib/upstash/ratelimit";
+import {
+    enqueueOrderEmail,
+    enqueueWhatsAppNotification,
+    startOrderLifecycleWorkflow,
+} from "@/lib/upstash/jobs";
+import { emitNewOrder } from "@/lib/upstash/realtime";
+
+const PHONE_PATTERN = /^\+?[0-9 \-().]{7,20}$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function getString(formData: FormData, key: string) {
     return String(formData.get(key) ?? "").trim();
@@ -36,44 +47,71 @@ function normalizePhone(value: string) {
     return value.replace(/[^\d+]/g, "");
 }
 
-export async function createOrderAction(formData: FormData) {
-    const supabase = createSupabaseServiceClient();
+class CheckoutValidationError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "CheckoutValidationError";
+    }
+}
 
-    const mode = getMode(getString(formData, "mode"));
+export async function createOrderAction(formData: FormData) {
     const rawLocale = getString(formData, "_locale");
     const locale = isSupportedLocale(rawLocale) ? rawLocale : "ro";
     const tCheckout = await getTranslations({ locale, namespace: "checkout" });
+    const tNotice = await getTranslations({ locale, namespace: "notice" });
+    const tErrors = await getTranslations({ locale, namespace: "errors" });
+
+    const ip = await clientIp();
+    const phoneId = normalisePhoneId(getString(formData, "phone"));
+    const rateKey = phoneId ? `${phoneId}:${ip}` : `anon:${ip}`;
+    const limited = await safeLimit(orderLimiter, rateKey);
+    if (!limited.success) {
+        throw new CheckoutValidationError(tCheckout("rateLimitedDescription"));
+    }
+
+    const supabase = createSupabaseServiceClient();
+
+    const mode = getMode(getString(formData, "mode"));
     const settings = await getPublicPlatformSettings();
 
     if (settings.maintenance_mode) {
-        throw new Error("Platforma este momentan în mentenanță.");
+        throw new CheckoutValidationError(tNotice("maintenanceTitle"));
     }
 
     if (!settings.catalog_enabled) {
-        throw new Error("Catalogul este momentan indisponibil.");
+        throw new CheckoutValidationError(tNotice("catalogTitle"));
     }
 
     if (!isCatalogModeEnabled(mode, settings)) {
-        throw new Error(
-            mode === "rent"
-                ? "Închirierile sunt momentan indisponibile."
-                : "Cumpărările sunt momentan indisponibile."
-        );
+        throw new CheckoutValidationError(tNotice("ordersTitle"));
     }
+
     const dollSlug = getString(formData, "doll_slug");
+    if (!dollSlug) {
+        throw new CheckoutValidationError(tErrors("genericTitle"));
+    }
 
     const { data: doll, error: dollError } = await supabase
         .from("dolls")
-        .select("id, slug, name, available_for_rent, available_for_buy, rent_price_per_day, buy_price")
+        .select(
+            "id, slug, name, available_for_rent, available_for_buy, rent_price_per_day, buy_price",
+        )
         .eq("slug", dollSlug)
         .single();
 
     if (dollError || !doll) {
-        throw new Error("Păpușa nu a fost găsită.");
+        throw new CheckoutValidationError(tErrors("notFoundTitle"));
+    }
+
+    if (mode === "rent" && !doll.available_for_rent) {
+        throw new CheckoutValidationError(tCheckout("submitErrorDescription"));
+    }
+
+    if (mode === "buy" && !doll.available_for_buy) {
+        throw new CheckoutValidationError(tCheckout("submitErrorDescription"));
     }
 
     const outfitId = getNullableString(formData, "outfit_id");
-
     let selectedOutfit: {
         id: string;
         label: string;
@@ -90,35 +128,26 @@ export async function createOrderAction(formData: FormData) {
             .single();
 
         if (outfitError || !outfit || !outfit.is_active) {
-            throw new Error("Ținuta selectată nu mai este disponibilă.");
+            throw new CheckoutValidationError(tCheckout("submitErrorDescription"));
         }
 
         if (outfit.mode !== "both" && outfit.mode !== mode) {
-            throw new Error("Ținuta selectată nu este disponibilă pentru acest tip de comandă.");
+            throw new CheckoutValidationError(tCheckout("submitErrorDescription"));
         }
 
         selectedOutfit = outfit;
     }
 
-    if (mode === "rent" && !doll.available_for_rent) {
-        throw new Error("Această păpușă nu este disponibilă pentru închiriere.");
-    }
-
-    if (mode === "buy" && !doll.available_for_buy) {
-        throw new Error("Această păpușă nu este disponibilă pentru cumpărare.");
-    }
-
     const startDate = getNullableString(formData, "start_date");
     const endDate = getNullableString(formData, "end_date");
 
-    if (!startDate || !endDate) {
-        throw new Error("Alege perioada înainte de confirmare.");
+    if (mode === "rent" && (!startDate || !endDate)) {
+        throw new CheckoutValidationError(tCheckout("periodError"));
     }
 
-    const rentalDays = mode === "rent" ? getRentalDays(startDate, endDate) : null;
+    const rentalDays = mode === "rent" ? getRentalDays(startDate ?? "", endDate ?? "") : null;
 
     const selectedOptionIds = getSelectedOptions(getString(formData, "options"));
-
     let customizationsTotal = 0;
 
     if (selectedOptionIds.length > 0) {
@@ -128,13 +157,13 @@ export async function createOrderAction(formData: FormData) {
             .in("id", selectedOptionIds);
 
         if (selectedOptionsError) {
-            throw new Error(selectedOptionsError.message);
+            throw new CheckoutValidationError(tCheckout("submitErrorDescription"));
         }
 
         const activeOptions = selectedOptions?.filter((option) => option.is_active) ?? [];
 
         if (activeOptions.length !== selectedOptionIds.length) {
-            throw new Error("Unele customizări selectate nu mai sunt disponibile.");
+            throw new CheckoutValidationError(tCheckout("submitErrorDescription"));
         }
 
         customizationsTotal = activeOptions.reduce((sum, option) => {
@@ -143,33 +172,60 @@ export async function createOrderAction(formData: FormData) {
     }
 
     const outfitTotal = selectedOutfit?.price ?? 0;
-
     const baseTotal =
         mode === "rent"
             ? (rentalDays ?? 0) * Number(doll.rent_price_per_day ?? 0)
             : Number(doll.buy_price ?? 0);
-
     const totalAmount = Math.max(0, baseTotal + outfitTotal + customizationsTotal);
 
+    const customerName = getString(formData, "full_name");
+    const customerPhone = getString(formData, "phone");
     const customerEmailRaw = getString(formData, "email").toLowerCase();
     const customerEmail = customerEmailRaw || null;
-    const customerPhone = getString(formData, "phone");
-    const customerName = getString(formData, "full_name");
     const deliveryAddress = getString(formData, "delivery_address");
     const deliveryCity = getNullableString(formData, "delivery_city");
     const deliveryCounty = getNullableString(formData, "delivery_county");
     const contactMethod = getNullableString(formData, "contact_method");
     const contactWindowStart = getNullableString(formData, "contact_window_start");
     const contactWindowEnd = getNullableString(formData, "contact_window_end");
-    const ageConfirmed = getString(formData, "age_confirmed") === "on";
-    const privacyAccepted = getString(formData, "privacy_accepted") === "on";
+    const deliveryTime = getString(formData, "delivery_time");
+    const returnTime = getNullableString(formData, "return_time");
+    const notes = getNullableString(formData, "notes");
+    const ageConfirmed = ["on", "true", "1"].includes(getString(formData, "age_confirmed"));
+    const privacyAccepted = ["on", "true", "1"].includes(
+        getString(formData, "privacy_accepted"),
+    );
 
-    if (!ageConfirmed) {
-        throw new Error("Trebuie să confirmi că ai peste 18 ani.");
+    if (!customerName) {
+        throw new CheckoutValidationError(tCheckout("fieldRequired"));
     }
-
+    if (!customerPhone || !PHONE_PATTERN.test(customerPhone.replace(/[\s-]/g, ""))) {
+        throw new CheckoutValidationError(tCheckout("fieldInvalidPhone"));
+    }
+    if (customerEmail && !EMAIL_PATTERN.test(customerEmail)) {
+        throw new CheckoutValidationError(tCheckout("fieldInvalidEmail"));
+    }
+    if (!deliveryCounty || !deliveryCity) {
+        throw new CheckoutValidationError(tCheckout("fieldRequired"));
+    }
+    if (!deliveryAddress) {
+        throw new CheckoutValidationError(tCheckout("fieldRequired"));
+    }
+    if (mode === "rent" && (!deliveryTime || !returnTime)) {
+        throw new CheckoutValidationError(tCheckout("fieldRequired"));
+    }
+    if (
+        contactWindowStart &&
+        contactWindowEnd &&
+        contactWindowEnd <= contactWindowStart
+    ) {
+        throw new CheckoutValidationError(tCheckout("contactWindowError"));
+    }
+    if (!ageConfirmed) {
+        throw new CheckoutValidationError(tCheckout("ageRequired"));
+    }
     if (!privacyAccepted) {
-        throw new Error("Trebuie să accepți prelucrarea datelor pentru contactare.");
+        throw new CheckoutValidationError(tCheckout("privacyRequired"));
     }
 
     const normalizedPhone = normalizePhone(customerPhone);
@@ -197,7 +253,7 @@ export async function createOrderAction(formData: FormData) {
             .single();
 
         if (customerError || !customer) {
-            throw new Error(customerError?.message ?? "Clientul nu a putut fi salvat.");
+            throw new CheckoutValidationError(tCheckout("submitErrorDescription"));
         }
 
         customerId = customer.id;
@@ -215,7 +271,7 @@ export async function createOrderAction(formData: FormData) {
                 .eq("id", existingCustomer.id);
 
             if (updateError) {
-                throw new Error(updateError.message);
+                throw new CheckoutValidationError(tCheckout("submitErrorDescription"));
             }
 
             customerId = existingCustomer.id;
@@ -227,7 +283,7 @@ export async function createOrderAction(formData: FormData) {
                 .single();
 
             if (insertCustomerError || !insertedCustomer) {
-                throw new Error(insertCustomerError?.message ?? "Clientul nu a putut fi salvat.");
+                throw new CheckoutValidationError(tCheckout("submitErrorDescription"));
             }
 
             customerId = insertedCustomer.id;
@@ -258,9 +314,9 @@ export async function createOrderAction(formData: FormData) {
         delivery_address: deliveryAddress,
         delivery_city: deliveryCity,
         delivery_county: deliveryCounty,
-        delivery_time: getString(formData, "delivery_time"),
-        return_time: getNullableString(formData, "return_time"),
-        notes: getNullableString(formData, "notes"),
+        delivery_time: deliveryTime,
+        return_time: returnTime,
+        notes,
 
         contact_method: contactMethod,
         contact_window_start: contactWindowStart,
@@ -277,7 +333,7 @@ export async function createOrderAction(formData: FormData) {
         total_amount: totalAmount,
         total_label:
             totalAmount > 0
-                ? formatLei(totalAmount, locale)
+                ? formatPrice(totalAmount, locale, settings.currency || "RON")
                 : tCheckout("pendingTotal"),
     };
 
@@ -288,56 +344,92 @@ export async function createOrderAction(formData: FormData) {
         .single();
 
     if (insertError || !insertedOrder) {
-        throw new Error(insertError?.message ?? "Comanda nu a putut fi salvată.");
+        throw new CheckoutValidationError(
+            insertError?.message ?? tCheckout("submitErrorDescription"),
+        );
     }
 
     const order = insertedOrder as OrderRow;
 
-    let whatsappResult: {
-        success: boolean;
-        error: string | null;
-        debug?: unknown;
-    };
+    // Broadcast to live admin dashboards (best-effort).
+    await emitNewOrder({
+        orderId: order.id,
+        orderNumber: order.order_number,
+        dollName: order.doll_name,
+        customerName: order.customer_name,
+        total: order.total_amount,
+        mode: order.mode,
+        createdAt: order.created_at,
+    });
 
-    try {
-        whatsappResult = await notifyAdminsAboutOrder(order);
-    } catch (error) {
-        whatsappResult = {
-            success: false,
-            error: error instanceof Error ? error.message : String(error),
-            debug: {
-                fatal: true,
-                message: error instanceof Error ? error.message : String(error),
-            },
+    // Hand off the slow WhatsApp call to QStash. Fall back to a synchronous
+    // send if the queue is unavailable so we never silently drop an order.
+    const queued = await enqueueWhatsAppNotification(order.id);
+    let notificationFailed = false;
+
+    if (queued) {
+        await supabase
+            .from("orders")
+            .update({
+                whatsapp_notified: false,
+                whatsapp_error: null,
+                whatsapp_debug: { queued: true, queuedAt: new Date().toISOString() },
+            })
+            .eq("id", order.id);
+    } else {
+        let whatsappResult: {
+            success: boolean;
+            error: string | null;
+            debug?: unknown;
         };
+        try {
+            whatsappResult = await notifyAdminsAboutOrder(order);
+        } catch (error) {
+            whatsappResult = {
+                success: false,
+                error: error instanceof Error ? error.message : String(error),
+                debug: {
+                    fatal: true,
+                    message: error instanceof Error ? error.message : String(error),
+                },
+            };
+        }
+        notificationFailed = !whatsappResult.success;
+        const { error: whatsappUpdateError } = await supabase
+            .from("orders")
+            .update({
+                whatsapp_notified: whatsappResult.success,
+                whatsapp_error: whatsappResult.error,
+                whatsapp_debug: whatsappResult.debug ?? null,
+            })
+            .eq("id", order.id);
+        if (whatsappUpdateError) {
+            console.error("[ArtisanDolls] Failed to save WhatsApp debug", whatsappUpdateError);
+        }
     }
 
-    const { error: whatsappUpdateError } = await supabase
-        .from("orders")
-        .update({
-            whatsapp_notified: whatsappResult.success,
-            whatsapp_error: whatsappResult.error,
-            whatsapp_debug: whatsappResult.debug ?? null,
-        })
-        .eq("id", order.id);
-
-    if (whatsappUpdateError) {
-        console.error("[ArtisanDolls] Failed to save WhatsApp debug", whatsappUpdateError);
+    // Schedule the customer email a few seconds out so DB replicas converge.
+    if (order.customer_email) {
+        await enqueueOrderEmail(order.id);
     }
+
+    // Durable, multi-step lifecycle (reminder + follow-up). Fails silently if
+    // QStash is not configured — the synchronous fallback above still ran.
+    await startOrderLifecycleWorkflow(order.id);
 
     console.info("[ArtisanDolls] Order created", {
         orderId: order.id,
         orderNumber: order.order_number,
-        whatsappNotified: whatsappResult.success,
-        whatsappError: whatsappResult.error,
+        queued,
+        notificationFailed,
     });
 
     redirect({
         href: {
             pathname: `/catalog/${dollSlug}/success`,
-            query: {
-                orderId: order.id,
-            },
+            query: notificationFailed
+                ? { orderId: order.id, notificationError: "1" }
+                : { orderId: order.id },
         },
         locale,
     });

@@ -4,6 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
 import type { DollAvailability } from "@/lib/dolls";
+import { invalidateCatalog } from "@/lib/upstash/cache";
+import {
+    deleteDollVectors,
+    upsertDollVectors,
+} from "@/lib/upstash/vector-sync";
+import type { DollRow } from "@/lib/dolls";
 
 async function requireAdminSupabase() {
     const supabase = await createSupabaseServerClient();
@@ -49,7 +55,7 @@ function getBoolean(formData: FormData, key: string) {
     return formData.get(key) === "on";
 }
 
-function revalidatePublicDollPaths(slug?: string) {
+async function revalidatePublicDollPaths(slug?: string) {
     revalidatePath("/");
     revalidatePath("/en");
     revalidatePath("/nl");
@@ -62,6 +68,8 @@ function revalidatePublicDollPaths(slug?: string) {
         revalidatePath(`/en/catalog/${slug}`);
         revalidatePath(`/nl/catalog/${slug}`);
     }
+
+    await invalidateCatalog();
 }
 
 function getStringArrayFromJson(formData: FormData, key: string) {
@@ -146,14 +154,21 @@ export async function createDollAction(formData: FormData) {
         }
     }
 
-    const { error } = await supabase.from("dolls").insert(payload);
+    const { data: inserted, error } = await supabase
+        .from("dolls")
+        .insert(payload)
+        .select("*")
+        .single();
 
     if (error) {
         throw new Error(error.message);
     }
 
-    revalidatePublicDollPaths(payload.slug);
+    await revalidatePublicDollPaths(payload.slug);
     revalidatePath("/admin/dolls");
+    if (inserted) {
+        await upsertDollVectors(inserted as DollRow);
+    }
 
     redirect("/admin/dolls");
 }
@@ -174,23 +189,34 @@ export async function updateDollAction(id: string, formData: FormData) {
         }
     }
 
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
         .from("dolls")
         .update(payload)
-        .eq("id", id);
+        .eq("id", id)
+        .select("*")
+        .single();
 
     if (error) {
         throw new Error(error.message);
     }
 
-    revalidatePublicDollPaths(payload.slug);
+    await revalidatePublicDollPaths(payload.slug);
     revalidatePath("/admin/dolls");
+    if (updated) {
+        await upsertDollVectors(updated as DollRow);
+    }
 
     redirect("/admin/dolls");
 }
 
 export async function deleteDollAction(id: string) {
     const supabase = await requireAdminSupabase();
+
+    const { data: existing } = await supabase
+        .from("dolls")
+        .select("slug")
+        .eq("id", id)
+        .maybeSingle();
 
     const { error } = await supabase
         .from("dolls")
@@ -201,8 +227,11 @@ export async function deleteDollAction(id: string) {
         throw new Error(error.message);
     }
 
-    revalidatePublicDollPaths();
+    await revalidatePublicDollPaths();
     revalidatePath("/admin/dolls");
+    if (existing?.slug) {
+        await deleteDollVectors(existing.slug);
+    }
 }
 
 export async function bulkDeleteDollsAction(ids: string[]) {
@@ -211,6 +240,11 @@ export async function bulkDeleteDollsAction(ids: string[]) {
     if (ids.length === 0) {
         return;
     }
+
+    const { data: existing } = await supabase
+        .from("dolls")
+        .select("slug")
+        .in("id", ids);
 
     const { error } = await supabase
         .from("dolls")
@@ -221,6 +255,11 @@ export async function bulkDeleteDollsAction(ids: string[]) {
         throw new Error(error.message);
     }
 
-    revalidatePublicDollPaths();
+    await revalidatePublicDollPaths();
     revalidatePath("/admin/dolls");
+    if (existing) {
+        await Promise.all(
+            existing.map((row) => deleteDollVectors(row.slug as string)),
+        );
+    }
 }

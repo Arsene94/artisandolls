@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
 import type { CollectionType } from "@/lib/collections/shared";
+import { invalidateCatalog } from "@/lib/upstash/cache";
 
 async function requireAdminSupabase() {
     const supabase = await createSupabaseServerClient();
@@ -54,13 +55,15 @@ function getBoolean(formData: FormData, key: string) {
     return formData.get(key) === "on";
 }
 
-function revalidatePublicCollectionPaths() {
+async function revalidatePublicCollectionPaths() {
     revalidatePath("/");
     revalidatePath("/en");
     revalidatePath("/nl");
     revalidatePath("/catalog");
     revalidatePath("/en/catalog");
     revalidatePath("/nl/catalog");
+
+    await invalidateCatalog();
 }
 
 function getCollectionType(formData: FormData): CollectionType {
@@ -101,7 +104,7 @@ export async function createCollectionAction(formData: FormData) {
 
     revalidatePath("/admin/collections");
     revalidatePath("/admin/dolls");
-    revalidatePublicCollectionPaths();
+    await revalidatePublicCollectionPaths();
 
     redirect("/admin/collections");
 }
@@ -128,7 +131,7 @@ export async function updateCollectionAction(id: string, formData: FormData) {
 
     revalidatePath("/admin/collections");
     revalidatePath("/admin/dolls");
-    revalidatePublicCollectionPaths();
+    await revalidatePublicCollectionPaths();
 
     redirect("/admin/collections");
 }
@@ -160,7 +163,7 @@ export async function deleteCollectionAction(id: string) {
 
     revalidatePath("/admin/collections");
     revalidatePath("/admin/dolls");
-    revalidatePublicCollectionPaths();
+    await revalidatePublicCollectionPaths();
 }
 
 export async function bulkDeleteCollectionsAction(ids: string[]) {
@@ -194,5 +197,5 @@ export async function bulkDeleteCollectionsAction(ids: string[]) {
 
     revalidatePath("/admin/collections");
     revalidatePath("/admin/dolls");
-    revalidatePublicCollectionPaths();
+    await revalidatePublicCollectionPaths();
 }

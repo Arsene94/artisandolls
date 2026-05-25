@@ -6,12 +6,16 @@ import {
     IconHanger,
     IconLayoutDashboard,
     IconLayersIntersect,
+    IconPackage,
+    IconReceiptOff,
     IconSettings,
     IconShoppingBag,
+    IconShoppingCart,
     IconUsers,
 } from "@tabler/icons-react";
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
 import AdminSignOutButton from "@/components/admin/AdminSignOutButton";
+import LiveOrdersBanner from "@/components/admin/LiveOrdersBanner";
 import styles from "./AdminShell.module.css";
 
 const menuItems = [
@@ -50,6 +54,30 @@ const menuItems = [
         href: "/admin/outfits",
         description: "Dropdown poze și prețuri",
         icon: IconHanger,
+    },
+    {
+        label: "Shop · Produse",
+        href: "/admin/shop/products",
+        description: "Magazin accesorii & îngrijire",
+        icon: IconPackage,
+    },
+    {
+        label: "Shop · Categorii",
+        href: "/admin/shop/categories",
+        description: "Organizare magazin",
+        icon: IconLayersIntersect,
+    },
+    {
+        label: "Shop · Coduri",
+        href: "/admin/shop/coupons",
+        description: "Reduceri & coduri promoționale",
+        icon: IconReceiptOff,
+    },
+    {
+        label: "Shop · Comenzi",
+        href: "/admin/shop/orders",
+        description: "Comenzi din magazin",
+        icon: IconShoppingCart,
     },
     {
         label: "Clienți",
@@ -122,6 +150,7 @@ export default async function AdminShell({ children }: { children: React.ReactNo
 
                 {children}
             </div>
+            <LiveOrdersBanner />
         </div>
     );
 }

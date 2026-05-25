@@ -7,6 +7,7 @@ import type {
     PublicPlatformSettings,
 } from "@/lib/settings/shared";
 import type { CatalogMode } from "@/lib/dolls";
+import { cached, CACHE_KEYS } from "@/lib/upstash/cache";
 
 export type {
     PlatformSettingsRow,
@@ -31,6 +32,11 @@ const defaultPublicSettings: PublicPlatformSettings = {
     default_return_end_time: null,
     order_terms: null,
     privacy_note: null,
+    online_payment_enabled: false,
+    online_payment_provider: "netopia",
+    stripe_publishable_key: null,
+    shop_checkout_mode: "own",
+    ucp_enabled: false,
 };
 
 export async function getPlatformSettings() {
@@ -50,37 +56,44 @@ export async function getPlatformSettings() {
 }
 
 export async function getPublicPlatformSettings() {
-    const supabase = createSupabaseServiceClient();
+    return cached(CACHE_KEYS.settings, 60, async () => {
+        const supabase = createSupabaseServiceClient();
 
-    const { data, error } = await supabase
-        .from("platform_settings")
-        .select(`
-            business_name,
-            public_site_url,
-            contact_email,
-            contact_phone,
-            whatsapp_phone,
-            currency,
-            locale,
-            catalog_enabled,
-            rent_enabled,
-            buy_enabled,
-            maintenance_mode,
-            default_delivery_start_time,
-            default_delivery_end_time,
-            default_return_start_time,
-            default_return_end_time,
-            order_terms,
-            privacy_note
-        `)
-        .eq("id", "default")
-        .single();
+        const { data, error } = await supabase
+            .from("platform_settings")
+            .select(`
+                business_name,
+                public_site_url,
+                contact_email,
+                contact_phone,
+                whatsapp_phone,
+                currency,
+                locale,
+                catalog_enabled,
+                rent_enabled,
+                buy_enabled,
+                maintenance_mode,
+                default_delivery_start_time,
+                default_delivery_end_time,
+                default_return_start_time,
+                default_return_end_time,
+                order_terms,
+                privacy_note,
+                online_payment_enabled,
+                online_payment_provider,
+                stripe_publishable_key,
+                shop_checkout_mode,
+                ucp_enabled
+            `)
+            .eq("id", "default")
+            .single();
 
-    if (error || !data) {
-        return defaultPublicSettings;
-    }
+        if (error || !data) {
+            return defaultPublicSettings;
+        }
 
-    return data as PublicPlatformSettings;
+        return data as PublicPlatformSettings;
+    });
 }
 
 export function isCatalogModeEnabled(

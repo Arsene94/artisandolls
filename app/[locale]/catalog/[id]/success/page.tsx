@@ -6,6 +6,7 @@ import OrderSuccess, {
 } from "@/components/OrderSuccess";
 import { getOrderByIdForSuccess } from "@/lib/orders";
 import { getDollBySlug } from "@/lib/dolls";
+import { getPublicPlatformSettings } from "@/lib/settings";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import type { Locale } from "@/i18n/routing";
 
@@ -92,6 +93,8 @@ export default async function SuccessPage({ params, searchParams }: SuccessPageP
 
     const resolvedSearchParams = await searchParams;
     const orderId = getSearchParamValue(resolvedSearchParams?.orderId);
+    const notificationError =
+        getSearchParamValue(resolvedSearchParams?.notificationError) === "1";
 
     if (!orderId) {
         notFound();
@@ -103,9 +106,10 @@ export default async function SuccessPage({ params, searchParams }: SuccessPageP
         notFound();
     }
 
-    const [doll, customizations] = await Promise.all([
+    const [doll, customizations, settings] = await Promise.all([
         getDollBySlug(order.doll_slug),
         fetchSelectedCustomizations(order.selected_options ?? []),
+        getPublicPlatformSettings().catch(() => null),
     ]);
 
     return (
@@ -113,6 +117,8 @@ export default async function SuccessPage({ params, searchParams }: SuccessPageP
             order={order}
             doll={doll}
             customizations={customizations}
+            settings={settings ?? undefined}
+            notificationError={notificationError}
         />
     );
 }

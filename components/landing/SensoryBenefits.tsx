@@ -1,28 +1,66 @@
 import { getTranslations } from "next-intl/server";
 
-function FireIcon() {
+function ThermalIcon() {
     return (
-        <svg className="w-6 h-6 text-velvet-500" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14a8 8 0 0016 0c0-4.16-2-7.88-6.5-13.33zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z" />
+        <svg
+            className="w-6 h-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            focusable="false"
+        >
+            <path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0Z" />
+            <path d="M12 5v9.5" />
         </svg>
     );
 }
 
-function FeatherIcon() {
+function SilkIcon() {
     return (
-        <svg className="w-6 h-6 text-velvet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M20.24 12.24a6 6 0 00-8.49-8.49L5 10.5V19h8.5l6.74-6.76z" />
-            <line x1="16" y1="8" x2="2" y2="22" />
-            <line x1="17.5" y1="15" x2="9" y2="15" />
+        <svg
+            className="w-6 h-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            focusable="false"
+        >
+            <path d="M3 7c4 3 6 3 9 0 3-3 5-3 9 0" />
+            <path d="M3 12c4 3 6 3 9 0 3-3 5-3 9 0" />
+            <path d="M3 17c4 3 6 3 9 0 3-3 5-3 9 0" />
         </svg>
     );
 }
 
 function SkeletonIcon() {
     return (
-        <svg className="w-6 h-6 text-velvet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="12" cy="5" r="2.5" />
-            <path d="M12 7.5v4M9 11h6M8 16l4-4 4 4M9 21l3-5 3 5" />
+        <svg
+            className="w-6 h-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            focusable="false"
+        >
+            <circle cx="12" cy="4.5" r="2" />
+            <path d="M12 6.5V11" />
+            <path d="M7 9.5h10" />
+            <path d="M12 11v4" />
+            <path d="M9 14.5l-2 6" />
+            <path d="M15 14.5l2 6" />
+            <circle cx="9" cy="9.5" r="0.75" fill="currentColor" />
+            <circle cx="15" cy="9.5" r="0.75" fill="currentColor" />
+            <circle cx="12" cy="15" r="0.75" fill="currentColor" />
         </svg>
     );
 }
@@ -30,45 +68,52 @@ function SkeletonIcon() {
 export default async function SensoryBenefits() {
     const t = await getTranslations("home.benefits");
 
+    const benefits = [
+        { icon: <ThermalIcon />, title: t("benefit1Title"), description: t("benefit1Description") },
+        { icon: <SilkIcon />, title: t("benefit2Title"), description: t("benefit2Description") },
+        { icon: <SkeletonIcon />, title: t("benefit3Title"), description: t("benefit3Description") },
+    ];
+
     return (
-        <section id="despre" className="py-24 bg-silk text-velvet-900 relative">
+        <section
+            id="despre"
+            aria-labelledby="benefits-title"
+            className="surface-light py-24 bg-silk text-silk-800 relative"
+        >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center max-w-3xl mx-auto mb-20">
-                    <span className="text-xs font-bold uppercase tracking-widest text-velvet-500 bg-velvet-100 px-4 py-2 rounded-full">
+                <div className="text-center max-w-3xl mx-auto mb-14 lg:mb-16">
+                    <span className="inline-block text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-velvet-700 bg-velvet-100 px-4 py-2 rounded-full">
                         {t("badge")}
                     </span>
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mt-4 mb-6 font-serif">
+                    <h2
+                        id="benefits-title"
+                        className="font-display italic font-medium text-velvet-900 text-3xl sm:text-4xl lg:text-5xl mt-5 mb-5 leading-[1.1]"
+                    >
                         {t("title")}
                     </h2>
-                    <div className="w-24 h-1 bg-gradient-to-r from-gold via-velvet-500 to-gold mx-auto mb-6" />
-                    <p className="text-gray-600 font-light text-base sm:text-lg">
+                    <p className="text-silk-800/85 text-base sm:text-lg leading-relaxed">
                         {t("description")}
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {[
-                        { icon: <FireIcon />, title: t("benefit1Title"), description: t.raw("benefit1Description") as string },
-                        { icon: <FeatherIcon />, title: t("benefit2Title"), description: t.raw("benefit2Description") as string },
-                        { icon: <SkeletonIcon />, title: t("benefit3Title"), description: t.raw("benefit3Description") as string },
-                    ].map((b, i) => (
-                        <div
-                            key={i}
-                            className="bg-white p-8 rounded-2xl shadow-xl shadow-velvet-900/5 hover:shadow-velvet-500/10 hover:border-velvet-300 transition-all duration-300 border border-gray-100 group"
+                <ul className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+                    {benefits.map((b) => (
+                        <li
+                            key={b.title}
+                            className="group bg-white p-7 lg:p-8 rounded-2xl border border-silk-300 transition-all duration-300 motion-reduce:transition-none hover:border-velvet-300 hover:shadow-lg hover:-translate-y-1 motion-reduce:hover:translate-y-0"
                         >
-                            <div className="w-14 h-14 bg-velvet-50 group-hover:bg-velvet-100 rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300">
+                            <div className="w-14 h-14 rounded-2xl bg-velvet-100 text-velvet-700 group-hover:bg-velvet-200 flex items-center justify-center mb-6 transition-colors motion-reduce:transition-none">
                                 {b.icon}
                             </div>
-                            <h3 className="text-xl font-bold mb-3 font-serif group-hover:text-velvet-500 transition-colors">
+                            <h3 className="font-heading text-xl font-semibold text-velvet-900 mb-3">
                                 {b.title}
                             </h3>
-                            <p
-                                className="text-gray-600 text-sm font-light leading-relaxed [&_strong]:text-velvet-500"
-                                dangerouslySetInnerHTML={{ __html: b.description }}
-                            />
-                        </div>
+                            <p className="text-silk-800/85 text-[0.92rem] leading-relaxed">
+                                {b.description}
+                            </p>
+                        </li>
                     ))}
-                </div>
+                </ul>
             </div>
         </section>
     );

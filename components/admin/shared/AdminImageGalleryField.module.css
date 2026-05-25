@@ -1,0 +1,188 @@
+.field {
+    display: grid;
+    gap: 14px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.header span {
+    display: block;
+    color: var(--color-gold-light);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.header p {
+    margin: 6px 0 0;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.82rem;
+    line-height: 1.55;
+}
+
+.count {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.78rem;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 14px;
+    padding: 12px;
+    border: 1px solid rgba(255, 155, 208, 0.14);
+    background: rgba(255, 255, 255, 0.025);
+    border-radius: 0.75rem;
+}
+
+.preview {
+    position: relative;
+    width: 160px;
+    height: 120px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 155, 208, 0.18);
+    background: rgba(9, 0, 9, 0.5);
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview span {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.78rem;
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: auto auto auto 1fr;
+    gap: 8px;
+    align-items: center;
+}
+
+.uploadButton {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    background: var(--color-gold);
+    color: var(--color-velvet-950);
+    border: 0;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.uploadButton input {
+    display: none;
+}
+
+.reorder {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.reorder button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(255, 155, 208, 0.24);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-silk);
+    cursor: pointer;
+    border-radius: 999px;
+}
+
+.reorder button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.removeBtn {
+    background: transparent;
+    border: 1px solid rgba(178, 58, 58, 0.4);
+    color: #f4b5b5;
+    padding: 8px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.pathField {
+    grid-column: 1 / -1;
+}
+
+.pathField input {
+    width: 100%;
+    min-height: 36px;
+    border: 1px solid rgba(255, 155, 208, 0.18);
+    background: rgba(0, 0, 0, 0.4);
+    color: var(--color-silk);
+    padding: 0 12px;
+    border-radius: 0.5rem;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.8rem;
+}
+
+.addBtn {
+    align-self: flex-start;
+    background: transparent;
+    border: 1px dashed rgba(255, 155, 208, 0.36);
+    color: var(--color-gold-light);
+    padding: 10px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.addBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+    .row {
+        grid-template-columns: 1fr;
+    }
+    .preview {
+        width: 100%;
+        height: 200px;
+    }
+    .controls {
+        grid-template-columns: 1fr 1fr;
+    }
+    .pathField {
+        grid-column: 1 / -1;
+    }
+}

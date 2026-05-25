@@ -1,73 +1,218 @@
 "use client";
 
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
 
-const ITEMS = [
-    { q: "q1", a: "a1" },
-    { q: "q2", a: "a2" },
-    { q: "q3", a: "a3" },
-] as const;
+type FaqItem = { q: string; a: string };
+
+const HIGHLIGHT_THRESHOLD = 2;
+
+function normalize(value: string) {
+    return value
+        .toLocaleLowerCase()
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "")
+        .trim();
+}
 
 export default function FAQ() {
     const t = useTranslations("home.faq");
+    const baseId = useId();
+    const items = useMemo(() => {
+        try {
+            return (t.raw("items") as FaqItem[]) ?? [];
+        } catch {
+            return [];
+        }
+    }, [t]);
+
     const [open, setOpen] = useState<number | null>(null);
+    const [query, setQuery] = useState("");
+
+    const filtered = useMemo(() => {
+        const needle = normalize(query);
+        if (needle.length < HIGHLIGHT_THRESHOLD) {
+            return items.map((item, idx) => ({ ...item, idx }));
+        }
+        return items
+            .map((item, idx) => ({ ...item, idx }))
+            .filter(
+                ({ q, a }) =>
+                    normalize(q).includes(needle) || normalize(a).includes(needle),
+            );
+    }, [items, query]);
+
+    useEffect(() => {
+        if (filtered.length > 0 && filtered.every(({ idx }) => idx !== open)) {
+            setOpen(null);
+        }
+    }, [filtered, open]);
+
+    const toggle = useCallback((idx: number) => {
+        setOpen((current) => (current === idx ? null : idx));
+    }, []);
+
+    const jsonLd = useMemo(
+        () => ({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: items.map(({ q, a }) => ({
+                "@type": "Question",
+                name: q,
+                acceptedAnswer: { "@type": "Answer", text: a },
+            })),
+        }),
+        [items],
+    );
 
     return (
-        <section id="faq" className="py-24 bg-silk text-velvet-900">
+        <section
+            id="faq"
+            aria-labelledby="faq-title"
+            className="surface-light py-24 bg-silk text-silk-800"
+        >
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-16">
-                    <span className="text-xs font-bold uppercase tracking-widest text-velvet-500">
+                <div className="text-center mb-10 lg:mb-12">
+                    <span className="inline-block text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-velvet-700 bg-velvet-100 px-4 py-2 rounded-full">
                         {t("badge")}
                     </span>
-                    <h2 className="text-3xl sm:text-4xl font-bold mt-2 font-serif">{t("title")}</h2>
-                    <div className="w-16 h-1 bg-gradient-to-r from-gold to-velvet-500 mx-auto mt-4" />
+                    <h2
+                        id="faq-title"
+                        className="text-3xl sm:text-4xl lg:text-5xl font-display italic font-medium mt-5 text-velvet-900"
+                    >
+                        {t("title")}
+                    </h2>
+                    <p className="mt-4 mx-auto max-w-xl text-silk-600 leading-relaxed">
+                        {t("subtitle")}
+                    </p>
                 </div>
 
-                <div className="space-y-4">
-                    {ITEMS.map((item, idx) => {
-                        const isOpen = open === idx;
-                        return (
-                            <div
-                                key={item.q}
-                                className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition"
-                            >
-                                <button
-                                    type="button"
-                                    onClick={() => setOpen(isOpen ? null : idx)}
-                                    aria-expanded={isOpen}
-                                    className="w-full font-bold font-serif text-lg text-velvet-900 flex justify-between items-center text-left cursor-pointer"
+                <div className="mb-8 max-w-xl mx-auto">
+                    <label htmlFor={`${baseId}-search`} className="sr-only">
+                        {t("searchPlaceholder")}
+                    </label>
+                    <div className="relative">
+                        <svg
+                            aria-hidden="true"
+                            focusable="false"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-silk-600"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.6"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <circle cx="11" cy="11" r="7" />
+                            <path d="m20 20-3.5-3.5" />
+                        </svg>
+                        <input
+                            id={`${baseId}-search`}
+                            type="search"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder={t("searchPlaceholder")}
+                            autoComplete="off"
+                            className="w-full pl-11 pr-4 py-3 rounded-full bg-white border border-silk-300 text-silk-800 placeholder:text-silk-600/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-velvet-600 focus-visible:border-velvet-600"
+                        />
+                    </div>
+                </div>
+
+                {filtered.length === 0 ? (
+                    <p
+                        role="status"
+                        className="text-center text-silk-600 py-12"
+                    >
+                        {t("searchNoResults")}
+                    </p>
+                ) : (
+                    <ul className="space-y-3">
+                        {filtered.map(({ q, a, idx }) => {
+                            const isOpen = open === idx;
+                            const buttonId = `${baseId}-faq-button-${idx}`;
+                            const panelId = `${baseId}-faq-panel-${idx}`;
+                            return (
+                                <li
+                                    key={idx}
+                                    className="bg-white border border-silk-300 rounded-2xl shadow-sm transition-shadow duration-200 motion-reduce:transition-none hover:shadow-md"
                                 >
-                                    <span>{t(item.q)}</span>
-                                    <svg
-                                        className={`w-4 h-4 text-gold shrink-0 ml-4 transition-transform duration-300 ${
-                                            isOpen ? "rotate-180" : ""
-                                        }`}
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2.5"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        aria-hidden="true"
+                                    <h3 className="m-0">
+                                        <button
+                                            id={buttonId}
+                                            type="button"
+                                            onClick={() => toggle(idx)}
+                                            aria-expanded={isOpen}
+                                            aria-controls={panelId}
+                                            className="w-full flex items-center justify-between gap-4 text-left py-5 px-5 sm:px-6 font-heading text-base sm:text-lg font-semibold text-velvet-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-velvet-600 rounded-2xl"
+                                        >
+                                            <span>{q}</span>
+                                            <svg
+                                                className={`shrink-0 w-5 h-5 text-velvet-700 transition-transform duration-300 motion-reduce:transition-none ${
+                                                    isOpen ? "rotate-180" : ""
+                                                }`}
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                aria-hidden="true"
+                                                focusable="false"
+                                            >
+                                                <polyline points="6 9 12 15 18 9" />
+                                            </svg>
+                                        </button>
+                                    </h3>
+                                    <div
+                                        id={panelId}
+                                        role="region"
+                                        aria-labelledby={buttonId}
+                                        className="grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none"
+                                        style={{
+                                            gridTemplateRows: isOpen ? "1fr" : "0fr",
+                                        }}
                                     >
-                                        <polyline points="6 9 12 15 18 9" />
-                                    </svg>
-                                </button>
-                                <div
-                                    className={`overflow-hidden transition-[max-height,opacity] duration-300 ${
-                                        isOpen ? "max-h-96 opacity-100 mt-3" : "max-h-0 opacity-0"
-                                    }`}
-                                >
-                                    <p className="text-gray-600 font-light text-sm leading-relaxed">
-                                        {t(item.a)}
-                                    </p>
-                                </div>
-                            </div>
-                        );
-                    })}
+                                        <div className="overflow-hidden">
+                                            <p className="px-5 sm:px-6 pb-5 text-[0.95rem] leading-relaxed text-silk-800">
+                                                {a}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                )}
+
+                <div className="mt-12 text-center">
+                    <p className="text-silk-600 text-sm mb-3">{t("moreQuestions")}</p>
+                    <a
+                        href="#contact"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-velvet-700 text-velvet-900 font-semibold text-sm tracking-wide hover:bg-velvet-700 hover:text-silk transition-colors duration-200 motion-reduce:transition-none focus:outline-none focus-visible:ring-2 focus-visible:ring-velvet-600 focus-visible:ring-offset-2 focus-visible:ring-offset-silk"
+                    >
+                        {t("moreQuestionsCta")}
+                        <svg
+                            aria-hidden="true"
+                            focusable="false"
+                            className="w-4 h-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.6"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                        </svg>
+                    </a>
                 </div>
             </div>
+
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
         </section>
     );
 }

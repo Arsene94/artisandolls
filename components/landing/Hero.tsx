@@ -17,6 +17,14 @@ type HeroProps = {
     buyEnabled: boolean;
 };
 
+function buildAltText(name: string, height: string | undefined, description: string) {
+    const parts = [name];
+    if (height) parts.push(height);
+    const short = description.replace(/\s+/g, " ").trim();
+    if (short) parts.push(short.slice(0, 120));
+    return parts.join(" — ");
+}
+
 export default async function Hero({
     heroDoll,
     fallbackImage,
@@ -30,41 +38,53 @@ export default async function Hero({
     const displayName = heroDoll?.name ?? t("fallbackName");
     const heightLabel = heroDoll?.height ?? t("fallbackHeight");
     const description = heroDoll?.description ?? t("cardDescription");
+    const altText = buildAltText(displayName, heightLabel, description);
 
     return (
         <section
             id="hero"
-            className="velvet-hero relative pt-28 pb-20 lg:pt-40 lg:pb-32 overflow-hidden min-h-screen flex items-center bg-velvet-900 text-white"
+            aria-labelledby="hero-title"
+            data-surface="dark"
+            className="velvet-hero relative pt-32 pb-24 lg:pt-40 lg:pb-32 overflow-hidden min-h-screen flex items-center bg-velvet-950 text-silk isolate"
         >
             <div
-                aria-hidden
-                className="pointer-events-none absolute top-1/4 left-[10%] w-80 h-80 bg-velvet-500/20 rounded-full blur-[100px] animate-pulse-slow"
+                aria-hidden="true"
+                className="absolute inset-0 bg-gradient-to-br from-velvet-950 via-velvet-900 to-velvet-800/50 pointer-events-none"
             />
             <div
-                aria-hidden
-                className="pointer-events-none absolute bottom-1/4 right-[10%] w-[450px] h-[450px] bg-gold/10 rounded-full blur-[120px] animate-pulse-slow"
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/4 left-[10%] w-80 h-80 bg-velvet-500/18 rounded-full blur-[120px] motion-safe:animate-pulse-slow"
+            />
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute bottom-1/4 right-[10%] w-[450px] h-[450px] bg-gold/10 rounded-full blur-[140px] motion-safe:animate-pulse-slow"
                 style={{ animationDelay: "4s" }}
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-                <div className="flex flex-wrap items-center -mx-4">
-                    <div className="w-full lg:w-6/12 px-4 mb-12 lg:mb-0">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-velvet-800/80 border border-gold/30 rounded-full mb-6">
-                            <span className="w-2 h-2 rounded-full bg-gold animate-ping" />
-                            <span className="text-xs font-semibold uppercase tracking-widest text-gold-light">
+                <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+                    <div>
+                        <div className="inline-flex items-center gap-3 px-3.5 py-2 bg-velvet-900/80 border border-gold/40 rounded-full mb-7 backdrop-blur-sm">
+                            <span
+                                aria-hidden="true"
+                                className="w-1.5 h-1.5 rounded-full bg-gold motion-safe:animate-ping"
+                            />
+                            <span className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-gold-light">
                                 {t("tag")}
                             </span>
                         </div>
 
-                        <h1 className="mb-6 text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight font-serif">
+                        <h1
+                            id="hero-title"
+                            className="mb-7 text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-[1.05] font-display font-medium text-silk"
+                        >
                             {t("titleLine1")}
-                            <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold via-velvet-300 to-gold italic font-normal">
+                            <span className="block italic text-gold-light mt-1">
                                 {t("titleEmphasis")}
                             </span>
                         </h1>
 
-                        <p className="mb-8 text-base sm:text-lg text-silk/80 font-light leading-relaxed">
+                        <p className="mb-9 text-base sm:text-lg text-silk/75 font-light leading-relaxed max-w-xl">
                             {t("description")}
                         </p>
 
@@ -74,67 +94,101 @@ export default async function Hero({
                             buyEnabled={buyEnabled}
                         />
 
-                        <div className="mt-12 pt-8 border-t border-velvet-800/80 grid grid-cols-3 gap-4 text-center sm:text-left">
+                        <dl className="mt-12 pt-8 border-t border-velvet-700 grid grid-cols-3 gap-4 text-center sm:text-left">
                             <div>
-                                <p className="text-2xl sm:text-3xl font-bold text-gold font-serif">
-                                    {t("trust1Value")}
-                                </p>
-                                <p className="text-xs text-silk/60 font-medium tracking-wider uppercase">
-                                    {t("trust1Label")}
-                                </p>
+                                <dt className="sr-only">{t("trust1Label")}</dt>
+                                <dd>
+                                    <p className="font-display text-2xl sm:text-3xl lg:text-4xl font-medium text-gold tabular-nums">
+                                        {t("trust1Value")}
+                                    </p>
+                                    <p className="mt-1.5 text-[0.7rem] sm:text-xs text-silk/70 font-medium tracking-[0.14em] uppercase leading-snug">
+                                        {t("trust1Label")}
+                                    </p>
+                                </dd>
                             </div>
                             <div>
-                                <p className="text-2xl sm:text-3xl font-bold text-gold font-serif">
-                                    {t("trust2Value")}
-                                </p>
-                                <p className="text-xs text-silk/60 font-medium tracking-wider uppercase">
-                                    {t("trust2Label")}
-                                </p>
+                                <dt className="sr-only">{t("trust2Label")}</dt>
+                                <dd>
+                                    <p className="font-display text-2xl sm:text-3xl lg:text-4xl font-medium text-gold tabular-nums">
+                                        {t("trust2Value")}
+                                    </p>
+                                    <p className="mt-1.5 text-[0.7rem] sm:text-xs text-silk/70 font-medium tracking-[0.14em] uppercase leading-snug">
+                                        {t("trust2Label")}
+                                    </p>
+                                </dd>
                             </div>
                             <div>
-                                <p className="text-2xl sm:text-3xl font-bold text-gold font-serif">
-                                    {t("trust3Value")}
-                                </p>
-                                <p className="text-xs text-silk/60 font-medium tracking-wider uppercase">
-                                    {t("trust3Label")}
-                                </p>
+                                <dt className="sr-only">{t("trust3Label")}</dt>
+                                <dd>
+                                    <p className="font-display text-2xl sm:text-3xl lg:text-4xl font-medium text-gold">
+                                        {t("trust3Value")}
+                                    </p>
+                                    <p className="mt-1.5 text-[0.7rem] sm:text-xs text-silk/70 font-medium tracking-[0.14em] uppercase leading-snug">
+                                        {t("trust3Label")}
+                                    </p>
+                                </dd>
                             </div>
-                        </div>
+                        </dl>
                     </div>
 
-                    <div className="w-full lg:w-6/12 px-4 relative flex justify-center">
-                        <div className="relative w-full max-w-[480px] h-[520px] sm:h-[600px] rounded-3xl overflow-hidden shadow-2xl border border-gold/20 group">
-                            <div className="absolute inset-0 bg-gradient-to-t from-velvet-900 via-transparent to-transparent z-10" />
-
-                            <Image
-                                src={image}
-                                alt={displayName}
-                                fill
-                                priority
-                                sizes="(max-width: 1024px) 100vw, 480px"
-                                className="object-cover object-center group-hover:scale-105 transition-all duration-700 ease-out brightness-90 contrast-105"
-                                unoptimized={image.includes("placehold.co")}
+                    <div className="relative flex justify-center lg:justify-end">
+                        <div className="relative w-full max-w-[460px] aspect-[4/5]">
+                            <div
+                                aria-hidden="true"
+                                className="absolute -top-5 -right-5 w-[70%] h-[70%] border border-gold/30 z-0"
+                            />
+                            <div
+                                aria-hidden="true"
+                                className="absolute -bottom-5 -left-5 w-[50%] h-[50%] border border-velvet-500/30 z-0"
                             />
 
-                            <div className="absolute top-4 left-4 z-20 bg-velvet-900/90 backdrop-blur-md px-4 py-2 rounded-full border border-gold/30 text-xs font-semibold text-gold tracking-widest uppercase">
-                                {t("badgeTop")}
-                            </div>
+                            <div className="relative w-full h-full overflow-hidden border border-gold/25 shadow-2xl z-10">
+                                <Image
+                                    src={image}
+                                    alt={altText}
+                                    fill
+                                    priority
+                                    sizes="(max-width: 1024px) 100vw, 460px"
+                                    className="object-cover object-[center_25%]"
+                                    unoptimized={image.includes("placehold.co")}
+                                />
 
-                            <div className="absolute bottom-6 left-6 right-6 z-20">
-                                <p className="text-xs text-gold font-bold tracking-widest uppercase mb-1">
-                                    {t("badgeBottom")}
-                                </p>
-                                <h3 className="text-2xl font-bold text-white font-serif mb-2">
-                                    {displayName}
-                                    {heightLabel ? ` — ${heightLabel}` : ""}
-                                </h3>
-                                <p className="text-xs text-silk/70 font-light line-clamp-2">
-                                    {description}
-                                </p>
+                                <div
+                                    aria-hidden="true"
+                                    className="absolute inset-0 bg-gradient-to-t from-velvet-950 via-velvet-950/10 to-transparent"
+                                />
+
+                                <figcaption className="absolute bottom-5 left-5 right-5 z-10">
+                                    <p className="text-[0.7rem] text-gold tracking-[0.22em] uppercase mb-1">
+                                        {t("badgeBottom")}
+                                    </p>
+                                    <p className="font-display italic text-2xl text-silk leading-tight">
+                                        {displayName}
+                                        {heightLabel ? (
+                                            <span className="text-silk/75 font-normal not-italic">
+                                                {" "}— {heightLabel}
+                                            </span>
+                                        ) : null}
+                                    </p>
+                                    <p className="mt-1 text-[0.78rem] text-silk/80 line-clamp-2 leading-snug">
+                                        {description}
+                                    </p>
+                                </figcaption>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <a
+                    href="#galerie"
+                    aria-label={t("btnModels")}
+                    className="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 text-silk/55 hover:text-gold transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-md p-2"
+                >
+                    <span className="text-[0.7rem] tracking-[0.22em] uppercase">
+                        Scroll
+                    </span>
+                    <span aria-hidden="true" className="scroll-line" />
+                </a>
             </div>
         </section>
     );
