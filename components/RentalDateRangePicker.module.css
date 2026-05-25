@@ -8,8 +8,8 @@
     min-height: 48px;
     display: flex;
     align-items: center;
-    background: #0F0406;
-    border: 1px solid rgba(252, 250, 247, 0.1);
+    background: rgb(212, 175, 55);
+    border: 1px solid #D4AF37;
     border-radius: 0.75rem;
     box-shadow: none;
     backdrop-filter: blur(14px);
@@ -19,9 +19,9 @@
 
 .inputShell:hover,
 .inputShell:focus-within {
-    border-color: #D4AF37;
-    background: #0F0406;
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+    border-color: rgba(86, 18, 30, 0.8);
+    background: rgb(212, 175, 55);
+    box-shadow: 0 0 0 3px rgba(86, 18, 30, 0.18);
 }
 
 .input {
@@ -30,7 +30,7 @@
     border: 0;
     outline: 0;
     background: transparent;
-    color: #ffffff;
+    color: #1E090C;
     padding: 0 0.75rem;
     font-family: var(--font-sans);
     font-size: 0.78rem;
@@ -40,7 +40,7 @@
 }
 
 .input::placeholder {
-    color: rgba(252, 250, 247, 0.3);
+    color: rgba(30, 9, 12, 0.55);
 }
 
 .calendarButton {
@@ -59,7 +59,7 @@
 .calendarButton svg {
     width: 18px;
     height: 18px;
-    stroke: #D4AF37;
+    stroke: #1E090C;
     fill: none;
     stroke-width: 1.8;
     stroke-linecap: round;

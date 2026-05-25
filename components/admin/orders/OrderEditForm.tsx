@@ -151,8 +151,7 @@ export default function OrderEditForm({ order, dolls, action }: OrderEditFormPro
                     <input
                         type="email"
                         name="customer_email"
-                        defaultValue={order.customer_email}
-                        required
+                        defaultValue={order.customer_email ?? ""}
                     />
                 </label>
 

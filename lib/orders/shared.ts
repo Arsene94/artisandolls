@@ -160,16 +160,28 @@ export type OrderRow = {
     rental_days: number | null;
 
     outfit_id: string | null;
+    outfit_label: string | null;
+    outfit_price: number | null;
+    outfit_image: string | null;
     selected_options: string[];
 
     customer_id: string | null;
     customer_name: string;
-    customer_email: string;
+    customer_email: string | null;
     customer_phone: string;
     delivery_address: string;
+    delivery_city: string | null;
+    delivery_county: string | null;
     delivery_time: string;
     return_time: string | null;
     notes: string | null;
+
+    contact_method: string | null;
+    contact_window_start: string | null;
+    contact_window_end: string | null;
+
+    age_confirmed: boolean;
+    privacy_accepted: boolean;
 
     subtotal_amount: number;
     custom_price_amount: number | null;

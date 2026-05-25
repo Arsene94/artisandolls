@@ -151,30 +151,87 @@ export async function createOrderAction(formData: FormData) {
 
     const totalAmount = Math.max(0, baseTotal + outfitTotal + customizationsTotal);
 
-    const customerEmail = getString(formData, "email").toLowerCase();
+    const customerEmailRaw = getString(formData, "email").toLowerCase();
+    const customerEmail = customerEmailRaw || null;
     const customerPhone = getString(formData, "phone");
     const customerName = getString(formData, "full_name");
     const deliveryAddress = getString(formData, "delivery_address");
+    const deliveryCity = getNullableString(formData, "delivery_city");
+    const deliveryCounty = getNullableString(formData, "delivery_county");
+    const contactMethod = getNullableString(formData, "contact_method");
+    const contactWindowStart = getNullableString(formData, "contact_window_start");
+    const contactWindowEnd = getNullableString(formData, "contact_window_end");
+    const ageConfirmed = getString(formData, "age_confirmed") === "on";
+    const privacyAccepted = getString(formData, "privacy_accepted") === "on";
 
-    const { data: customer, error: customerError } = await supabase
-        .from("customers")
-        .upsert(
-            {
-                full_name: customerName,
-                email: customerEmail,
-                phone: customerPhone,
-                normalized_phone: normalizePhone(customerPhone),
-                last_delivery_address: deliveryAddress,
-            },
-            {
-                onConflict: "email",
+    if (!ageConfirmed) {
+        throw new Error("Trebuie să confirmi că ai peste 18 ani.");
+    }
+
+    if (!privacyAccepted) {
+        throw new Error("Trebuie să accepți prelucrarea datelor pentru contactare.");
+    }
+
+    const normalizedPhone = normalizePhone(customerPhone);
+
+    const customerPayload = {
+        full_name: customerName,
+        email: customerEmail,
+        phone: customerPhone,
+        normalized_phone: normalizedPhone,
+        last_delivery_address: deliveryAddress,
+        last_delivery_city: deliveryCity,
+        last_delivery_county: deliveryCounty,
+        preferred_contact_method: contactMethod,
+        contact_window_start: contactWindowStart,
+        contact_window_end: contactWindowEnd,
+    };
+
+    let customerId: string | null = null;
+
+    if (customerEmail) {
+        const { data: customer, error: customerError } = await supabase
+            .from("customers")
+            .upsert(customerPayload, { onConflict: "email" })
+            .select("id")
+            .single();
+
+        if (customerError || !customer) {
+            throw new Error(customerError?.message ?? "Clientul nu a putut fi salvat.");
+        }
+
+        customerId = customer.id;
+    } else {
+        const { data: existingCustomer } = await supabase
+            .from("customers")
+            .select("id")
+            .eq("normalized_phone", normalizedPhone)
+            .maybeSingle();
+
+        if (existingCustomer?.id) {
+            const { error: updateError } = await supabase
+                .from("customers")
+                .update(customerPayload)
+                .eq("id", existingCustomer.id);
+
+            if (updateError) {
+                throw new Error(updateError.message);
             }
-        )
-        .select("id")
-        .single();
 
-    if (customerError || !customer) {
-        throw new Error(customerError?.message ?? "Clientul nu a putut fi salvat.");
+            customerId = existingCustomer.id;
+        } else {
+            const { data: insertedCustomer, error: insertCustomerError } = await supabase
+                .from("customers")
+                .insert(customerPayload)
+                .select("id")
+                .single();
+
+            if (insertCustomerError || !insertedCustomer) {
+                throw new Error(insertCustomerError?.message ?? "Clientul nu a putut fi salvat.");
+            }
+
+            customerId = insertedCustomer.id;
+        }
     }
 
     const payload = {
@@ -194,14 +251,23 @@ export async function createOrderAction(formData: FormData) {
         outfit_image: selectedOutfit?.image_path ?? selectedOutfit?.image_url ?? null,
         selected_options: selectedOptionIds,
 
-        customer_id: customer.id,
+        customer_id: customerId,
         customer_name: customerName,
         customer_email: customerEmail,
         customer_phone: customerPhone,
         delivery_address: deliveryAddress,
+        delivery_city: deliveryCity,
+        delivery_county: deliveryCounty,
         delivery_time: getString(formData, "delivery_time"),
         return_time: getNullableString(formData, "return_time"),
         notes: getNullableString(formData, "notes"),
+
+        contact_method: contactMethod,
+        contact_window_start: contactWindowStart,
+        contact_window_end: contactWindowEnd,
+
+        age_confirmed: ageConfirmed,
+        privacy_accepted: privacyAccepted,
 
         subtotal_amount: totalAmount,
         custom_price_amount: null,

@@ -365,6 +365,7 @@ export default function DollsCatalog({
                                                 width={600}
                                                 height={720}
                                                 sizes="(max-width: 760px) 100vw, (max-width: 1100px) 50vw, 33vw"
+                                                className="object-top!"
                                             />
                                             <span className={styles.badge}>{doll.badge}</span>
                                         </div>

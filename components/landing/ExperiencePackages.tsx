@@ -108,7 +108,7 @@ export default async function ExperiencePackages({
                             </ul>
                         </div>
                         <Link
-                            href="#customizer"
+                            href="/catalog?mode=buy"
                             className="block w-full text-center bg-gold hover:bg-white hover:text-velvet-900 text-velvet-900 font-extrabold py-4 rounded-xl transition duration-300 tracking-wider uppercase text-xs shadow-lg shadow-velvet-950/40"
                         >
                             {t("buyCta")}

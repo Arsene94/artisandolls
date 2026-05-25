@@ -197,7 +197,7 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
 
                                 <div className={styles.orderDataItem}>
                                     <span>Email</span>
-                                    <strong>{order.customer_email}</strong>
+                                    <strong>{order.customer_email ?? "-"}</strong>
                                 </div>
 
                                 <div className={styles.orderDataItem}>

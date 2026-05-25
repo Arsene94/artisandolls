@@ -3,7 +3,6 @@ import CompanionCollection, {
     type CompanionCard,
 } from "@/components/landing/CompanionCollection";
 import ContactSection from "@/components/landing/ContactSection";
-import Customizer from "@/components/landing/Customizer";
 import ExperiencePackages from "@/components/landing/ExperiencePackages";
 import FAQ from "@/components/landing/FAQ";
 import Hero from "@/components/landing/Hero";
@@ -77,7 +76,6 @@ export default async function ArtisanDollsLanding({
                 buyEnabled={settings.buy_enabled}
             />
             <SensoryBenefits />
-            <Customizer />
             <CompanionCollection dolls={cardDolls} />
             <ExperiencePackages
                 catalogEnabled={settings.catalog_enabled}

@@ -42,7 +42,7 @@ type NavbarProps = {
     brandName?: string;
 };
 
-export default function Navbar({ brandName = "VELVET STUDIO" }: NavbarProps) {
+export default function Navbar({ brandName = "PRIVATE DOLLS" }: NavbarProps) {
     const t = useTranslations("nav");
     const locale = useLocale() as Locale;
     const pathname = usePathname();

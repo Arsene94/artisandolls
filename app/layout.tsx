@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Playfair_Display, Roboto } from 'next/font/google';
+import { Inter, Montserrat, Roboto } from 'next/font/google';
 import { getLocale } from "next-intl/server";
 import './globals.css';
 
@@ -10,11 +10,11 @@ const inter = Inter({
   display: 'swap',
 });
 
-const playfair = Playfair_Display({
+const montserrat = Montserrat({
   subsets: ['latin'],
   style: ['normal', 'italic'],
   weight: ['400', '600', '700'],
-  variable: '--font-playfair',
+  variable: '--font-montserrat',
   display: 'swap',
 });
 
@@ -39,7 +39,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} data-scroll-behavior="smooth">
-      <body className={`${inter.variable} ${playfair.variable} ${roboto.variable} font-sans antialiased bg-silk text-velvet-900`}>
+      <body className={`${inter.variable} ${montserrat.variable} ${roboto.variable} font-sans antialiased bg-silk text-velvet-900`}>
         {children}
       </body>
     </html>

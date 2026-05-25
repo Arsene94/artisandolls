@@ -224,7 +224,7 @@ export default function RentalDateRangePicker({
                     readOnly
                     value={displayValue}
                     placeholder={t("placeholder")}
-                    className={styles.input}
+                    className={`${styles.input} border border-velvet-800/80`}
                     onClick={() => setIsOpen(true)}
                     onFocus={() => setIsOpen(true)}
                     aria-label={t("ariaChoose")}

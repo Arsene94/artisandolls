@@ -477,7 +477,16 @@ export default function DollDetails({
     const multiGroups = activeGroups.filter((g) => g.selection_type === "multiple");
 
     return (
-        <main className="pt-28 pb-20 lg:pt-36 lg:pb-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-velvet-950 text-silk min-h-screen">
+        <main className="relative bg-velvet-950 text-silk min-h-screen">
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-0"
+                style={{
+                    backgroundImage:
+                        "radial-gradient(circle at 20% 50%, rgba(179, 57, 81, 0.18) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(179, 57, 81, 0.12) 0%, transparent 40%), radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 30%)",
+                }}
+            />
+            <div className="relative z-10 pt-28 pb-20 lg:pt-36 lg:pb-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Breadcrumb */}
             <nav className="text-xs font-medium text-silk/50 mb-6 flex items-center gap-2 flex-wrap">
                 <Link href="/" className="hover:text-gold transition">
@@ -502,7 +511,7 @@ export default function DollDetails({
                                 alt={doll.name}
                                 width={1200}
                                 height={1600}
-                                className={`absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[2s] group-hover:scale-105 ${styles.galleryImageFade}`}
+                                className={`absolute inset-0 w-full h-full object-cover object-top transition-transform duration-[2s] group-hover:scale-105 ${styles.galleryImageFade}`}
                                 sizes="(max-width: 1024px) 100vw, 50vw"
                                 priority
                             />
@@ -688,6 +697,42 @@ export default function DollDetails({
                         </div>
                     )}
 
+                    {/* Rental period (only in rent mode) */}
+                    {mode === "rent" && (
+                        <div className="mb-8 p-5 rounded-2xl border border-velvet-800/80 bg-velvet-900/40 backdrop-blur-xl">
+                            <h2 className="text-sm font-bold font-serif text-gold mb-2 flex items-center gap-2">
+                                <CustomizationIcon name="ruler-measure" size={16} />
+                                {t("choosePeriod")}
+                            </h2>
+                            <p className="text-xs text-silk/55 font-light mb-4 leading-relaxed">
+                                {t("periodHelp")}
+                            </p>
+                            <RentalDateRangePicker
+                                initialStartDate={period.startDate}
+                                initialEndDate={period.endDate}
+                                onChange={setPeriod}
+                                placement="bottom"
+                            />
+                            {hasCompletePeriod && (
+                                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-silk/70">
+                                    <span>
+                                        {t("period")}:{" "}
+                                        <strong className="text-white font-semibold">
+                                            {formatDate(period.startDate, locale)} –{" "}
+                                            {formatDate(period.endDate, locale)}
+                                        </strong>
+                                    </span>
+                                    <span>
+                                        {t("selectedDays")}:{" "}
+                                        <strong className="text-white font-semibold">
+                                            {tCommon("days", { count: rentalDays })}
+                                        </strong>
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     {/* Personalizer */}
                     <h2 className="text-xl font-bold font-serif text-gold mb-4 flex items-center gap-2">
                         <CustomizationIcon name="sparkles" size={16} />
@@ -732,41 +777,6 @@ export default function DollDetails({
                             </div>
                         )}
 
-                        {/* Rental period (only in rent mode) */}
-                        {mode === "rent" && (
-                            <div className="border-t border-velvet-800/80 pt-8">
-                                <h2 className="text-xl font-bold font-serif text-gold mb-4 flex items-center gap-2">
-                                    <CustomizationIcon name="ruler-measure" size={16} />
-                                    {t("choosePeriod")}
-                                </h2>
-                                <p className="text-xs text-silk/55 font-light mb-4 leading-relaxed">
-                                    {t("periodHelp")}
-                                </p>
-                                <RentalDateRangePicker
-                                    initialStartDate={period.startDate}
-                                    initialEndDate={period.endDate}
-                                    onChange={setPeriod}
-                                    placement="bottom"
-                                />
-                                {hasCompletePeriod && (
-                                    <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-silk/70">
-                                        <span>
-                                            {t("period")}:{" "}
-                                            <strong className="text-white font-semibold">
-                                                {formatDate(period.startDate, locale)} –{" "}
-                                                {formatDate(period.endDate, locale)}
-                                            </strong>
-                                        </span>
-                                        <span>
-                                            {t("selectedDays")}:{" "}
-                                            <strong className="text-white font-semibold">
-                                                {tCommon("days", { count: rentalDays })}
-                                            </strong>
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
                     </div>
 
                     {/* Sticky bottom summary */}
@@ -849,70 +859,43 @@ export default function DollDetails({
                             </div>
                         )}
 
-                        <div className="grid grid-cols-2 gap-3">
-                            {/* Rent slot */}
-                            {mode === "rent" ? (
-                                canCheckout && hasCompletePeriod ? (
-                                    <Link
-                                        href={checkoutHref}
-                                        className="py-3 px-2 rounded-xl text-xs uppercase tracking-widest font-bold transition text-center inline-flex items-center justify-center gap-2 bg-gradient-to-r from-gold to-gold-dark text-velvet-950 shadow-lg shadow-gold/20 hover:from-white hover:to-white"
-                                    >
-                                        {t("rentCta")}
-                                    </Link>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        disabled
-                                        title={
-                                            !canCheckout
-                                                ? t("rentUnavailable")
-                                                : t("choosePeriod")
-                                        }
-                                        className="py-3 px-2 rounded-xl text-xs uppercase tracking-widest font-bold text-center inline-flex items-center justify-center gap-2 bg-velvet-900 text-silk/40 border border-velvet-800 cursor-not-allowed"
-                                    >
-                                        {canCheckout ? t("choosePeriod") : t("rentUnavailable")}
-                                    </button>
-                                )
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => setMode("rent")}
-                                    className="py-3 px-2 rounded-xl text-xs uppercase tracking-widest font-bold transition text-center inline-flex items-center justify-center gap-2 border border-gold/40 text-gold hover:bg-gold/10"
+                        {mode === "rent" ? (
+                            canCheckout && hasCompletePeriod ? (
+                                <Link
+                                    href={checkoutHref}
+                                    className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-widest font-bold transition text-center inline-flex items-center justify-center gap-2 bg-gradient-to-r from-gold to-gold-dark text-velvet-950 shadow-lg shadow-gold/20 hover:from-white hover:to-white"
                                 >
                                     {t("rentCta")}
-                                </button>
-                            )}
-
-                            {/* Buy slot */}
-                            {mode === "buy" ? (
-                                canCheckout ? (
-                                    <Link
-                                        href={checkoutHref}
-                                        className="py-3 px-2 rounded-xl text-xs uppercase tracking-widest font-bold transition text-center inline-flex items-center justify-center gap-2 bg-gradient-to-r from-gold to-gold-dark text-velvet-950 shadow-lg shadow-gold/20 hover:from-white hover:to-white"
-                                    >
-                                        {t("buyCta")}
-                                    </Link>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        disabled
-                                        className="py-3 px-2 rounded-xl text-xs uppercase tracking-widest font-bold text-center inline-flex items-center justify-center gap-2 bg-velvet-900 text-silk/40 border border-velvet-800 cursor-not-allowed"
-                                    >
-                                        {t("buyUnavailable")}
-                                    </button>
-                                )
+                                </Link>
                             ) : (
                                 <button
                                     type="button"
-                                    onClick={() => setMode("buy")}
-                                    className="py-3 px-2 rounded-xl text-xs uppercase tracking-widest font-bold transition text-center inline-flex items-center justify-center gap-2 border border-gold/40 text-gold hover:bg-gold/10"
+                                    disabled
+                                    title={!canCheckout ? t("rentUnavailable") : t("choosePeriod")}
+                                    className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-widest font-bold text-center inline-flex items-center justify-center gap-2 bg-velvet-900 text-silk/40 border border-velvet-800 cursor-not-allowed"
                                 >
-                                    {t("buyCta")}
+                                    {canCheckout ? t("choosePeriod") : t("rentUnavailable")}
                                 </button>
-                            )}
-                        </div>
+                            )
+                        ) : canCheckout ? (
+                            <Link
+                                href={checkoutHref}
+                                className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-widest font-bold transition text-center inline-flex items-center justify-center gap-2 bg-gradient-to-r from-gold to-gold-dark text-velvet-950 shadow-lg shadow-gold/20 hover:from-white hover:to-white"
+                            >
+                                {t("buyCta")}
+                            </Link>
+                        ) : (
+                            <button
+                                type="button"
+                                disabled
+                                className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-widest font-bold text-center inline-flex items-center justify-center gap-2 bg-velvet-900 text-silk/40 border border-velvet-800 cursor-not-allowed"
+                            >
+                                {t("buyUnavailable")}
+                            </button>
+                        )}
                     </div>
                 </div>
+            </div>
             </div>
         </main>
     );

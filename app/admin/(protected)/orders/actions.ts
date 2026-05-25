@@ -166,7 +166,7 @@ export async function updateOrderAction(orderId: string, formData: FormData) {
         rental_days: rentalDays,
 
         customer_name: getString(formData, "customer_name"),
-        customer_email: getString(formData, "customer_email"),
+        customer_email: getNullableString(formData, "customer_email"),
         customer_phone: getString(formData, "customer_phone"),
         delivery_address: getString(formData, "delivery_address"),
         delivery_time: getString(formData, "delivery_time"),
