@@ -268,17 +268,19 @@ export default function DollsCatalog({
                                 </div>
                             </div>
 
-                            <div className={styles.filterControl}>
-                                <span className={styles.controlLabel}>{t("period")}</span>
-                                <div className={styles.datePickerControl}>
-                                    <RentalDateRangePicker
-                                        initialStartDate={period.startDate}
-                                        initialEndDate={period.endDate}
-                                        onChange={setPeriod}
-                                        placement="bottom"
-                                    />
+                            {mode === "rent" && (
+                                <div className={styles.filterControl}>
+                                    <span className={styles.controlLabel}>{t("period")}</span>
+                                    <div className={styles.datePickerControl}>
+                                        <RentalDateRangePicker
+                                            initialStartDate={period.startDate}
+                                            initialEndDate={period.endDate}
+                                            onChange={setPeriod}
+                                            placement="bottom"
+                                        />
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <label className={styles.field}>
                                 <span>{t("collection")}</span>

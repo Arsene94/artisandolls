@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { type CatalogMode, type Doll } from "@/lib/dolls";
@@ -137,6 +137,8 @@ export default function OrderCheckout({
     });
     const [periodError, setPeriodError] = useState("");
 
+    const periodSectionRef = useRef<HTMLDivElement | null>(null);
+
     const hasCompletePeriod = Boolean(checkoutPeriod.startDate && checkoutPeriod.endDate);
 
     const initialRentalDays = mode === "rent" ? getRentalDays(startDate, endDate) : 0;
@@ -206,15 +208,35 @@ export default function OrderCheckout({
     const summaryTypeLabel = mode === "rent" ? t("serviceTypeRent") : t("serviceTypeBuy");
     const isRent = mode === "rent";
 
-    const canSubmit =
-        form.ageConfirmed &&
-        form.privacyAccepted &&
-        (!isRent || hasCompletePeriod);
+    function scrollToInvalidTarget(target: Element | null) {
+        if (!target) return;
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         if (isRent && !hasCompletePeriod) {
             event.preventDefault();
             setPeriodError(t("periodError"));
+            scrollToInvalidTarget(periodSectionRef.current);
+            return;
+        }
+
+        const formEl = event.currentTarget;
+        if (!formEl.checkValidity()) {
+            event.preventDefault();
+            const firstInvalid = formEl.querySelector<HTMLElement>(":invalid");
+            if (firstInvalid) {
+                const scrollTarget =
+                    firstInvalid.closest("label, section") ?? firstInvalid;
+                scrollToInvalidTarget(scrollTarget);
+                if (typeof firstInvalid.focus === "function") {
+                    try {
+                        firstInvalid.focus({ preventScroll: true });
+                    } catch {
+                        firstInvalid.focus();
+                    }
+                }
+            }
         }
     }
 
@@ -462,7 +484,7 @@ export default function OrderCheckout({
                                 </div>
 
                                 {isRent && (
-                                    <div className="space-y-5 pt-2">
+                                    <div className="space-y-5 pt-2" ref={periodSectionRef}>
                                         <div>
                                             <label className={fieldLabel}>{t("rentPeriod")} *</label>
                                             <RentalDateRangePicker
@@ -659,8 +681,7 @@ export default function OrderCheckout({
 
                             <button
                                 type="submit"
-                                disabled={!canSubmit}
-                                className="w-full bg-gradient-to-r from-gold to-gold-dark hover:from-white hover:to-white hover:text-velvet-950 text-velvet-950 font-bold py-4 rounded-xl text-sm uppercase tracking-widest transition-colors shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-8 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full bg-gradient-to-r from-gold to-gold-dark hover:from-white hover:to-white hover:text-velvet-950 text-velvet-950 font-bold py-4 rounded-xl text-sm uppercase tracking-widest transition-colors shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-8 flex justify-center items-center gap-2"
                             >
                                 {t("confirm")}
                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

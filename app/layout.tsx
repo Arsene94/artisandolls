@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Montserrat, Roboto } from 'next/font/google';
 import { getLocale } from "next-intl/server";
 import './globals.css';
@@ -28,6 +28,11 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   title: 'Velvet Companions',
   description: 'Închiriere și achiziție discretă de companioni realiști premium.',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default async function RootLayout({

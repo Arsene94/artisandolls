@@ -52,9 +52,11 @@ export default function HeroRentalActions({
 
     return (
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="w-full sm:w-[320px]">
-                <RentalDateRangePicker onChange={setRange} />
-            </div>
+            {rentEnabled && (
+                <div className="w-full sm:w-[320px]">
+                    <RentalDateRangePicker onChange={setRange} />
+                </div>
+            )}
 
             {rentEnabled && (
                 <Link
