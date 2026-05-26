@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { constantTimeEqual } from "@/lib/secrets/compare";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ export async function GET(
     }
 
     const requested = key.replace(/\.txt$/, "");
-    if (requested !== expected) {
+    if (!constantTimeEqual(requested, expected)) {
         return new NextResponse("Not Found", { status: 404 });
     }
 

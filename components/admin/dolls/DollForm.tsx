@@ -8,14 +8,36 @@ import { optimizeImageBeforeUpload } from "@/lib/images/optimize-upload";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import type { CollectionRow } from "@/lib/collections/shared";
 import type { DollRow } from "@/lib/dolls";
+import type { RentalTier, RentalUnit } from "@/lib/dolls/tiers";
 import styles from "./AdminDolls.module.css";
 
 type DollFormProps = {
     mode: "create" | "edit";
     doll?: DollRow;
     collections: CollectionRow[];
+    initialTiers?: RentalTier[];
     action: (formData: FormData) => Promise<void>;
 };
+
+type TierItem = {
+    id: string;
+    label: string;
+    unit: RentalUnit;
+    from: string;
+    to: string;
+    price: string;
+};
+
+function createTierItem(tier?: RentalTier): TierItem {
+    return {
+        id: crypto.randomUUID(),
+        label: tier?.label ?? "",
+        unit: tier?.unit ?? "day",
+        from: tier ? String(tier.minQty) : "1",
+        to: tier ? String(tier.maxQty) : "1",
+        price: tier ? String(tier.price) : "",
+    };
+}
 
 type ImageItem = {
     id: string;
@@ -39,10 +61,40 @@ function normalizeImageUrls(images: ImageItem[]) {
     );
 }
 
-export default function DollForm({ mode, doll, collections, action }: DollFormProps) {
+export default function DollForm({
+    mode,
+    doll,
+    collections,
+    initialTiers,
+    action,
+}: DollFormProps) {
     const router = useRouter();
     const supabase = useMemo(() => createSupabaseBrowserClient(), []);
     const [isPending, startTransition] = useTransition();
+
+    const [tiers, setTiers] = useState<TierItem[]>(
+        (initialTiers ?? []).map((tier) => createTierItem(tier)),
+    );
+
+    function addTier() {
+        setTiers((current) => [...current, createTierItem()]);
+    }
+
+    function updateTier<K extends keyof Omit<TierItem, "id">>(
+        id: string,
+        field: K,
+        value: TierItem[K],
+    ) {
+        setTiers((current) =>
+            current.map((tier) =>
+                tier.id === id ? { ...tier, [field]: value } : tier,
+            ),
+        );
+    }
+
+    function removeTier(id: string) {
+        setTiers((current) => current.filter((tier) => tier.id !== id));
+    }
 
     const initialImages = [
         doll?.main_image_path ?? doll?.main_image_url ?? "",
@@ -127,6 +179,18 @@ export default function DollForm({ mode, doll, collections, action }: DollFormPr
 
         formData.set("tags", JSON.stringify(tags));
 
+        const cleanTiers = tiers
+            .map((tier) => ({
+                label: tier.label.trim() || null,
+                unit: tier.unit,
+                min_qty: Math.max(1, Math.round(Number(tier.from) || 0)),
+                max_qty: Math.max(1, Math.round(Number(tier.to) || 0)),
+                price: Math.max(0, Math.round(Number(tier.price) || 0)),
+            }))
+            .filter((tier) => tier.max_qty >= tier.min_qty);
+
+        formData.set("rental_tiers", JSON.stringify(cleanTiers));
+
         startTransition(async () => {
             await action(formData);
         });
@@ -189,16 +253,6 @@ export default function DollForm({ mode, doll, collections, action }: DollFormPr
                 </label>
 
                 <label className={styles.field}>
-                    Preț / zi
-                    <input
-                        name="rent_price_per_day"
-                        type="number"
-                        min="0"
-                        defaultValue={doll?.rent_price_per_day ?? ""}
-                    />
-                </label>
-
-                <label className={styles.field}>
                     Preț cumpărare
                     <input
                         name="buy_price"
@@ -208,6 +262,113 @@ export default function DollForm({ mode, doll, collections, action }: DollFormPr
                     />
                 </label>
             </div>
+
+            <section className={styles.tiersPanel}>
+                <div className={styles.panelHeader}>
+                    <span>Închiriere</span>
+                    <h2>Trepte de preț pe durată</h2>
+                    <p>
+                        Fiecare treaptă acoperă un interval de ore sau zile și are preț propriu.
+                        Clientul scrie câte ore/zile vrea, iar sistemul potrivește treapta. Ex:
+                        1 oră, 2–4 ore, 1 zi, 2–3 zile. Ține intervalele fără suprapuneri.
+                    </p>
+                </div>
+
+                {tiers.length > 0 && (
+                    <div className={styles.tiersList}>
+                        <div className={`${styles.tierRow} ${styles.tierHeaderRow}`} aria-hidden="true">
+                            <span>Etichetă</span>
+                            <span>Unitate</span>
+                            <span>De la</span>
+                            <span>Până la</span>
+                            <span>Preț</span>
+                            <span />
+                        </div>
+
+                        {tiers.map((tier) => (
+                            <div key={tier.id} className={styles.tierRow}>
+                                <label className={styles.tierField}>
+                                    <span className={styles.tierLabelMobile}>Etichetă</span>
+                                    <input
+                                        type="text"
+                                        value={tier.label}
+                                        onChange={(event) =>
+                                            updateTier(tier.id, "label", event.target.value)
+                                        }
+                                        placeholder="ex: Weekend"
+                                    />
+                                </label>
+
+                                <label className={styles.tierField}>
+                                    <span className={styles.tierLabelMobile}>Unitate</span>
+                                    <select
+                                        value={tier.unit}
+                                        onChange={(event) =>
+                                            updateTier(
+                                                tier.id,
+                                                "unit",
+                                                event.target.value as RentalUnit,
+                                            )
+                                        }
+                                    >
+                                        <option value="hour">ore</option>
+                                        <option value="day">zile</option>
+                                    </select>
+                                </label>
+
+                                <label className={styles.tierField}>
+                                    <span className={styles.tierLabelMobile}>De la</span>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={tier.from}
+                                        onChange={(event) =>
+                                            updateTier(tier.id, "from", event.target.value)
+                                        }
+                                    />
+                                </label>
+
+                                <label className={styles.tierField}>
+                                    <span className={styles.tierLabelMobile}>Până la</span>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={tier.to}
+                                        onChange={(event) =>
+                                            updateTier(tier.id, "to", event.target.value)
+                                        }
+                                    />
+                                </label>
+
+                                <label className={styles.tierField}>
+                                    <span className={styles.tierLabelMobile}>Preț</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={tier.price}
+                                        onChange={(event) =>
+                                            updateTier(tier.id, "price", event.target.value)
+                                        }
+                                        placeholder="RON"
+                                    />
+                                </label>
+
+                                <button
+                                    type="button"
+                                    className={styles.removeButton}
+                                    onClick={() => removeTier(tier.id)}
+                                >
+                                    Șterge
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                <button type="button" className={styles.secondaryButton} onClick={addTier}>
+                    Adaugă treaptă
+                </button>
+            </section>
 
             <label className={styles.field}>
                 Descriere

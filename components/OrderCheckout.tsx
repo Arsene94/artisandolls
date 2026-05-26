@@ -13,11 +13,13 @@ import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { type CatalogMode, type Doll } from "@/lib/dolls";
-import RentalDateRangePicker, {
-    type RentalRangeValue,
-} from "@/components/RentalDateRangePicker";
+import {
+    computeRentalEnd,
+    matchRentalTier,
+    type RentalUnit,
+} from "@/lib/dolls/tiers";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
-import { formatPrice, formatPricePerDay, getIntlLocale } from "@/i18n/format";
+import { formatPrice, getIntlLocale } from "@/i18n/format";
 import type { PublicPlatformSettings } from "@/lib/settings/shared";
 import {
     getCountyByCode,
@@ -29,8 +31,11 @@ import LocalityCombobox from "@/components/LocalityCombobox";
 type OrderCheckoutProps = {
     doll: Doll;
     mode: CatalogMode;
+    unit: RentalUnit;
+    qty: string;
+    tierId: string;
     startDate: string;
-    endDate: string;
+    startTime: string;
     outfitId: string;
     options: string;
     total: string;
@@ -51,49 +56,44 @@ type OrderFormState = {
     city: string;
     deliveryAddress: string;
     deliveryTime: string;
-    returnTime: string;
     notes: string;
     ageConfirmed: boolean;
     privacyAccepted: boolean;
 };
 
-type FieldErrors = Partial<Record<keyof OrderFormState | "period", string>>;
+type FieldErrors = Partial<Record<keyof OrderFormState | "duration", string>>;
 
 const PHONE_PATTERN = /^\+?[0-9 \-().]{7,20}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ADDRESS_MAX = 500;
 
-function formatDate(value: string, locale: string, fallback: string) {
-    if (!value) return fallback;
-    const [year, month, day] = value.split("-");
-    if (!year || !month || !day) return value;
+function todayIso() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+}
+
+function parseStartAt(startDate: string, startTime: string): Date | null {
+    if (!startDate || !startTime) return null;
+    const parsed = new Date(`${startDate}T${startTime}:00`);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function formatDateTime(date: Date | null, locale: string, fallback: string) {
+    if (!date) return fallback;
     return new Intl.DateTimeFormat(getIntlLocale(locale), {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
-    }).format(new Date(`${year}-${month}-${day}T00:00:00`));
+        hour: "2-digit",
+        minute: "2-digit",
+    }).format(date);
 }
 
-function getBackHref(dollId: string, mode: CatalogMode, startDate: string, endDate: string) {
-    const params = new URLSearchParams({ mode });
-    if (startDate) params.set("start", startDate);
-    if (endDate) params.set("end", endDate);
-    return `/catalog/${dollId}?${params.toString()}`;
-}
-
-function parseDate(value: string) {
-    if (!value) return null;
-    const date = new Date(`${value}T00:00:00`);
-    return Number.isNaN(date.getTime()) ? null : date;
-}
-
-function getRentalDays(startDate: string, endDate: string) {
-    const start = parseDate(startDate);
-    const end = parseDate(endDate);
-    if (!start || !end) return 0;
-    const diff = end.getTime() - start.getTime();
-    const dayMs = 1000 * 60 * 60 * 24;
-    return Math.max(1, Math.ceil(diff / dayMs));
+function getBackHref(dollId: string, mode: CatalogMode) {
+    return `/catalog/${dollId}?mode=${mode}`;
 }
 
 function localizedHref(locale: string, path: string) {
@@ -119,8 +119,11 @@ function IconLeft({ children }: { children: React.ReactNode }) {
 export default function OrderCheckout({
     doll,
     mode,
+    unit,
+    qty,
+    tierId,
     startDate,
-    endDate,
+    startTime,
     outfitId,
     options,
     total,
@@ -130,28 +133,50 @@ export default function OrderCheckout({
     const locale = useLocale();
     const t = useTranslations("checkout");
     const tCommon = useTranslations("common");
+    const tDetails = useTranslations("details");
     const tFooter = useTranslations("footer");
     const currency = settings.currency || "RON";
     const reactId = useId();
     const formId = `${reactId}-checkout-form`;
+    const isRent = mode === "rent";
 
-    const [checkoutPeriod, setCheckoutPeriod] = useState<RentalRangeValue>({
-        startDate,
-        endDate,
+    const [durationUnit, setDurationUnit] = useState<RentalUnit>(unit);
+    const [durationQty, setDurationQty] = useState<string>(() => {
+        const parsed = Math.round(Number(qty));
+        return Number.isFinite(parsed) && parsed >= 1 ? String(parsed) : "1";
     });
+    const [rentalStartDate, setRentalStartDate] = useState(startDate);
+    const [rentalStartTime, setRentalStartTime] = useState(startTime);
     const [errors, setErrors] = useState<FieldErrors>({});
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const formDirtyRef = useRef(false);
 
-    const periodSectionRef = useRef<HTMLDivElement | null>(null);
-    const hasCompletePeriod = Boolean(checkoutPeriod.startDate && checkoutPeriod.endDate);
+    const durationSectionRef = useRef<HTMLDivElement | null>(null);
 
-    const initialRentalDays = mode === "rent" ? getRentalDays(startDate, endDate) : 0;
-    const initialBaseTotal =
-        mode === "rent"
-            ? initialRentalDays * (doll.rentPricePerDay ?? 0)
-            : doll.buyPrice ?? 0;
+    const qtyNumber = Math.round(Number(durationQty));
+    const hasValidQty = Number.isFinite(qtyNumber) && qtyNumber >= 1;
+    const matchedTier = isRent && hasValidQty
+        ? matchRentalTier(doll.rentalTiers, durationUnit, qtyNumber)
+        : null;
+    const startAt = parseStartAt(rentalStartDate, rentalStartTime);
+    const endAt =
+        isRent && startAt && hasValidQty
+            ? computeRentalEnd(startAt, durationUnit, qtyNumber)
+            : null;
+    const rentReady = Boolean(matchedTier && startAt);
+
+    const initialQty = Math.round(Number(qty));
+    const initialTier = isRent
+        ? matchRentalTier(
+              doll.rentalTiers,
+              unit,
+              Number.isFinite(initialQty) ? initialQty : 0,
+          )
+        : null;
+    const initialBaseTotal = isRent
+        ? initialTier?.price ?? 0
+        : doll.buyPrice ?? 0;
 
     const initialTotalAmount = Number(total);
     const extrasTotal =
@@ -159,14 +184,7 @@ export default function OrderCheckout({
             ? initialTotalAmount - initialBaseTotal
             : 0;
 
-    const liveRentalDays =
-        mode === "rent"
-            ? getRentalDays(checkoutPeriod.startDate, checkoutPeriod.endDate)
-            : 0;
-    const liveBaseTotal =
-        mode === "rent"
-            ? liveRentalDays * (doll.rentPricePerDay ?? 0)
-            : doll.buyPrice ?? 0;
+    const liveBaseTotal = isRent ? matchedTier?.price ?? 0 : doll.buyPrice ?? 0;
     const liveTotalAmount = Math.max(0, liveBaseTotal + extrasTotal);
 
     const [form, setForm] = useState<OrderFormState>({
@@ -180,7 +198,6 @@ export default function OrderCheckout({
         city: "",
         deliveryAddress: "",
         deliveryTime: settings.default_delivery_start_time ?? "",
-        returnTime: settings.default_return_start_time ?? "",
         notes: "",
         ageConfirmed: false,
         privacyAccepted: false,
@@ -201,22 +218,14 @@ export default function OrderCheckout({
         });
     }
 
-    const updateCheckoutPeriod = useCallback((value: RentalRangeValue) => {
-        setCheckoutPeriod((current) => {
-            if (current.startDate === value.startDate && current.endDate === value.endDate) {
-                return current;
-            }
-            return value;
-        });
+    const clearDurationError = useCallback(() => {
         formDirtyRef.current = true;
-        if (value.startDate && value.endDate) {
-            setErrors((current) => {
-                if (!current.period) return current;
-                const next = { ...current };
-                delete next.period;
-                return next;
-            });
-        }
+        setErrors((current) => {
+            if (!current.duration) return current;
+            const next = { ...current };
+            delete next.duration;
+            return next;
+        });
     }, []);
 
     useEffect(() => {
@@ -238,7 +247,6 @@ export default function OrderCheckout({
 
     const modeLabel = mode === "rent" ? tCommon("rent") : tCommon("buy");
     const summaryTypeLabel = mode === "rent" ? t("serviceTypeRent") : t("serviceTypeBuy");
-    const isRent = mode === "rent";
 
     function validateForm(): FieldErrors {
         const next: FieldErrors = {};
@@ -262,11 +270,7 @@ export default function OrderCheckout({
         if (!form.county) next.county = t("fieldRequired");
         if (!form.city) next.city = t("fieldRequired");
         if (!form.deliveryAddress.trim()) next.deliveryAddress = t("fieldRequired");
-        if (isRent && (!form.deliveryTime || !form.returnTime)) {
-            if (!form.deliveryTime) next.deliveryTime = t("fieldRequired");
-            if (!form.returnTime) next.returnTime = t("fieldRequired");
-        }
-        if (isRent && !hasCompletePeriod) next.period = t("periodError");
+        if (isRent && !rentReady) next.duration = t("durationError");
         if (!form.ageConfirmed) next.ageConfirmed = t("ageRequired");
         if (!form.privacyAccepted) next.privacyAccepted = t("privacyRequired");
         return next;
@@ -275,19 +279,17 @@ export default function OrderCheckout({
     const submitInvalid = useMemo(() => {
         return Object.keys(validateForm()).length > 0;
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [form, checkoutPeriod, hasCompletePeriod, isRent]);
+    }, [form, rentReady, isRent]);
 
     function focusFirstError(fieldErrors: FieldErrors) {
-        const fieldOrder: (keyof OrderFormState | "period")[] = [
+        const fieldOrder: (keyof OrderFormState | "duration")[] = [
             "fullName",
             "phone",
             "email",
             "contactWindowEnd",
             "county",
             "city",
-            "period",
-            "deliveryTime",
-            "returnTime",
+            "duration",
             "deliveryAddress",
             "ageConfirmed",
             "privacyAccepted",
@@ -387,7 +389,7 @@ export default function OrderCheckout({
                     </Link>
                     <span aria-hidden="true">/</span>
                     <Link
-                        href={getBackHref(doll.id, mode, startDate, endDate)}
+                        href={getBackHref(doll.id, mode)}
                         className="hover:text-gold transition focus-visible:outline-none focus-visible:underline"
                     >
                         {doll.name}
@@ -455,8 +457,11 @@ export default function OrderCheckout({
                             <input type="hidden" name="outfit_id" value={outfitId} />
                             <input type="hidden" name="options" value={options} />
                             <input type="hidden" name="total" value={String(liveTotalAmount)} />
-                            <input type="hidden" name="start_date" value={checkoutPeriod.startDate} />
-                            <input type="hidden" name="end_date" value={checkoutPeriod.endDate} />
+                            <input type="hidden" name="rental_unit" value={durationUnit} />
+                            <input type="hidden" name="rental_quantity" value={hasValidQty ? String(qtyNumber) : ""} />
+                            <input type="hidden" name="rental_tier_id" value={matchedTier?.id ?? tierId} />
+                            <input type="hidden" name="rental_start_date" value={rentalStartDate} />
+                            <input type="hidden" name="rental_start_time" value={rentalStartTime} />
 
                             {submitError ? (
                                 <div
@@ -734,87 +739,122 @@ export default function OrderCheckout({
                                     </div>
 
                                     {isRent && (
-                                        <div className="space-y-5 pt-2" ref={periodSectionRef} data-field="period">
-                                            <div>
-                                                <label
-                                                    className="block text-xs font-bold text-silk/85 uppercase tracking-wider mb-2"
-                                                >
-                                                    {t("rentPeriod")} <span className="text-gold" aria-hidden="true">*</span>
+                                        <div
+                                            className="space-y-4 pt-2"
+                                            ref={durationSectionRef}
+                                            data-field="duration"
+                                        >
+                                            <label className="block text-xs font-bold text-silk/85 uppercase tracking-wider">
+                                                {tDetails("chooseDuration")} <span className="text-gold" aria-hidden="true">*</span>
+                                            </label>
+
+                                            <div className="flex flex-wrap items-end gap-3">
+                                                <label className="flex flex-col gap-1.5">
+                                                    <span className="text-[11px] text-silk/70 uppercase tracking-wider">
+                                                        {tDetails("durationLabel")}
+                                                    </span>
+                                                    <input
+                                                        type="number"
+                                                        min={1}
+                                                        inputMode="numeric"
+                                                        value={durationQty}
+                                                        onChange={(event) => {
+                                                            setDurationQty(event.target.value);
+                                                            clearDurationError();
+                                                        }}
+                                                        aria-label={tDetails("durationLabel")}
+                                                        className={`${inputBase} w-24`}
+                                                    />
                                                 </label>
-                                                <RentalDateRangePicker
-                                                    initialStartDate={checkoutPeriod.startDate}
-                                                    initialEndDate={checkoutPeriod.endDate}
-                                                    onChange={updateCheckoutPeriod}
-                                                    placement="bottom"
-                                                />
-                                                {renderError("period")}
+                                                <label className="flex flex-col gap-1.5">
+                                                    <span className="text-[11px] text-silk/70 uppercase tracking-wider">
+                                                        {tDetails("unitLabel")}
+                                                    </span>
+                                                    <select
+                                                        value={durationUnit}
+                                                        onChange={(event) => {
+                                                            setDurationUnit(
+                                                                event.target.value as RentalUnit,
+                                                            );
+                                                            clearDurationError();
+                                                        }}
+                                                        aria-label={tDetails("unitLabel")}
+                                                        className={`${inputBase} cursor-pointer`}
+                                                    >
+                                                        <option value="hour">{tCommon("hours")}</option>
+                                                        <option value="day">{tCommon("days_unit")}</option>
+                                                    </select>
+                                                </label>
                                             </div>
+
+                                            {matchedTier ? (
+                                                <p className="text-sm text-silk/90" aria-live="polite">
+                                                    {matchedTier.label ? (
+                                                        <span className="text-white font-semibold mr-2">
+                                                            {matchedTier.label}
+                                                        </span>
+                                                    ) : null}
+                                                    <span className="text-gold font-bold">
+                                                        {formatPrice(matchedTier.price, locale, currency)}
+                                                    </span>
+                                                </p>
+                                            ) : (
+                                                <p className="text-sm text-amber-300/90" role="status">
+                                                    {tDetails("noTierForDuration")}
+                                                </p>
+                                            )}
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                                <div data-field="deliveryTime">
+                                                <div>
                                                     <label
-                                                        htmlFor={`${formId}-deliveryTime`}
+                                                        htmlFor={`${formId}-startDate`}
                                                         className="block text-xs font-bold text-silk/85 uppercase tracking-wider mb-2"
                                                     >
-                                                        {t("deliveryTime")} <span className="text-gold" aria-hidden="true">*</span>
+                                                        {tDetails("startDateLabel")} <span className="text-gold" aria-hidden="true">*</span>
                                                     </label>
-                                                    <div className="relative">
-                                                        <IconLeft>
-                                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" focusable="false">
-                                                                <circle cx="12" cy="12" r="10" />
-                                                                <path d="M12 6v6l4 2" />
-                                                            </svg>
-                                                        </IconLeft>
-                                                        <input
-                                                            id={`${formId}-deliveryTime`}
-                                                            type="time"
-                                                            name="delivery_time"
-                                                            value={form.deliveryTime}
-                                                            onChange={(event) =>
-                                                                updateField("deliveryTime", event.target.value)
-                                                            }
-                                                            required
-                                                            aria-required="true"
-                                                            aria-invalid={errors.deliveryTime ? "true" : "false"}
-                                                            className={`${inputWithIcon} cursor-pointer`}
-                                                            style={{ colorScheme: "dark" }}
-                                                        />
-                                                    </div>
-                                                    {renderError("deliveryTime")}
+                                                    <input
+                                                        id={`${formId}-startDate`}
+                                                        type="date"
+                                                        min={todayIso()}
+                                                        value={rentalStartDate}
+                                                        onChange={(event) => {
+                                                            setRentalStartDate(event.target.value);
+                                                            clearDurationError();
+                                                        }}
+                                                        className={`${inputBase} cursor-pointer`}
+                                                        style={{ colorScheme: "dark" }}
+                                                    />
                                                 </div>
-
-                                                <div data-field="returnTime">
+                                                <div>
                                                     <label
-                                                        htmlFor={`${formId}-returnTime`}
+                                                        htmlFor={`${formId}-startTime`}
                                                         className="block text-xs font-bold text-silk/85 uppercase tracking-wider mb-2"
                                                     >
-                                                        {t("returnTime")} <span className="text-gold" aria-hidden="true">*</span>
+                                                        {tDetails("startTimeLabel")} <span className="text-gold" aria-hidden="true">*</span>
                                                     </label>
-                                                    <div className="relative">
-                                                        <IconLeft>
-                                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" focusable="false">
-                                                                <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
-                                                                <path d="M3 3v5h5" />
-                                                            </svg>
-                                                        </IconLeft>
-                                                        <input
-                                                            id={`${formId}-returnTime`}
-                                                            type="time"
-                                                            name="return_time"
-                                                            value={form.returnTime}
-                                                            onChange={(event) =>
-                                                                updateField("returnTime", event.target.value)
-                                                            }
-                                                            required
-                                                            aria-required="true"
-                                                            aria-invalid={errors.returnTime ? "true" : "false"}
-                                                            className={`${inputWithIcon} cursor-pointer`}
-                                                            style={{ colorScheme: "dark" }}
-                                                        />
-                                                    </div>
-                                                    {renderError("returnTime")}
+                                                    <input
+                                                        id={`${formId}-startTime`}
+                                                        type="time"
+                                                        value={rentalStartTime}
+                                                        onChange={(event) => {
+                                                            setRentalStartTime(event.target.value);
+                                                            clearDurationError();
+                                                        }}
+                                                        className={`${inputBase} cursor-pointer`}
+                                                        style={{ colorScheme: "dark" }}
+                                                    />
                                                 </div>
                                             </div>
+
+                                            {endAt && (
+                                                <p className="text-xs text-silk/85">
+                                                    {tDetails("estimatedEnd")}:{" "}
+                                                    <strong className="text-white font-semibold">
+                                                        {formatDateTime(endAt, locale, "")}
+                                                    </strong>
+                                                </p>
+                                            )}
+                                            {renderError("duration")}
                                         </div>
                                     )}
 
@@ -1044,37 +1084,42 @@ export default function OrderCheckout({
                                     </div>
 
                                     <dl className="text-sm space-y-3 text-silk/90 mb-6">
-                                        <div className="flex justify-between">
-                                            <dt>{isRent ? t("deliveryReturnPeriod") : t("deliveryPeriod")}</dt>
-                                            <dd className="font-medium text-white text-right">
-                                                {`${formatDate(checkoutPeriod.startDate, locale, tCommon("noSelection"))} – ${formatDate(checkoutPeriod.endDate, locale, tCommon("noSelection"))}`}
-                                            </dd>
-                                        </div>
-
                                         {isRent && (
                                             <>
-                                                <div className="flex justify-between">
-                                                    <dt>{t("selectedDays")}</dt>
-                                                    <dd className="font-medium text-white">
-                                                        {liveRentalDays
-                                                            ? tCommon("days", { count: liveRentalDays })
+                                                <div className="flex justify-between gap-3">
+                                                    <dt>{tDetails("durationLabel")}</dt>
+                                                    <dd className="font-medium text-white text-right">
+                                                        {hasValidQty
+                                                            ? `${qtyNumber} ${
+                                                                  durationUnit === "hour"
+                                                                      ? tCommon("hours")
+                                                                      : tCommon("days_unit")
+                                                              }`
                                                             : "—"}
                                                     </dd>
                                                 </div>
-                                                <div className="flex justify-between">
-                                                    <dt>{t("pricePerDay")}</dt>
-                                                    <dd className="font-medium text-white">
-                                                        {doll.rentPricePerDay
-                                                            ? formatPricePerDay(
-                                                                  doll.rentPricePerDay,
-                                                                  locale,
-                                                                  currency,
-                                                                  tCommon("perDay"),
-                                                              )
-                                                            : tCommon("unavailable")}
+                                                <div className="flex justify-between gap-3">
+                                                    <dt>{tDetails("startDateLabel")}</dt>
+                                                    <dd className="font-medium text-white text-right">
+                                                        {formatDateTime(startAt, locale, tCommon("noSelection"))}
+                                                    </dd>
+                                                </div>
+                                                <div className="flex justify-between gap-3">
+                                                    <dt>{tDetails("estimatedEnd")}</dt>
+                                                    <dd className="font-medium text-white text-right">
+                                                        {formatDateTime(endAt, locale, tCommon("noSelection"))}
                                                     </dd>
                                                 </div>
                                             </>
+                                        )}
+
+                                        {!isRent && (
+                                            <div className="flex justify-between gap-3">
+                                                <dt>{t("deliveryPeriod")}</dt>
+                                                <dd className="font-medium text-white text-right">
+                                                    {form.deliveryTime || tCommon("noSelection")}
+                                                </dd>
+                                            </div>
                                         )}
 
                                         {extrasTotal > 0 && (

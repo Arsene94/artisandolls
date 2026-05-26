@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { formatPrice, formatPricePerDay } from "@/i18n/format";
+import { formatPrice } from "@/i18n/format";
+import { getRentFromPrice } from "@/lib/dolls/tiers";
 import ModelInquiryButton from "@/components/landing/ModelInquiryButton";
 import type { Locale } from "@/i18n/routing";
 import type { Doll } from "@/lib/dolls";
@@ -111,15 +112,14 @@ export default async function CompanionCollection({
                             const heightTag =
                                 doll.tags?.find((tag) => /\d+\s*cm/i.test(tag)) ?? null;
 
-                            const rentLabel =
-                                doll.availableForRent && doll.rentPricePerDay
-                                    ? formatPricePerDay(
-                                          doll.rentPricePerDay,
-                                          locale,
-                                          currency,
-                                          tCommon("perDay"),
-                                      )
-                                    : null;
+                            const rentFrom = getRentFromPrice(doll.rentalTiers);
+                            const rentLabel = !doll.availableForRent
+                                ? null
+                                : rentFrom
+                                  ? tCommon("fromPrice", {
+                                        price: formatPrice(rentFrom.price, locale, currency),
+                                    })
+                                  : null;
                             const buyLabel =
                                 doll.availableForBuy && doll.buyPrice
                                     ? formatPrice(doll.buyPrice, locale, currency)

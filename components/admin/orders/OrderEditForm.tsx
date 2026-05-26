@@ -92,29 +92,21 @@ export default function OrderEditForm({ order, dolls, action }: OrderEditFormPro
     );
     const [discountValue, setDiscountValue] = useState(Number(order.discount_value ?? 0));
 
-    const selectedDoll = dolls.find((doll) => doll.id === selectedDollId);
-
     const selectedRentalDays =
         order.mode === "rent" && startDate && endDate
             ? getRentalDays(startDate, endDate)
             : 0;
 
-    const recalculatedSubtotal =
-        order.mode === "rent" &&
-        selectedDoll?.rent_price_per_day &&
-        selectedRentalDays > 0
-            ? selectedDoll.rent_price_per_day * selectedRentalDays
-            : subtotalAmount;
     const todayInputValue = getTodayInputValue();
 
     const previewTotal = useMemo(() => {
         return calculatePreviewTotal(
-            recalculatedSubtotal,
+            subtotalAmount,
             customPriceAmount,
             discountType,
             discountValue
         );
-    }, [recalculatedSubtotal, customPriceAmount, discountType, discountValue]);
+    }, [subtotalAmount, customPriceAmount, discountType, discountValue]);
 
     return (
         <form action={action} className={styles.panel}>
@@ -217,13 +209,12 @@ export default function OrderEditForm({ order, dolls, action }: OrderEditFormPro
                 </label>
 
                 <label className={styles.field}>
-                    Subtotal calculat
+                    Subtotal (preț salvat la rezervare)
                     <input
                         type="number"
                         name="subtotal_amount"
                         min="0"
-                        value={recalculatedSubtotal}
-                        readOnly={order.mode === "rent"}
+                        value={subtotalAmount}
                         onChange={(event) => setSubtotalAmount(Number(event.target.value))}
                     />
                 </label>

@@ -17,6 +17,7 @@ import {
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
 import AdminSignOutButton from "@/components/admin/AdminSignOutButton";
 import LiveOrdersBanner from "@/components/admin/LiveOrdersBanner";
+import { RealtimeProvider } from "@/lib/upstash/realtime-client";
 import styles from "./AdminShell.module.css";
 
 const menuItems = [
@@ -157,7 +158,9 @@ export default async function AdminShell({ children }: { children: React.ReactNo
 
                 {children}
             </div>
-            <LiveOrdersBanner />
+            <RealtimeProvider>
+                <LiveOrdersBanner />
+            </RealtimeProvider>
         </div>
     );
 }

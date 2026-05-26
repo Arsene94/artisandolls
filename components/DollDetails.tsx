@@ -12,11 +12,14 @@ import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { type CatalogMode, type Doll } from "@/lib/dolls";
-import RentalDateRangePicker, {
-    type RentalRangeValue,
-} from "@/components/RentalDateRangePicker";
+import {
+    computeRentalEnd,
+    getRentFromPrice,
+    matchRentalTier,
+    type RentalUnit,
+} from "@/lib/dolls/tiers";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
-import { formatPrice, formatPricePerDay } from "@/i18n/format";
+import { formatPrice, getIntlLocale } from "@/i18n/format";
 import type { CustomizationGroupWithOptions } from "@/lib/customizations/shared";
 import CustomizationIcon from "@/components/icons/CustomizationIcon";
 import type { OutfitOptionForCatalog } from "@/lib/outfits/shared";
@@ -26,42 +29,38 @@ import styles from "./DollDetails.module.css";
 type DollDetailsProps = {
     doll: Doll;
     initialMode: CatalogMode;
-    initialStartDate: string;
-    initialEndDate: string;
     customizations: Record<CatalogMode, CustomizationGroupWithOptions[]>;
     outfits: Record<CatalogMode, OutfitOptionForCatalog[]>;
     settings: PublicPlatformSettings;
 };
 
-function formatDate(value: string, locale: string) {
-    if (!value) return "";
-    const [year, month, day] = value.split("-");
-    if (!year || !month || !day) return value;
-    return new Intl.DateTimeFormat(
-        locale === "en" ? "en-GB" : locale === "nl" ? "nl-NL" : "ro-RO",
-        { day: "2-digit", month: "2-digit", year: "numeric" },
-    ).format(new Date(`${year}-${month}-${day}T00:00:00`));
+function todayIso() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
 }
 
-function parseDate(value: string) {
-    if (!value) return null;
-    const date = new Date(`${value}T00:00:00`);
-    return Number.isNaN(date.getTime()) ? null : date;
+function parseStartAt(startDate: string, startTime: string): Date | null {
+    if (!startDate || !startTime) return null;
+    const parsed = new Date(`${startDate}T${startTime}:00`);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-function getRentalDays(startDate: string, endDate: string) {
-    const start = parseDate(startDate);
-    const end = parseDate(endDate);
-    if (!start || !end) return 0;
-    const dayMs = 1000 * 60 * 60 * 24;
-    return Math.max(1, Math.ceil((end.getTime() - start.getTime()) / dayMs));
+function formatDateTime(date: Date | null, locale: string) {
+    if (!date) return "";
+    return new Intl.DateTimeFormat(getIntlLocale(locale), {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    }).format(date);
 }
 
-function getCatalogHref(mode: CatalogMode, period: RentalRangeValue) {
-    const params = new URLSearchParams({ mode });
-    if (period.startDate) params.set("start", period.startDate);
-    if (period.endDate) params.set("end", period.endDate);
-    return `/catalog?${params.toString()}`;
+function getCatalogHref(mode: CatalogMode) {
+    return `/catalog?mode=${mode}`;
 }
 
 function getGalleryImages(doll: Doll) {
@@ -83,17 +82,30 @@ function getOutfitTotal(outfitId: string, available: OutfitOptionForCatalog[]) {
     return getSelectedOutfit(outfitId, available)?.price ?? 0;
 }
 
+type RentalSelection = {
+    unit: RentalUnit;
+    qty: number;
+    tierId: string | null;
+    startDate: string;
+    startTime: string;
+};
+
 function getCheckoutHref(
     dollId: string,
     mode: CatalogMode,
-    period: RentalRangeValue,
+    rental: RentalSelection,
     outfitId: string,
     options: string[],
     total: number,
 ) {
     const params = new URLSearchParams({ mode });
-    if (period.startDate) params.set("start", period.startDate);
-    if (period.endDate) params.set("end", period.endDate);
+    if (mode === "rent") {
+        params.set("unit", rental.unit);
+        params.set("qty", String(rental.qty));
+        if (rental.tierId) params.set("tier", rental.tierId);
+        if (rental.startDate) params.set("start", rental.startDate);
+        if (rental.startTime) params.set("startTime", rental.startTime);
+    }
     if (outfitId) params.set("outfit", outfitId);
     if (options.length > 0) params.set("options", options.join(","));
     if (total > 0) params.set("total", String(total));
@@ -671,8 +683,6 @@ function ZoomDialog({ open, onClose, image, alt }: ZoomDialogProps) {
 export default function DollDetails({
     doll,
     initialMode,
-    initialStartDate,
-    initialEndDate,
     customizations,
     outfits,
     settings,
@@ -688,10 +698,16 @@ export default function DollDetails({
     const selectedImage = galleryImages[selectedImageIndex] ?? galleryImages[0];
 
     const [mode, setMode] = useState<CatalogMode>(initialMode);
-    const [period, setPeriod] = useState<RentalRangeValue>({
-        startDate: initialStartDate,
-        endDate: initialEndDate,
+    const [durationUnit, setDurationUnit] = useState<RentalUnit>(() => {
+        const from = getRentFromPrice(doll.rentalTiers);
+        return from?.unit ?? "day";
     });
+    const [durationQty, setDurationQty] = useState<string>(() => {
+        const from = getRentFromPrice(doll.rentalTiers);
+        return from ? String(from.minQty) : "1";
+    });
+    const [startDate, setStartDate] = useState("");
+    const [startTime, setStartTime] = useState("");
     const [selectedOptionsByMode, setSelectedOptionsByMode] = useState<
         Record<CatalogMode, string[]>
     >({ rent: [], buy: [] });
@@ -699,9 +715,25 @@ export default function DollDetails({
         Record<CatalogMode, string>
     >({ rent: "", buy: "" });
 
-    const rentalDays = useMemo(
-        () => getRentalDays(period.startDate, period.endDate),
-        [period.endDate, period.startDate],
+    const qtyNumber = Math.round(Number(durationQty));
+    const hasValidQty = Number.isFinite(qtyNumber) && qtyNumber >= 1;
+    const matchedTier = useMemo(
+        () =>
+            hasValidQty
+                ? matchRentalTier(doll.rentalTiers, durationUnit, qtyNumber)
+                : null,
+        [doll.rentalTiers, durationUnit, hasValidQty, qtyNumber],
+    );
+    const startAt = useMemo(
+        () => parseStartAt(startDate, startTime),
+        [startDate, startTime],
+    );
+    const endAt = useMemo(
+        () =>
+            startAt && hasValidQty
+                ? computeRentalEnd(startAt, durationUnit, qtyNumber)
+                : null,
+        [startAt, durationUnit, qtyNumber, hasValidQty],
     );
 
     const activeSelectedOptions = selectedOptionsByMode[mode];
@@ -724,9 +756,12 @@ export default function DollDetails({
     );
     const extrasTotal = customizationTotal + outfitTotal;
 
-    const hasCompletePeriod = Boolean(period.startDate && period.endDate);
-    const pricePerDay = doll.rentPricePerDay ?? 0;
-    const rentalBaseTotal = mode === "rent" && hasCompletePeriod ? rentalDays * pricePerDay : 0;
+    const rentFrom = useMemo(
+        () => getRentFromPrice(doll.rentalTiers),
+        [doll.rentalTiers],
+    );
+    const rentReady = Boolean(matchedTier && startAt);
+    const rentalBaseTotal = mode === "rent" && matchedTier ? matchedTier.price : 0;
     const rentalTotal = rentalBaseTotal + extrasTotal;
     const buyBasePrice = doll.buyPrice ?? 0;
     const buyTotal = buyBasePrice + extrasTotal;
@@ -739,7 +774,13 @@ export default function DollDetails({
     const checkoutHref = getCheckoutHref(
         doll.id,
         mode,
-        period,
+        {
+            unit: durationUnit,
+            qty: hasValidQty ? qtyNumber : 0,
+            tierId: matchedTier?.id ?? null,
+            startDate,
+            startTime,
+        },
         activeSelectedOutfitId,
         activeSelectedOptions,
         mode === "rent" ? rentalTotal : buyTotal,
@@ -860,7 +901,7 @@ export default function DollDetails({
                     </Link>
                     <span aria-hidden="true">/</span>
                     <Link
-                        href={getCatalogHref(mode, period)}
+                        href={getCatalogHref(mode)}
                         className="hover:text-gold transition focus-visible:outline-none focus-visible:underline underline-offset-4 motion-reduce:transition-none"
                     >
                         {t("breadcrumbCatalog")}
@@ -1006,40 +1047,112 @@ export default function DollDetails({
                         {mode === "rent" && (
                             <section
                                 className="mb-8 p-5 rounded-2xl border border-velvet-700 bg-velvet-900/40 backdrop-blur-xl"
-                                aria-labelledby="period-heading"
+                                aria-labelledby="duration-heading"
                             >
                                 <h2
-                                    id="period-heading"
+                                    id="duration-heading"
                                     className="text-sm font-bold font-serif text-gold mb-2 flex items-center gap-2"
                                 >
                                     <CustomizationIcon name="ruler-measure" size={16} />
-                                    {t("choosePeriod")}
+                                    {t("chooseDuration")}
                                 </h2>
                                 <p className="text-xs text-silk/80 mb-4 leading-relaxed">
-                                    {t("periodHelp")}
+                                    {t("durationHelp")}
                                 </p>
-                                <RentalDateRangePicker
-                                    initialStartDate={period.startDate}
-                                    initialEndDate={period.endDate}
-                                    onChange={setPeriod}
-                                    placement="bottom"
-                                />
-                                {hasCompletePeriod && (
-                                    <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-silk/85">
-                                        <span>
-                                            {t("period")}:{" "}
-                                            <strong className="text-white font-semibold">
-                                                {formatDate(period.startDate, locale)} –{" "}
-                                                {formatDate(period.endDate, locale)}
-                                            </strong>
-                                        </span>
-                                        <span>
-                                            {t("selectedDays")}:{" "}
-                                            <strong className="text-white font-semibold">
-                                                {tCommon("days", { count: rentalDays })}
-                                            </strong>
-                                        </span>
-                                    </div>
+
+                                {doll.rentalTiers.length === 0 ? (
+                                    <p className="text-sm text-silk/85 italic">
+                                        {t("noTiers")}
+                                    </p>
+                                ) : (
+                                    <>
+                                        <div className="flex flex-wrap items-end gap-3">
+                                            <label className="flex flex-col gap-1.5">
+                                                <span className="text-[11px] uppercase tracking-wider text-silk/80">
+                                                    {t("durationLabel")}
+                                                </span>
+                                                <input
+                                                    type="number"
+                                                    min={1}
+                                                    inputMode="numeric"
+                                                    value={durationQty}
+                                                    onChange={(event) =>
+                                                        setDurationQty(event.target.value)
+                                                    }
+                                                    aria-label={t("durationLabel")}
+                                                    className="w-24 bg-velvet-950 border border-velvet-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-gold focus-visible:ring-2 focus-visible:ring-gold text-sm"
+                                                />
+                                            </label>
+                                            <label className="flex flex-col gap-1.5">
+                                                <span className="text-[11px] uppercase tracking-wider text-silk/80">
+                                                    {t("unitLabel")}
+                                                </span>
+                                                <select
+                                                    value={durationUnit}
+                                                    onChange={(event) =>
+                                                        setDurationUnit(
+                                                            event.target.value as RentalUnit,
+                                                        )
+                                                    }
+                                                    aria-label={t("unitLabel")}
+                                                    className="bg-velvet-950 border border-velvet-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-gold focus-visible:ring-2 focus-visible:ring-gold text-sm cursor-pointer"
+                                                >
+                                                    <option value="hour">{tCommon("hours")}</option>
+                                                    <option value="day">{tCommon("days_unit")}</option>
+                                                </select>
+                                            </label>
+                                        </div>
+
+                                        {!matchedTier && hasValidQty ? (
+                                            <p
+                                                className="mt-3 text-sm text-amber-300/90"
+                                                role="status"
+                                            >
+                                                {t("noTierForDuration")}
+                                            </p>
+                                        ) : null}
+
+                                        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <label className="flex flex-col gap-1.5">
+                                                <span className="text-[11px] uppercase tracking-wider text-silk/80">
+                                                    {t("startDateLabel")}
+                                                </span>
+                                                <input
+                                                    type="date"
+                                                    min={todayIso()}
+                                                    value={startDate}
+                                                    onChange={(event) =>
+                                                        setStartDate(event.target.value)
+                                                    }
+                                                    className="bg-velvet-950 border border-velvet-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-gold focus-visible:ring-2 focus-visible:ring-gold text-sm cursor-pointer"
+                                                    style={{ colorScheme: "dark" }}
+                                                />
+                                            </label>
+                                            <label className="flex flex-col gap-1.5">
+                                                <span className="text-[11px] uppercase tracking-wider text-silk/80">
+                                                    {t("startTimeLabel")}
+                                                </span>
+                                                <input
+                                                    type="time"
+                                                    value={startTime}
+                                                    onChange={(event) =>
+                                                        setStartTime(event.target.value)
+                                                    }
+                                                    className="bg-velvet-950 border border-velvet-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-gold focus-visible:ring-2 focus-visible:ring-gold text-sm cursor-pointer"
+                                                    style={{ colorScheme: "dark" }}
+                                                />
+                                            </label>
+                                        </div>
+
+                                        {endAt && (
+                                            <p className="mt-4 text-xs text-silk/85">
+                                                {t("estimatedEnd")}:{" "}
+                                                <strong className="text-white font-semibold">
+                                                    {formatDateTime(endAt, locale)}
+                                                </strong>
+                                            </p>
+                                        )}
+                                    </>
                                 )}
                             </section>
                         )}
@@ -1147,14 +1260,17 @@ export default function DollDetails({
                                     </p>
                                     <p className="text-sm font-bold text-white">
                                         {mode === "rent"
-                                            ? doll.rentPricePerDay
-                                                ? formatPricePerDay(
-                                                      doll.rentPricePerDay,
-                                                      locale,
-                                                      currency,
-                                                      tCommon("perDay"),
-                                                  )
-                                                : tCommon("unavailable")
+                                            ? matchedTier
+                                                ? formatPrice(matchedTier.price, locale, currency)
+                                                : rentFrom
+                                                  ? tCommon("fromPrice", {
+                                                        price: formatPrice(
+                                                            rentFrom.price,
+                                                            locale,
+                                                            currency,
+                                                        ),
+                                                    })
+                                                  : tCommon("unavailable")
                                             : doll.buyPrice
                                               ? formatPrice(doll.buyPrice, locale, currency)
                                               : tCommon("unavailable")}
@@ -1162,7 +1278,7 @@ export default function DollDetails({
                                 </div>
                             </div>
 
-                            {((mode === "rent" && hasCompletePeriod) || mode === "buy") && (
+                            {((mode === "rent" && rentReady) || mode === "buy") && (
                                 <div className="flex items-center justify-between border-t border-velvet-700 pt-3 mb-4">
                                     <span className="text-[11px] text-silk/80 uppercase tracking-wider">
                                         {t("estimatedTotal")}
@@ -1176,13 +1292,13 @@ export default function DollDetails({
                                     </span>
                                 </div>
                             )}
-                            {mode === "rent" && !hasCompletePeriod && (
+                            {mode === "rent" && !rentReady && (
                                 <p className="text-xs text-silk/80 mb-4 italic">
                                     {t("estimatedTotalPending")}
                                 </p>
                             )}
 
-                            {canCheckout && (mode === "buy" || hasCompletePeriod) ? (
+                            {canCheckout && (mode === "buy" || rentReady) ? (
                                 <Link
                                     href={checkoutHref}
                                     className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-widest font-bold transition text-center inline-flex items-center justify-center gap-2 bg-gradient-to-r from-gold to-gold-dark text-velvet-950 shadow-lg shadow-gold/30 hover:from-silk hover:to-silk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-silk focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 motion-reduce:transition-none"
@@ -1197,11 +1313,11 @@ export default function DollDetails({
                                     title={
                                         !canCheckout
                                             ? ctaUnavailableLabel
-                                            : t("choosePeriod")
+                                            : t("chooseDuration")
                                     }
                                     className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-widest font-bold text-center inline-flex items-center justify-center gap-2 bg-velvet-800 text-silk/90 border border-velvet-600 cursor-not-allowed"
                                 >
-                                    {canCheckout ? t("choosePeriod") : ctaUnavailableLabel}
+                                    {canCheckout ? t("chooseDuration") : ctaUnavailableLabel}
                                 </button>
                             )}
                         </aside>

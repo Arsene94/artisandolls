@@ -12,6 +12,7 @@ import {
     localeUrl,
 } from "@/lib/site";
 import { getPublicPlatformSettings } from "@/lib/settings";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 type Props = { city: CityPillar };
 
@@ -181,22 +182,22 @@ export default async function CityPillarSection({ city }: Props) {
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(localBusinessLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(serviceLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(faqLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(breadcrumbLd) }}
             />
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

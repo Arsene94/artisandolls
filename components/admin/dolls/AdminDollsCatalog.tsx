@@ -3,13 +3,16 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import type { DollRow } from "@/lib/dolls";
+import type { RentFromPrice } from "@/lib/dolls/tiers";
 import { bulkDeleteDollsAction, deleteDollAction } from "@/app/admin/(protected)/dolls/actions";
 import Image from "next/image";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import styles from "./AdminDolls.module.css";
 
+type AdminDoll = DollRow & { rentFrom: RentFromPrice | null };
+
 type AdminDollsCatalogProps = {
-    dolls: DollRow[];
+    dolls: AdminDoll[];
 };
 
 export default function AdminDollsCatalog({ dolls }: AdminDollsCatalogProps) {
@@ -134,7 +137,11 @@ export default function AdminDollsCatalog({ dolls }: AdminDollsCatalogProps) {
                         </div>
 
                         <div>
-                            <span>{doll.rent_price_per_day ? `${doll.rent_price_per_day} lei / zi` : "Fără chirie"}</span>
+                            <span>
+                                {doll.rentFrom
+                                    ? `de la ${doll.rentFrom.price} lei / ${doll.rentFrom.unit === "hour" ? "oră" : "zi"}`
+                                    : "Fără chirie"}
+                            </span>
                             <small>{doll.buy_price ? `${doll.buy_price} lei cumpărare` : "Fără vânzare"}</small>
                         </div>
 

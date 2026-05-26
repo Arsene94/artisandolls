@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
+import { ownsRecentOrder } from "@/lib/orders/recent-cookie";
 import { formatMoney } from "@/lib/shop/format";
 import PrintButton from "@/components/PrintButton";
 import type { Locale } from "@/i18n/routing";
@@ -25,6 +26,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ShopOrderSuccessPage({ params }: Props) {
     const { locale, id } = await params;
     setRequestLocale(locale);
+
+    // Cookie-ul setat la createShopOrderAction leagă vizualizarea de browserul
+    // care a plasat comanda — UUID-urile de ordine s-ar putea scurge prin
+    // Referer / paste accidental și am expune detalii de livrare oricui.
+    if (!(await ownsRecentOrder(id))) {
+        notFound();
+    }
 
     const supabase = createSupabaseServiceClient();
     const [{ data: order }, { data: items }] = await Promise.all([

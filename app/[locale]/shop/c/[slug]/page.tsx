@@ -14,6 +14,7 @@ import { getSiteUrl, localeAlternates, localeUrl } from "@/lib/site";
 import ShopProductCard from "@/components/shop/ShopProductCard";
 import Pagination from "@/components/Pagination";
 import type { Locale } from "@/i18n/routing";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 const PAGE_SIZE = 24;
 
@@ -148,12 +149,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(breadcrumbLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(itemListLd) }}
             />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <nav

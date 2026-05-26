@@ -62,6 +62,18 @@ async function handler(request: Request) {
         }
     }
 
+    // Audit log structurat — Vercel/CloudWatch păstrează linia ăsta și
+    // permit reconstrucția istoricului de purge fără să ne bazăm pe un tabel
+    // dedicat. Câmpurile sunt non-PII (counts, cutoff). Dacă pe viitor
+    // adăugăm un `audit_log` în Postgres, mai persistăm aici și acolo.
+    console.info("[cron/gdpr-purge] completed", {
+        cutoff,
+        days,
+        ordersPurged: orderCount,
+        customersDeleted,
+        runAt: new Date().toISOString(),
+    });
+
     return Response.json({
         ok: true,
         cutoff,

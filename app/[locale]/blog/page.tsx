@@ -13,6 +13,7 @@ import {
 } from "@/lib/site";
 import type { BlogCategory, BlogPost } from "@/lib/blog/shared";
 import type { Locale } from "@/i18n/routing";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 type Props = { params: Promise<{ locale: Locale }> };
 
@@ -122,12 +123,12 @@ export default async function BlogIndexPage({ params }: Props) {
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(blogLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(blogLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(breadcrumbLd) }}
             />
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">

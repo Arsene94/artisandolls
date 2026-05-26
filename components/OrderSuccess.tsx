@@ -45,6 +45,22 @@ function formatDateTime(value: string, locale: string) {
     }).format(date);
 }
 
+// Rental start/end are stored as UTC wall-clock (the time the customer picked),
+// so render them in UTC to avoid shifting by the server timezone.
+function formatRentalDateTime(value: string | null, locale: string) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return new Intl.DateTimeFormat(getIntlLocale(locale), {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "UTC",
+    }).format(date);
+}
+
 function CheckIcon() {
     return (
         <svg
@@ -134,9 +150,22 @@ export default async function OrderSuccess({
         ? getSupabaseImageUrl(heroImageSource, "card")
         : null;
 
-    const periodLabel = order.start_date
-        ? `${formatDate(order.start_date, locale)} – ${formatDate(order.end_date, locale)}`
-        : tCommon("noSelection");
+    const periodLabel = order.rental_start_at
+        ? `${formatRentalDateTime(order.rental_start_at, locale)} – ${formatRentalDateTime(order.rental_end_at, locale)}`
+        : order.start_date
+          ? `${formatDate(order.start_date, locale)} – ${formatDate(order.end_date, locale)}`
+          : tCommon("noSelection");
+
+    const durationLabel =
+        order.mode === "rent" && order.rental_unit && order.rental_quantity
+            ? `${order.rental_quantity} ${
+                  order.rental_unit === "hour"
+                      ? tCommon("hours")
+                      : tCommon("days_unit")
+              }`
+            : order.mode === "rent" && order.rental_days
+              ? tCommon("days", { count: order.rental_days })
+              : null;
 
     const stepLabels = t.raw("steps") as
         | Array<{ title: string; description: string; eta?: string }>
@@ -383,11 +412,11 @@ export default async function OrderSuccess({
                                                     {periodLabel}
                                                 </dd>
                                             </div>
-                                            {order.mode === "rent" && order.rental_days ? (
+                                            {durationLabel ? (
                                                 <div className="flex justify-between gap-3">
-                                                    <dt>{tCheckout("selectedDays")}</dt>
+                                                    <dt>{tCheckout("selectedDuration")}</dt>
                                                     <dd className="font-medium text-white">
-                                                        {tCommon("days", { count: order.rental_days })}
+                                                        {durationLabel}
                                                     </dd>
                                                 </div>
                                             ) : null}

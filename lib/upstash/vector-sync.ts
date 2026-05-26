@@ -48,7 +48,6 @@ export async function upsertDollVectors(input: Doll | DollRow): Promise<void> {
                             availability: doll.availability,
                             availableForRent: doll.availableForRent,
                             availableForBuy: doll.availableForBuy,
-                            rentPricePerDay: doll.rentPricePerDay,
                             buyPrice: doll.buyPrice,
                             height,
                             tags: doll.tags ?? [],

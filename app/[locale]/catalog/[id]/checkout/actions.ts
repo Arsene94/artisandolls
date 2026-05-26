@@ -4,9 +4,20 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { formatPrice, isSupportedLocale } from "@/i18n/format";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
-import { getInitialOrderStatus, getRentalDays, type OrderRow } from "@/lib/orders/shared";
+import { rememberRecentOrder } from "@/lib/orders/recent-cookie";
+import { getInitialOrderStatus, type OrderRow } from "@/lib/orders/shared";
 import { notifyAdminsAboutOrder } from "@/lib/whatsapp";
 import type { CatalogMode } from "@/lib/dolls";
+import {
+    computeRentalEnd,
+    isRentalUnit,
+    mapRentalTierRow,
+    matchRentalTier,
+    rentalDaysFromDuration,
+    type RentalTier,
+    type RentalTierRow,
+    type RentalUnit,
+} from "@/lib/dolls/tiers";
 import {
     getPublicPlatformSettings,
     isCatalogModeEnabled,
@@ -22,6 +33,14 @@ import { emitNewOrder } from "@/lib/upstash/realtime";
 
 const PHONE_PATTERN = /^\+?[0-9 \-().]{7,20}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Limite hard pentru câmpurile cu input liber. Postgres acceptă fără limită,
+// dar lăsate liberi inflătează DB-ul, log-urile QStash/Vercel și pot fi folosite
+// pentru flooding. Aceeași limită ca în shop checkout (vezi `ADDRESS_MAX`).
+const ADDRESS_MAX = 500;
+const NOTES_MAX = 2000;
+const NAME_MAX = 200;
+const CITY_MAX = 120;
+const COUNTY_MAX = 120;
 
 function getString(formData: FormData, key: string) {
     return String(formData.get(key) ?? "").trim();
@@ -45,6 +64,19 @@ function getSelectedOptions(value: string) {
 
 function normalizePhone(value: string) {
     return value.replace(/[^\d+]/g, "");
+}
+
+function toUtcDateOnly(date: Date) {
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const d = String(date.getUTCDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+}
+
+function toUtcTimeOnly(date: Date) {
+    const h = String(date.getUTCHours()).padStart(2, "0");
+    const m = String(date.getUTCMinutes()).padStart(2, "0");
+    return `${h}:${m}`;
 }
 
 class CheckoutValidationError extends Error {
@@ -94,7 +126,7 @@ export async function createOrderAction(formData: FormData) {
     const { data: doll, error: dollError } = await supabase
         .from("dolls")
         .select(
-            "id, slug, name, available_for_rent, available_for_buy, rent_price_per_day, buy_price",
+            "id, slug, name, available_for_rent, available_for_buy, buy_price",
         )
         .eq("slug", dollSlug)
         .single();
@@ -138,35 +170,113 @@ export async function createOrderAction(formData: FormData) {
         selectedOutfit = outfit;
     }
 
-    const startDate = getNullableString(formData, "start_date");
-    const endDate = getNullableString(formData, "end_date");
+    // Rental duration → tier matching. Fully re-validated server-side; the
+    // client-sent tier id / price are never trusted.
+    let rentalUnit: RentalUnit | null = null;
+    let rentalQuantity: number | null = null;
+    let matchedTier: RentalTier | null = null;
+    let rentalStartAt: Date | null = null;
+    let rentalEndAt: Date | null = null;
 
-    if (mode === "rent" && (!startDate || !endDate)) {
-        throw new CheckoutValidationError(tCheckout("periodError"));
+    if (mode === "rent") {
+        const rawUnit = getString(formData, "rental_unit");
+        if (!isRentalUnit(rawUnit)) {
+            throw new CheckoutValidationError(tCheckout("durationError"));
+        }
+        rentalUnit = rawUnit;
+
+        const parsedQty = Math.round(Number(getString(formData, "rental_quantity")));
+        if (!Number.isFinite(parsedQty) || parsedQty < 1) {
+            throw new CheckoutValidationError(tCheckout("durationError"));
+        }
+        rentalQuantity = parsedQty;
+
+        const { data: tierRows, error: tierError } = await supabase
+            .from("doll_rental_tiers")
+            .select("*")
+            .eq("doll_id", doll.id)
+            .order("display_order", { ascending: true });
+
+        if (tierError) {
+            throw new CheckoutValidationError(tCheckout("submitErrorDescription"));
+        }
+
+        const tiers = (tierRows ?? []).map((row) =>
+            mapRentalTierRow(row as RentalTierRow),
+        );
+        matchedTier = matchRentalTier(tiers, rentalUnit, rentalQuantity);
+        if (!matchedTier) {
+            throw new CheckoutValidationError(tCheckout("durationError"));
+        }
+
+        const startDateStr = getString(formData, "rental_start_date");
+        const startTimeStr = getString(formData, "rental_start_time");
+        if (!startDateStr || !startTimeStr) {
+            throw new CheckoutValidationError(tCheckout("durationError"));
+        }
+        // Parse as UTC so the stored datetime is independent of server timezone.
+        const parsedStart = new Date(`${startDateStr}T${startTimeStr}:00Z`);
+        if (Number.isNaN(parsedStart.getTime())) {
+            throw new CheckoutValidationError(tCheckout("durationError"));
+        }
+        rentalStartAt = parsedStart;
+        rentalEndAt = computeRentalEnd(parsedStart, rentalUnit, rentalQuantity);
     }
 
-    const rentalDays = mode === "rent" ? getRentalDays(startDate ?? "", endDate ?? "") : null;
+    // Legacy fields, derived so existing admin/email/workflow code keeps working.
+    const startDate = rentalStartAt ? toUtcDateOnly(rentalStartAt) : null;
+    const endDate = rentalEndAt ? toUtcDateOnly(rentalEndAt) : null;
+    const rentalDays =
+        mode === "rent" && rentalUnit && rentalQuantity
+            ? rentalDaysFromDuration(rentalUnit, rentalQuantity)
+            : null;
 
     const selectedOptionIds = getSelectedOptions(getString(formData, "options"));
     let customizationsTotal = 0;
 
     if (selectedOptionIds.length > 0) {
+        // Validăm că:
+        //   – fiecare opțiune există și este `is_active`
+        //   – grupul opțiunii este `is_active`
+        //   – grupul are mode = order mode (sau `both`)
+        // Altfel clientul ar putea trimite ID-uri de opțiuni dintr-un mod care
+        // nu se aplică sau dintr-un grup ascuns intenționat.
         const { data: selectedOptions, error: selectedOptionsError } = await supabase
             .from("doll_customization_options")
-            .select("id, price, is_active")
+            .select(
+                "id, price, is_active, group:doll_customization_groups(id, mode, is_active)",
+            )
             .in("id", selectedOptionIds);
 
         if (selectedOptionsError) {
             throw new CheckoutValidationError(tCheckout("submitErrorDescription"));
         }
 
-        const activeOptions = selectedOptions?.filter((option) => option.is_active) ?? [];
+        type OptionRow = {
+            id: string;
+            price: number;
+            is_active: boolean;
+            group:
+                | { id: string; mode: string; is_active: boolean }
+                | { id: string; mode: string; is_active: boolean }[]
+                | null;
+        };
+        const rows = (selectedOptions ?? []) as OptionRow[];
 
-        if (activeOptions.length !== selectedOptionIds.length) {
+        const validOptions = rows.filter((option) => {
+            if (!option.is_active) return false;
+            const group = Array.isArray(option.group)
+                ? option.group[0]
+                : option.group;
+            if (!group || !group.is_active) return false;
+            return group.mode === mode || group.mode === "both";
+        });
+
+        if (validOptions.length !== selectedOptionIds.length) {
             throw new CheckoutValidationError(tCheckout("submitErrorDescription"));
         }
 
-        customizationsTotal = activeOptions.reduce((sum, option) => {
+        customizationsTotal = validOptions.reduce((sum, option) => {
             return sum + Number(option.price ?? 0);
         }, 0);
     }
@@ -174,23 +284,36 @@ export async function createOrderAction(formData: FormData) {
     const outfitTotal = selectedOutfit?.price ?? 0;
     const baseTotal =
         mode === "rent"
-            ? (rentalDays ?? 0) * Number(doll.rent_price_per_day ?? 0)
+            ? Number(matchedTier?.price ?? 0)
             : Number(doll.buy_price ?? 0);
     const totalAmount = Math.max(0, baseTotal + outfitTotal + customizationsTotal);
 
-    const customerName = getString(formData, "full_name");
+    const customerName = getString(formData, "full_name").slice(0, NAME_MAX);
     const customerPhone = getString(formData, "phone");
     const customerEmailRaw = getString(formData, "email").toLowerCase();
     const customerEmail = customerEmailRaw || null;
-    const deliveryAddress = getString(formData, "delivery_address");
-    const deliveryCity = getNullableString(formData, "delivery_city");
-    const deliveryCounty = getNullableString(formData, "delivery_county");
+    const deliveryAddress = getString(formData, "delivery_address").slice(
+        0,
+        ADDRESS_MAX,
+    );
+    const deliveryCity = getNullableString(formData, "delivery_city")?.slice(
+        0,
+        CITY_MAX,
+    ) ?? null;
+    const deliveryCounty = getNullableString(formData, "delivery_county")?.slice(
+        0,
+        COUNTY_MAX,
+    ) ?? null;
     const contactMethod = getNullableString(formData, "contact_method");
     const contactWindowStart = getNullableString(formData, "contact_window_start");
     const contactWindowEnd = getNullableString(formData, "contact_window_end");
-    const deliveryTime = getString(formData, "delivery_time");
-    const returnTime = getNullableString(formData, "return_time");
-    const notes = getNullableString(formData, "notes");
+    const deliveryTime =
+        mode === "rent" && rentalStartAt
+            ? toUtcTimeOnly(rentalStartAt)
+            : getString(formData, "delivery_time");
+    const returnTime =
+        mode === "rent" && rentalEndAt ? toUtcTimeOnly(rentalEndAt) : null;
+    const notes = getNullableString(formData, "notes")?.slice(0, NOTES_MAX) ?? null;
     const ageConfirmed = ["on", "true", "1"].includes(getString(formData, "age_confirmed"));
     const privacyAccepted = ["on", "true", "1"].includes(
         getString(formData, "privacy_accepted"),
@@ -209,9 +332,6 @@ export async function createOrderAction(formData: FormData) {
         throw new CheckoutValidationError(tCheckout("fieldRequired"));
     }
     if (!deliveryAddress) {
-        throw new CheckoutValidationError(tCheckout("fieldRequired"));
-    }
-    if (mode === "rent" && (!deliveryTime || !returnTime)) {
         throw new CheckoutValidationError(tCheckout("fieldRequired"));
     }
     if (
@@ -301,6 +421,14 @@ export async function createOrderAction(formData: FormData) {
         end_date: endDate,
         rental_days: rentalDays,
 
+        rental_unit: rentalUnit,
+        rental_quantity: rentalQuantity,
+        rental_tier_id: matchedTier?.id ?? null,
+        rental_tier_label: matchedTier?.label ?? null,
+        rental_start_at: rentalStartAt ? rentalStartAt.toISOString() : null,
+        rental_end_at: rentalEndAt ? rentalEndAt.toISOString() : null,
+        rental_price: matchedTier?.price ?? null,
+
         outfit_id: selectedOutfit?.id ?? null,
         outfit_label: selectedOutfit?.label ?? null,
         outfit_price: selectedOutfit?.price ?? 0,
@@ -350,6 +478,10 @@ export async function createOrderAction(formData: FormData) {
     }
 
     const order = insertedOrder as OrderRow;
+
+    // Marchează comanda ca aparținând browserului curent — gate-ul de pe
+    // pagina /success refuză vizualizarea PII fără cookie-ul ăsta.
+    await rememberRecentOrder(order.id);
 
     // Broadcast to live admin dashboards (best-effort).
     await emitNewOrder({

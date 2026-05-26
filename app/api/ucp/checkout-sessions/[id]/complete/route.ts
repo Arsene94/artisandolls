@@ -6,7 +6,8 @@ import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { formatPrice } from "@/i18n/format";
 import { getProductsBySlugs } from "@/lib/shop/products";
 import { getSiteUrl } from "@/lib/site";
-import { normalisePhone } from "@/lib/upstash/identify";
+import { clientIp, normalisePhone } from "@/lib/upstash/identify";
+import { orderLimiter, safeLimit } from "@/lib/upstash/ratelimit";
 import { emitNewOrder } from "@/lib/upstash/realtime";
 import { enqueueWhatsAppNotification } from "@/lib/upstash/jobs";
 import type {
@@ -40,15 +41,32 @@ export async function POST(request: Request, ctx: Ctx) {
     if (!auth.ok) return ucpError(auth.status, auth.reason, "UCP request rejected");
 
     const { id } = await ctx.params;
+
     const row = await loadSession(id);
     if (!row) return ucpError(404, "session_not_found", "Unknown checkout session");
 
     if (row.status === "completed") {
-        // Idempotent re-completion returns the already-completed session.
+        // Idempotent re-completion returns the already-completed session — nu
+        // consumă rate-limit ca să nu pedepsim agentul care reia după network.
         return ucpJson(row.state, 200);
     }
     if (row.status === "canceled") {
         return ucpError(409, "session_canceled", "Session has been canceled");
+    }
+
+    // Rate-limit pe (profil agent || IP) × sessionId — protejează contra
+    // exhaustiei de stock dacă cheia UCP se scurge. Folosim același sliding
+    // window ca shop-ul: 3 acțiuni / 10 min. Așezat după early-return-urile
+    // de idempotență ca să nu pedepsim retries pe sesiuni deja finalizate.
+    const ip = await clientIp();
+    const rateKey = `ucp-complete:${auth.profile ?? ip}:${id}`;
+    const limit = await safeLimit(orderLimiter, rateKey);
+    if (!limit.success) {
+        return ucpError(
+            429,
+            "rate_limited",
+            "Too many completion attempts for this session",
+        );
     }
 
     let body: UcpCompleteSessionRequest = {};

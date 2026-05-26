@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter, Montserrat } from "next/font/google";
 import { getLocale, getTranslations } from "next-intl/server";
 import { getPublicPlatformSettings } from "@/lib/settings";
+import { safeLdJson } from "@/lib/seo/ld-json";
 import {
     CANONICAL_BRAND,
     LEGAL_IDENTIFIERS,
@@ -233,12 +234,12 @@ export default async function RootLayout({
                 <script
                     type="application/ld+json"
                     // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+                    dangerouslySetInnerHTML={{ __html: safeLdJson(organizationLd) }}
                 />
                 <script
                     type="application/ld+json"
                     // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+                    dangerouslySetInnerHTML={{ __html: safeLdJson(websiteLd) }}
                 />
             </head>
             <body

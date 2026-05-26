@@ -10,6 +10,7 @@ import {
     localeUrl,
 } from "@/lib/site";
 import type { Locale } from "@/i18n/routing";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 type Props = { params: Promise<{ locale: Locale }> };
 
@@ -102,12 +103,12 @@ export default async function ContactPage({ params }: Props) {
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(contactPageLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(contactPageLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(breadcrumbLd) }}
             />
 
             <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">

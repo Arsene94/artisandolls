@@ -16,6 +16,7 @@ import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import ShopProductCard from "@/components/shop/ShopProductCard";
 import ShopSearchBar from "@/components/shop/ShopSearchBar";
 import type { Locale } from "@/i18n/routing";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 type Props = { params: Promise<{ locale: Locale }> };
 
@@ -100,12 +101,12 @@ export default async function ShopLandingPage({ params }: Props) {
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(breadcrumbLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(collectionLd) }}
             />
             <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
                 <p className="text-[0.72rem] uppercase tracking-[0.32em] text-gold">

@@ -12,6 +12,11 @@ function isValidNext(next: string | null): string {
     if (!next) return "/";
     if (!next.startsWith("/")) return "/";
     if (next.startsWith("//")) return "/";
+    // `/\foo` și `/%5Cfoo` sunt normalizate la `//foo` de unele user-agents
+    // → open redirect către alt host. Le respingem explicit.
+    if (next.startsWith("/\\") || next.toLowerCase().startsWith("/%5c")) {
+        return "/";
+    }
     if (next.startsWith("/age-gate")) return "/";
     return next;
 }

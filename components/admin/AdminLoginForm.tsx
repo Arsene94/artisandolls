@@ -1,63 +1,34 @@
 "use client";
 
-import { type ComponentProps, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useActionState } from "react";
+import { useSearchParams } from "next/navigation";
+import {
+    signInAdminAction,
+    type AdminLoginState,
+} from "@/app/admin/login/actions";
 import styles from "./AdminLoginForm.module.css";
 
-type FormSubmitHandler = NonNullable<ComponentProps<"form">["onSubmit"]>;
+const INITIAL_STATE: AdminLoginState = { status: "idle", message: null };
 
 export default function AdminLoginForm() {
-    const router = useRouter();
     const searchParams = useSearchParams();
-    const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [message, setMessage] = useState("");
+    const [state, formAction, isPending] = useActionState(
+        signInAdminAction,
+        INITIAL_STATE,
+    );
 
     const errorFromUrl = searchParams.get("error");
-
-    const handleSubmit: FormSubmitHandler = async (event) => {
-        event.preventDefault();
-
-        setIsSubmitting(true);
-        setMessage("");
-
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
-
-        if (error) {
-            setIsSubmitting(false);
-            setMessage("Email sau parolă incorectă.");
-            return;
-        }
-
-        const role = data.user?.app_metadata?.role;
-
-        if (role !== "admin") {
-            await supabase.auth.signOut();
-            setIsSubmitting(false);
-            setMessage("Contul există, dar nu are rol de admin.");
-            return;
-        }
-
-        router.replace("/admin");
-        router.refresh();
-    }
+    const message = state.message;
 
     return (
-        <form className={styles.form} onSubmit={handleSubmit}>
+        <form className={styles.form} action={formAction}>
             <div className={styles.header}>
                 <span>Admin</span>
                 <h1>Autentificare</h1>
                 <p>Acces permis doar conturilor cu rol de admin în Supabase.</p>
             </div>
 
-            {errorFromUrl === "not_admin" && (
+            {errorFromUrl === "not_admin" && !message && (
                 <div className={styles.error}>
                     Contul tău nu are permisiuni de admin.
                 </div>
@@ -69,8 +40,7 @@ export default function AdminLoginForm() {
                 Email
                 <input
                     type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
+                    name="email"
                     placeholder="admin@email.com"
                     autoComplete="email"
                     required
@@ -81,16 +51,15 @@ export default function AdminLoginForm() {
                 Parolă
                 <input
                     type="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
+                    name="password"
                     placeholder="••••••••"
                     autoComplete="current-password"
                     required
                 />
             </label>
 
-            <button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Se conectează..." : "Intră în admin"}
+            <button type="submit" disabled={isPending}>
+                {isPending ? "Se conectează..." : "Intră în admin"}
             </button>
         </form>
     );

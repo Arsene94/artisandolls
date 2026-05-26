@@ -15,6 +15,7 @@ import {
     localeUrl,
 } from "@/lib/site";
 import type { Locale } from "@/i18n/routing";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 type Props = { params: Promise<{ locale: Locale; term: string }> };
 
@@ -116,12 +117,12 @@ export default async function GlossaryTermPage({ params }: Props) {
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(definedTermLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(definedTermLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(breadcrumbLd) }}
             />
 
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">

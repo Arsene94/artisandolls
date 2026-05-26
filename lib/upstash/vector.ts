@@ -9,7 +9,6 @@ export type DollVectorMeta = {
     availability: string;
     availableForRent: boolean;
     availableForBuy: boolean;
-    rentPricePerDay: number | null;
     buyPrice: number | null;
     height: number | null;
     tags: string[];

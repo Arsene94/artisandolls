@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { getSiteUrl } from "@/lib/site";
 import { getPublicPlatformSettings } from "@/lib/settings";
+import { constantTimeEqual } from "@/lib/secrets/compare";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,7 @@ function authoriseFromHeader(request: NextRequest) {
     const expected = process.env.INDEXNOW_INTERNAL_SECRET;
     if (!expected) return false;
     const got = request.headers.get("x-indexnow-secret") ?? "";
-    return got === expected;
+    return constantTimeEqual(got, expected);
 }
 
 export async function POST(request: NextRequest) {

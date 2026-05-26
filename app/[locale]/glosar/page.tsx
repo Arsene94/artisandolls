@@ -10,6 +10,7 @@ import {
     localeUrl,
 } from "@/lib/site";
 import type { Locale } from "@/i18n/routing";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 type Props = { params: Promise<{ locale: Locale }> };
 
@@ -112,12 +113,12 @@ export default async function GlossaryIndexPage({ params }: Props) {
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(definedTermSetLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(definedTermSetLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(breadcrumbLd) }}
             />
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

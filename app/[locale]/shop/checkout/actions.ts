@@ -5,6 +5,7 @@ import { redirect as externalRedirect } from "next/navigation";
 import { redirect } from "@/i18n/navigation";
 import { formatPrice, isSupportedLocale } from "@/i18n/format";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
+import { rememberRecentOrder } from "@/lib/orders/recent-cookie";
 import { getPublicPlatformSettings } from "@/lib/settings";
 import { clientIp, normalisePhone } from "@/lib/upstash/identify";
 import { orderLimiter, safeLimit } from "@/lib/upstash/ratelimit";
@@ -31,6 +32,10 @@ import { getSiteUrl } from "@/lib/site";
 const PHONE_PATTERN = /^\+?[0-9 \-().]{7,20}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ADDRESS_MAX = 500;
+const NOTES_MAX = 2000;
+const NAME_MAX = 200;
+const CITY_MAX = 120;
+const COUNTY_MAX = 120;
 
 function getString(formData: FormData, key: string) {
     return String(formData.get(key) ?? "").trim();
@@ -149,7 +154,7 @@ export async function createShopOrderAction(formData: FormData) {
             : null;
     const paymentMethod: PaymentMethod = provider ? "card_online" : "cash";
 
-    const customerName = getString(formData, "full_name");
+    const customerName = getString(formData, "full_name").slice(0, NAME_MAX);
     const customerPhone = phoneRaw;
     const customerEmailRaw = getString(formData, "email").toLowerCase();
     const customerEmail = customerEmailRaw || null;
@@ -157,12 +162,18 @@ export async function createShopOrderAction(formData: FormData) {
         0,
         ADDRESS_MAX,
     );
-    const deliveryCity = getNullableString(formData, "delivery_city");
-    const deliveryCounty = getNullableString(formData, "delivery_county");
+    const deliveryCity = getNullableString(formData, "delivery_city")?.slice(
+        0,
+        CITY_MAX,
+    ) ?? null;
+    const deliveryCounty = getNullableString(formData, "delivery_county")?.slice(
+        0,
+        COUNTY_MAX,
+    ) ?? null;
     const contactMethod = getNullableString(formData, "contact_method");
     const contactWindowStart = getNullableString(formData, "contact_window_start");
     const contactWindowEnd = getNullableString(formData, "contact_window_end");
-    const notes = getNullableString(formData, "notes");
+    const notes = getNullableString(formData, "notes")?.slice(0, NOTES_MAX) ?? null;
     const ageConfirmed = ["on", "true", "1"].includes(
         getString(formData, "age_confirmed"),
     );
@@ -327,6 +338,10 @@ export async function createShopOrderAction(formData: FormData) {
     }
 
     const orderId = insertedOrder.id as string;
+
+    // Cookie de confirmare — pagina /shop/order/<id>/success refuză să afișeze
+    // PII dacă browserul curent nu este în lista de comenzi recente.
+    await rememberRecentOrder(orderId);
 
     const lineRows = summary.lines.map((line) => ({
         order_id: orderId,

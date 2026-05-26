@@ -2,7 +2,8 @@ import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { getDolls } from "@/lib/dolls";
-import { formatPrice, formatPricePerDay } from "@/i18n/format";
+import { getRentFromPrice } from "@/lib/dolls/tiers";
+import { formatPrice } from "@/i18n/format";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import { isVectorEnabled } from "@/lib/upstash/vector";
 import { similarDolls } from "@/lib/upstash/vector-search";
@@ -82,14 +83,14 @@ export default async function SimilarDolls({
 
             <ul className="grid grid-cols-2 lg:grid-cols-4 gap-4 list-none p-0">
                 {resolved.map((doll) => {
+                    const rentFrom = getRentFromPrice(doll.rentalTiers);
                     const priceLabel =
-                        mode === "rent" && doll.rentPricePerDay
-                            ? formatPricePerDay(
-                                  doll.rentPricePerDay,
-                                  locale,
-                                  currency,
-                                  tCommon("perDay"),
-                              )
+                        mode === "rent"
+                            ? rentFrom
+                                ? tCommon("fromPrice", {
+                                      price: formatPrice(rentFrom.price, locale, currency),
+                                  })
+                                : null
                             : mode === "buy" && doll.buyPrice
                               ? formatPrice(doll.buyPrice, locale, currency)
                               : null;

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 type FaqItem = { q: string; a: string };
 
@@ -217,7 +218,7 @@ export default function FAQ({ items: itemsProp }: Props = {}) {
 
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(jsonLd) }}
             />
         </section>
     );

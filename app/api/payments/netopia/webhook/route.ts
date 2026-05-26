@@ -32,6 +32,10 @@ export async function POST(request: Request) {
         return netopiaAck(1, message);
     }
 
+    // Apply întâi (idempotent prin STATUS_RANK), apoi record (idempotent prin
+    // unique (provider, external_id)). Ordinea contează — dacă apply eșuează
+    // după ce record a reușit, IPN-ul ar fi considerat „procesat" la retry
+    // și comanda ar rămâne blocată.
     const { updated, orderId } = await applyWebhookToOrder("netopia", event);
     const { inserted } = await recordEvent("netopia", event, orderId);
 

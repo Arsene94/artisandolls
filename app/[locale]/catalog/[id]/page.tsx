@@ -7,6 +7,7 @@ import CrossSellShop from "@/components/shop/CrossSellShop";
 import { getOutfitsForCatalog } from "@/lib/outfits";
 import { getCrossSellForDoll } from "@/lib/shop/cross-sell";
 import { getDollBySlug, type CatalogMode } from "@/lib/dolls";
+import { getRentFromPrice } from "@/lib/dolls/tiers";
 import { getCustomizationGroupsWithOptionsForCatalog } from "@/lib/customizations";
 import PublicUnavailableNotice from "@/components/PublicUnavailableNotice";
 import {
@@ -19,6 +20,7 @@ import ReviewsSection from "@/components/reviews/ReviewsSection";
 import { getApprovedReviewsForTarget } from "@/lib/reviews/queries";
 import { buildReviewsLd } from "@/lib/reviews/ld";
 import type { Locale } from "@/i18n/routing";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 type DollPageProps = {
     params: Promise<{
@@ -138,9 +140,6 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
         );
     }
 
-    const startDate = getSearchParamValue(resolvedSearchParams?.start);
-    const endDate = getSearchParamValue(resolvedSearchParams?.end);
-
     const siteUrl = getSiteUrl(settings.public_site_url ?? null);
     const currency = settings.currency || "RON";
     const businessName = settings.business_name?.trim() || CANONICAL_BRAND;
@@ -159,24 +158,33 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
 
     type SchemaOffer = Record<string, unknown>;
     const offers: SchemaOffer[] = [];
-    if (doll.availableForRent && doll.rentPricePerDay) {
+    const rentFrom = getRentFromPrice(doll.rentalTiers);
+    const rentPrice = rentFrom?.price ?? null;
+    // UN/CEFACT recommendation 20 unit codes: hour = HUR, day = DAY.
+    const rentUnitCode = rentFrom?.unit === "hour" ? "HUR" : "DAY";
+    const rentRefQty = rentFrom?.minQty ?? 1;
+    if (doll.availableForRent && rentPrice) {
         offers.push({
             "@type": "Offer",
             priceCurrency: currency,
-            price: doll.rentPricePerDay,
+            price: rentPrice,
             availability: "https://schema.org/InStock",
             url: canonicalUrl + "?mode=rent",
             priceValidUntil,
             category: "Rental",
             seller: { "@id": `${siteUrl}/#org` },
-            // Schema-ul nu are un type dedicat „per-day"; convenția acceptată e
-            // un PriceSpecification cu unitCode `DAY` (UN/CEFACT recommendation 20).
+            // Schema-ul nu are un type dedicat per durată; convenția acceptată e
+            // un UnitPriceSpecification cu unitCode pe oră/zi.
             priceSpecification: {
                 "@type": "UnitPriceSpecification",
-                price: doll.rentPricePerDay,
+                price: rentPrice,
                 priceCurrency: currency,
-                unitCode: "DAY",
-                referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitCode: "DAY" },
+                unitCode: rentUnitCode,
+                referenceQuantity: {
+                    "@type": "QuantitativeValue",
+                    value: rentRefQty,
+                    unitCode: rentUnitCode,
+                },
             },
         });
     }
@@ -288,8 +296,6 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
             <DollDetails
                 doll={doll}
                 initialMode={mode}
-                initialStartDate={startDate}
-                initialEndDate={endDate}
                 customizations={customizations}
                 outfits={outfits}
                 settings={settings}
@@ -323,12 +329,12 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(productLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(breadcrumbLd) }}
             />
         </>
     );

@@ -5,11 +5,9 @@ import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link, useRouter } from "@/i18n/navigation";
 import { type CatalogMode, type Doll } from "@/lib/dolls";
+import { getRentFromPrice } from "@/lib/dolls/tiers";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
-import { formatPrice, formatPricePerDay } from "@/i18n/format";
-import RentalDateRangePicker, {
-    type RentalRangeValue,
-} from "@/components/RentalDateRangePicker";
+import { formatPrice } from "@/i18n/format";
 import type { PublicPlatformSettings } from "@/lib/settings/shared";
 import { searchCatalogSemantic } from "@/app/[locale]/catalog/search-actions";
 import styles from "./DollsCatalog.module.css";
@@ -18,8 +16,6 @@ type DollsCatalogProps = {
     dolls: Doll[];
     collections: string[];
     initialMode: CatalogMode;
-    initialStartDate: string;
-    initialEndDate: string;
     settings: PublicPlatformSettings;
 };
 
@@ -30,20 +26,19 @@ function isAvailableForMode(doll: Doll, mode: CatalogMode) {
     return mode === "rent" ? doll.availableForRent : doll.availableForBuy;
 }
 
-function getDetailsHref(doll: Doll, mode: CatalogMode, startDate: string, endDate: string) {
-    const params = new URLSearchParams({ mode });
-    if (startDate) params.set("start", startDate);
-    if (endDate) params.set("end", endDate);
-    return `/catalog/${doll.id}?${params.toString()}`;
+function getDetailsHref(doll: Doll, mode: CatalogMode) {
+    return `/catalog/${doll.id}?mode=${mode}`;
 }
 
-function getCatalogHrefWithCurrentParams(mode: CatalogMode, period: RentalRangeValue) {
+function getRentSortPrice(doll: Doll) {
+    return getRentFromPrice(doll.rentalTiers)?.price ?? null;
+}
+
+function getCatalogHrefWithCurrentParams(mode: CatalogMode) {
     const params = new URLSearchParams(window.location.search);
     params.set("mode", mode);
-    if (period.startDate) params.set("start", period.startDate);
-    else params.delete("start");
-    if (period.endDate) params.set("end", period.endDate);
-    else params.delete("end");
+    params.delete("start");
+    params.delete("end");
     return `/catalog?${params.toString()}`;
 }
 
@@ -69,15 +64,13 @@ export default function DollsCatalog({
     dolls,
     collections,
     initialMode,
-    initialStartDate,
-    initialEndDate,
     settings,
 }: DollsCatalogProps) {
     const t = useTranslations("catalog");
     const tCommon = useTranslations("common");
     const locale = useLocale();
     const router = useRouter();
-    const hasInitializedPeriodRef = useRef(false);
+    const hasInitializedModeRef = useRef(false);
     const currency = settings.currency || "RON";
     const rentLabel = tCommon("rent");
     const buyLabel = tCommon("buy");
@@ -89,10 +82,6 @@ export default function DollsCatalog({
     const [collection, setCollection] = useState("all");
     const [availability, setAvailability] = useState<AvailabilityFilter>("all");
     const [sort, setSort] = useState<SortValue>("featured");
-    const [period, setPeriod] = useState<RentalRangeValue>({
-        startDate: initialStartDate,
-        endDate: initialEndDate,
-    });
     const [semanticOrder, setSemanticOrder] = useState<string[] | null>(null);
 
     const currentModeLabel = mode === "rent" ? rentLabel : buyLabel;
@@ -170,17 +159,17 @@ export default function DollsCatalog({
             if (sort === "price_asc") {
                 const a =
                     mode === "rent"
-                        ? first.rentPricePerDay ?? Infinity
+                        ? getRentSortPrice(first) ?? Infinity
                         : first.buyPrice ?? Infinity;
                 const b =
                     mode === "rent"
-                        ? second.rentPricePerDay ?? Infinity
+                        ? getRentSortPrice(second) ?? Infinity
                         : second.buyPrice ?? Infinity;
                 return a - b;
             }
             if (sort === "price_desc") {
-                const a = mode === "rent" ? first.rentPricePerDay ?? 0 : first.buyPrice ?? 0;
-                const b = mode === "rent" ? second.rentPricePerDay ?? 0 : second.buyPrice ?? 0;
+                const a = mode === "rent" ? getRentSortPrice(first) ?? 0 : first.buyPrice ?? 0;
+                const b = mode === "rent" ? getRentSortPrice(second) ?? 0 : second.buyPrice ?? 0;
                 return b - a;
             }
             return 0;
@@ -188,23 +177,22 @@ export default function DollsCatalog({
     }, [availability, collection, dolls, mode, search, semanticOrder, sort]);
 
     useEffect(() => {
-        if (!hasInitializedPeriodRef.current) {
-            hasInitializedPeriodRef.current = true;
+        if (!hasInitializedModeRef.current) {
+            hasInitializedModeRef.current = true;
             return;
         }
-        const nextHref = getCatalogHrefWithCurrentParams(mode, period);
+        const nextHref = getCatalogHrefWithCurrentParams(mode);
         const currentHref = `${window.location.pathname}${window.location.search}`;
         if (nextHref !== currentHref) {
             router.replace(nextHref, { scroll: false });
         }
-    }, [mode, period, router]);
+    }, [mode, router]);
 
     const resetFilters = useCallback(() => {
         setSearch("");
         setCollection("all");
         setAvailability("all");
         setSort("featured");
-        setPeriod({ startDate: "", endDate: "" });
     }, []);
 
     const activeFilters = useMemo(() => {
@@ -339,20 +327,6 @@ export default function DollsCatalog({
                                 </div>
                             </div>
 
-                            {mode === "rent" && (
-                                <div className={styles.filterControl}>
-                                    <span className={styles.controlLabel}>{t("period")}</span>
-                                    <div className={styles.datePickerControl}>
-                                        <RentalDateRangePicker
-                                            initialStartDate={period.startDate}
-                                            initialEndDate={period.endDate}
-                                            onChange={setPeriod}
-                                            placement="bottom"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
                             <label className={styles.field}>
                                 <span>{t("collection")}</span>
                                 <select
@@ -477,15 +451,17 @@ export default function DollsCatalog({
                         <ul className={styles.results}>
                             {filteredDolls.map((doll) => {
                                 const availableForSelectedMode = isAvailableForMode(doll, mode);
+                                const rentFrom = getRentFromPrice(doll.rentalTiers);
                                 const priceLabel =
                                     mode === "rent"
-                                        ? doll.rentPricePerDay
-                                            ? formatPricePerDay(
-                                                  doll.rentPricePerDay,
-                                                  locale,
-                                                  currency,
-                                                  tCommon("perDay"),
-                                              )
+                                        ? rentFrom
+                                            ? tCommon("fromPrice", {
+                                                  price: formatPrice(
+                                                      rentFrom.price,
+                                                      locale,
+                                                      currency,
+                                                  ),
+                                              })
                                             : unavailableLabel
                                         : doll.buyPrice
                                           ? formatPrice(doll.buyPrice, locale, currency)
@@ -515,12 +491,7 @@ export default function DollsCatalog({
                                                     <div className={styles.cardTop}>
                                                         <h3>
                                                             <Link
-                                                                href={getDetailsHref(
-                                                                    doll,
-                                                                    mode,
-                                                                    period.startDate,
-                                                                    period.endDate,
-                                                                )}
+                                                                href={getDetailsHref(doll, mode)}
                                                                 aria-label={`${doll.name} — ${t("viewDetails")}`}
                                                                 className={styles.cardTitleLink}
                                                             >
@@ -584,12 +555,7 @@ export default function DollsCatalog({
 
                                                     <div className={styles.cardFooter}>
                                                         <Link
-                                                            href={getDetailsHref(
-                                                                doll,
-                                                                mode,
-                                                                period.startDate,
-                                                                period.endDate,
-                                                            )}
+                                                            href={getDetailsHref(doll, mode)}
                                                             className={`${styles.cardCta} ${
                                                                 availableForSelectedMode
                                                                     ? ""

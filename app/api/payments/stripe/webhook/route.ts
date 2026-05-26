@@ -21,11 +21,16 @@ export async function POST(request: Request) {
         return new Response(`Invalid signature: ${message}`, { status: 400 });
     }
 
+    // Aplicăm întâi tranziția pe `shop_orders` (idempotentă prin STATUS_RANK)
+    // și abia apoi încercăm insert-ul în events. Dacă ar fi inversa și apply
+    // ar eșua după ce record a reușit, retry-ul Stripe ar vedea event-ul ca
+    // duplicat și comanda ar rămâne blocată.
     const { updated, orderId } = await applyWebhookToOrder("stripe", event);
     const { inserted } = await recordEvent("stripe", event, orderId);
 
     if (updated && event.status === "paid" && orderId && inserted) {
         // Fire the operator WhatsApp notify now that the cash has cleared.
+        // `inserted` protejează contra duplicate-notify pe retry-urile Stripe.
         await enqueueWhatsAppNotification(orderId);
     }
 

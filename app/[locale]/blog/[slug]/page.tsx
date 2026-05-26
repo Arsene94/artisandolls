@@ -14,6 +14,7 @@ import {
     localeUrl,
 } from "@/lib/site";
 import type { Locale } from "@/i18n/routing";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 type Props = { params: Promise<{ locale: Locale; slug: string }> };
 
@@ -145,12 +146,12 @@ export default async function BlogPostPage({ params }: Props) {
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(articleLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(breadcrumbLd) }}
             />
 
             <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">

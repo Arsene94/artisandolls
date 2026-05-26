@@ -3,6 +3,13 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { cached, CACHE_KEYS } from "@/lib/upstash/cache";
 import type { Locale } from "@/i18n/routing";
 import { getEntityTranslations } from "@/lib/translations/store";
+import {
+    mapRentalTierRow,
+    type RentalTier,
+    type RentalTierRow,
+} from "@/lib/dolls/tiers";
+
+export type { RentalTier } from "@/lib/dolls/tiers";
 
 export type CatalogMode = "rent" | "buy";
 
@@ -19,8 +26,8 @@ export type Doll = {
     availability: DollAvailability;
     availableForRent: boolean;
     availableForBuy: boolean;
-    rentPricePerDay: number | null;
     buyPrice: number | null;
+    rentalTiers: RentalTier[];
     tags: string[];
     showOnHomeHero: boolean;
 };
@@ -40,7 +47,6 @@ export type DollRow = {
     availability: DollAvailability;
     available_for_rent: boolean;
     available_for_buy: boolean;
-    rent_price_per_day: number | null;
     buy_price: number | null;
     tags: string[];
     show_on_home_hero: boolean;
@@ -50,7 +56,7 @@ export type DollRow = {
     updated_at: string;
 };
 
-export function mapDollRowToDoll(row: DollRow): Doll {
+export function mapDollRowToDoll(row: DollRow, tiers: RentalTier[] = []): Doll {
     return {
         id: row.slug,
         name: row.name,
@@ -62,11 +68,43 @@ export function mapDollRowToDoll(row: DollRow): Doll {
         availability: row.availability,
         availableForRent: row.available_for_rent,
         availableForBuy: row.available_for_buy,
-        rentPricePerDay: row.rent_price_per_day,
         buyPrice: row.buy_price,
+        rentalTiers: tiers,
         tags: row.tags,
         showOnHomeHero: row.show_on_home_hero ?? false,
     };
+}
+
+type SupabaseServerClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
+
+export async function getRentalTiersByDoll(
+    supabase: SupabaseServerClient,
+    dollIds: string[],
+): Promise<Map<string, RentalTier[]>> {
+    const map = new Map<string, RentalTier[]>();
+    if (dollIds.length === 0) return map;
+
+    const { data, error } = await supabase
+        .from("doll_rental_tiers")
+        .select("*")
+        .in("doll_id", dollIds)
+        .order("display_order", { ascending: true })
+        .order("min_qty", { ascending: true });
+
+    if (error || !data) return map;
+
+    for (const row of data as RentalTierRow[]) {
+        const list = map.get(row.doll_id) ?? [];
+        list.push(mapRentalTierRow(row));
+        map.set(row.doll_id, list);
+    }
+    return map;
+}
+
+export async function getRentalTiersForDoll(dollId: string): Promise<RentalTier[]> {
+    const supabase = await createSupabaseServerClient();
+    const map = await getRentalTiersByDoll(supabase, [dollId]);
+    return map.get(dollId) ?? [];
 }
 
 /**
@@ -155,8 +193,13 @@ export async function getDolls(locale?: Locale) {
     // Cache shared per cluster — locale-overlay-ul se aplică in-memory după read.
     const result = await cached(CACHE_KEYS.dolls, 300, async () => {
         const rows = await getDollRows(false);
+        const supabase = await createSupabaseServerClient();
+        const tiersByDoll = await getRentalTiersByDoll(
+            supabase,
+            rows.map((row) => row.id),
+        );
         return rows.map((row) => ({
-            doll: mapDollRowToDoll(row),
+            doll: mapDollRowToDoll(row, tiersByDoll.get(row.id) ?? []),
             dbId: row.id,
         }));
     });
@@ -183,7 +226,11 @@ export async function getDollsByCollectionId(collectionId: string, locale?: Loca
 
     if (error || !data) return [];
     const rows = data as DollRow[];
-    const dolls = rows.map(mapDollRowToDoll);
+    const tiersByDoll = await getRentalTiersByDoll(
+        supabase,
+        rows.map((row) => row.id),
+    );
+    const dolls = rows.map((row) => mapDollRowToDoll(row, tiersByDoll.get(row.id) ?? []));
     if (!locale || locale === "ro") return dolls;
     return localizeDollsBySlug(
         dolls,
@@ -203,7 +250,11 @@ export async function getDollBySlug(slug: string, locale?: Locale) {
 
         if (error || !data) return null;
         const row = data as DollRow;
-        return { doll: mapDollRowToDoll(row), dbId: row.id };
+        const tiersMap = await getRentalTiersByDoll(supabase, [row.id]);
+        return {
+            doll: mapDollRowToDoll(row, tiersMap.get(row.id) ?? []),
+            dbId: row.id,
+        };
     });
     if (!cachedDoll) return null;
     if (!locale || locale === "ro") return cachedDoll.doll;
@@ -227,7 +278,11 @@ export async function getHomepageHeroDoll(locale?: Locale) {
 
         if (error || !data) return null;
         const row = data as DollRow;
-        return { doll: mapDollRowToDoll(row), dbId: row.id };
+        const tiersMap = await getRentalTiersByDoll(supabase, [row.id]);
+        return {
+            doll: mapDollRowToDoll(row, tiersMap.get(row.id) ?? []),
+            dbId: row.id,
+        };
     });
     if (!cachedHero) return null;
     if (!locale || locale === "ro") return cachedHero.doll;

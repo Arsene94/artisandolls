@@ -1,6 +1,7 @@
 import "server-only";
 import { withSignatureVerification } from "@/lib/upstash/qstash-receiver";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
+import { maskEmail } from "@/lib/pii/mask";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,7 +32,7 @@ async function handler(request: Request) {
     // operator. We log + persist a "sent" flag so the cron sweeper does not
     // re-enqueue. Replace the console.info below with the chosen provider call.
     console.info("[order-email] dispatch", {
-        to: data.customer_email,
+        to: maskEmail(data.customer_email),
         orderNumber: data.order_number,
         dollName: data.doll_name,
     });

@@ -12,6 +12,7 @@ import {
 } from "@/lib/site";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import type { Locale } from "@/i18n/routing";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 type Props = { params: Promise<{ locale: Locale }> };
 
@@ -95,12 +96,12 @@ export default async function CollectionsIndexPage({ params }: Props) {
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(breadcrumbLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(collectionPageLd) }}
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

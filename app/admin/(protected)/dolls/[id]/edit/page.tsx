@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import DollForm from "@/components/admin/dolls/DollForm";
 import { updateDollAction } from "@/app/admin/(protected)/dolls/actions";
 import { getCollectionRows } from "@/lib/collections";
-import { getDollRowBySlug } from "@/lib/dolls";
+import { getDollRowBySlug, getRentalTiersForDoll } from "@/lib/dolls";
 import styles from "../../../page.module.css";
 
 type EditDollPageProps = {
@@ -22,6 +22,8 @@ export default async function EditDollPage({ params }: EditDollPageProps) {
         notFound();
     }
 
+    const tiers = await getRentalTiersForDoll(doll.id);
+
     async function action(formData: FormData) {
         "use server";
         await updateDollAction(doll!.id, formData);
@@ -39,6 +41,7 @@ export default async function EditDollPage({ params }: EditDollPageProps) {
                 mode="edit"
                 doll={doll}
                 collections={collections}
+                initialTiers={tiers}
                 action={action}
             />
         </main>

@@ -25,6 +25,7 @@ import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import AddToCartButton from "@/components/shop/AddToCartButton";
 import ShopProductCard from "@/components/shop/ShopProductCard";
 import type { Locale } from "@/i18n/routing";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 type Props = {
     params: Promise<{ locale: Locale; slug: string }>;
@@ -460,21 +461,21 @@ export default async function ShopProductPage({ params }: Props) {
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(productLd) }}
             />
             {productGroupLd ? (
                 <script
                     type="application/ld+json"
                     // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{
-                        __html: JSON.stringify(productGroupLd),
+                        __html: safeLdJson(productGroupLd),
                     }}
                 />
             ) : null}
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(breadcrumbLd) }}
             />
         </main>
     );

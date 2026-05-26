@@ -2,6 +2,7 @@ import "server-only";
 import { serve } from "@upstash/workflow/nextjs";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { notifyAdminsAboutOrder } from "@/lib/whatsapp";
+import { maskPhone } from "@/lib/pii/mask";
 import type { OrderRow } from "@/lib/orders/shared";
 
 export const runtime = "nodejs";
@@ -73,7 +74,7 @@ export const { POST } = serve<OrderLifecyclePayload>(async (context) => {
             await context.run("send-delivery-reminder", async () => {
                 console.info("[workflow] delivery reminder", {
                     orderId,
-                    customer: order.customer_phone,
+                    customer: maskPhone(order.customer_phone),
                 });
                 // operator-owned: drop in your "rent_reminder_24h" template here
             });

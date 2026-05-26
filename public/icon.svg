@@ -1,0 +1,13 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Velvet Companions">
+  <defs>
+    <linearGradient id="vc-gold" x1="8" y1="6" x2="24" y2="26" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ECD9A8"/>
+      <stop offset="0.55" stop-color="#C9A24A"/>
+      <stop offset="1" stop-color="#8C6D2A"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="30" height="30" rx="7" fill="#0F0406"/>
+  <rect x="1.75" y="1.75" width="28.5" height="28.5" rx="6.25" fill="none" stroke="url(#vc-gold)" stroke-width="1.2" stroke-opacity="0.55"/>
+  <path d="M9.5 9.5 L16 22 L22.5 9.5" fill="none" stroke="url(#vc-gold)" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="16" cy="6.4" r="1.25" fill="url(#vc-gold)"/>
+</svg>

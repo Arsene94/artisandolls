@@ -6,6 +6,7 @@ import {
     formatDateRo,
     formatOrderMode,
     formatOrderStatus,
+    formatRentalDurationRo,
     type OrderRow,
 } from "@/lib/orders/shared";
 import { bulkDeleteOrdersAction } from "@/app/admin/(protected)/orders/actions";
@@ -119,7 +120,10 @@ export default function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                             </strong>
                             <small>
                                 {order.mode === "rent"
-                                    ? `${order.rental_days ?? "-"} zile`
+                                    ? formatRentalDurationRo(
+                                          order.rental_unit,
+                                          order.rental_quantity,
+                                      ) || `${order.rental_days ?? "-"} zile`
                                     : "Cumpărare"}
                             </small>
                         </div>

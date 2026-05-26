@@ -159,6 +159,14 @@ export type OrderRow = {
     end_date: string | null;
     rental_days: number | null;
 
+    rental_unit: "hour" | "day" | null;
+    rental_quantity: number | null;
+    rental_tier_id: string | null;
+    rental_tier_label: string | null;
+    rental_start_at: string | null;
+    rental_end_at: string | null;
+    rental_price: number | null;
+
     outfit_id: string | null;
     outfit_label: string | null;
     outfit_price: number | null;
@@ -244,6 +252,15 @@ export function formatDateRo(value: string | null) {
     }
 
     return `${day}.${month}.${year}`;
+}
+
+export function formatRentalDurationRo(
+    unit: "hour" | "day" | null | undefined,
+    qty: number | null | undefined,
+): string {
+    if (!unit || !qty || qty < 1) return "";
+    if (unit === "hour") return `${qty} ${qty === 1 ? "oră" : "ore"}`;
+    return `${qty} ${qty === 1 ? "zi" : "zile"}`;
 }
 
 export function getRentalDays(startDate: string, endDate: string) {

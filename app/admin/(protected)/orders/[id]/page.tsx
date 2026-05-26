@@ -4,6 +4,7 @@ import {
     formatDateRo,
     formatOrderMode,
     formatOrderStatus,
+    formatRentalDurationRo,
     getOrderStatusOptions,
 } from "@/lib/orders/shared";
 import { getAdminOrderById } from "@/lib/orders";
@@ -32,7 +33,13 @@ function formatMoney(value: number | null | undefined) {
 }
 
 function getPricePerDay(order: NonNullable<Awaited<ReturnType<typeof getAdminOrderById>>>) {
-    if (order.mode !== "rent" || !order.rental_days || order.rental_days <= 0) {
+    // Only meaningful for whole-day rentals; hour-based / tier prices are flat.
+    if (
+        order.mode !== "rent" ||
+        order.rental_unit === "hour" ||
+        !order.rental_days ||
+        order.rental_days <= 0
+    ) {
         return null;
     }
 
@@ -251,14 +258,26 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
                                 </div>
 
                                 <div className={styles.orderDataItem}>
-                                    <span>Număr zile</span>
+                                    <span>Durată</span>
                                     <strong>
-                                        {isRent ? `${order.rental_days ?? "-"} zile` : "Cumpărare"}
+                                        {isRent
+                                            ? formatRentalDurationRo(
+                                                  order.rental_unit,
+                                                  order.rental_quantity,
+                                              ) || `${order.rental_days ?? "-"} zile`
+                                            : "Cumpărare"}
                                     </strong>
                                 </div>
 
+                                {isRent && order.rental_tier_label && (
+                                    <div className={styles.orderDataItem}>
+                                        <span>Treaptă tarifară</span>
+                                        <strong>{order.rental_tier_label}</strong>
+                                    </div>
+                                )}
+
                                 <div className={styles.orderDataItem}>
-                                    <span>Oră livrare solicitată</span>
+                                    <span>{isRent ? "Oră început" : "Oră livrare solicitată"}</span>
                                     <strong>{order.delivery_time}</strong>
                                 </div>
 
@@ -292,7 +311,17 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
                         <div className={styles.orderSummaryBox}>
                             <div className={styles.orderSummaryRow}>
                 <span>
-                    Subtotal {isRent && order.rental_days ? `(${order.rental_days} zile)` : ""}
+                    Subtotal{" "}
+                    {isRent
+                        ? (() => {
+                              const dur = formatRentalDurationRo(
+                                  order.rental_unit,
+                                  order.rental_quantity,
+                              );
+                              if (dur) return `(${dur})`;
+                              return order.rental_days ? `(${order.rental_days} zile)` : "";
+                          })()
+                        : ""}
                 </span>
                                 <strong>{formatMoney(order.subtotal_amount || order.total_amount)}</strong>
                             </div>

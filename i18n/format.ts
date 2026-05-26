@@ -39,19 +39,6 @@ export function formatLei(value: number, locale: string) {
     return `${value.toLocaleString(getIntlLocale(locale))} lei`;
 }
 
-export function formatLeiPerDay(value: number, locale: string, perDayLabel: string) {
-    return `${formatLei(value, locale)} ${perDayLabel}`;
-}
-
-export function formatPricePerDay(
-    value: number,
-    locale: string,
-    currency: string,
-    perDayLabel: string,
-) {
-    return `${formatPrice(value, locale, currency)} ${perDayLabel}`;
-}
-
 export function isSupportedLocale(locale: string): locale is Locale {
     return locale === "ro" || locale === "en" || locale === "nl";
 }

@@ -5,6 +5,7 @@ import OrderSuccess, {
     type CustomizationSummaryEntry,
 } from "@/components/OrderSuccess";
 import { getOrderByIdForSuccess } from "@/lib/orders";
+import { ownsRecentOrder } from "@/lib/orders/recent-cookie";
 import { getDollBySlug } from "@/lib/dolls";
 import { getPublicPlatformSettings } from "@/lib/settings";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
@@ -97,6 +98,13 @@ export default async function SuccessPage({ params, searchParams }: SuccessPageP
         getSearchParamValue(resolvedSearchParams?.notificationError) === "1";
 
     if (!orderId) {
+        notFound();
+    }
+
+    // Pagina expune nume, telefon, adresă livrare. Cookie-ul `ad_recent_orders`
+    // setat la `createOrderAction` leagă vizualizarea de browserul care a
+    // plasat comanda. Fără cookie → 404 (echivalent „nu există").
+    if (!(await ownsRecentOrder(orderId))) {
         notFound();
     }
 

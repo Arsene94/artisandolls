@@ -1,24 +1,14 @@
 import "server-only";
-import { createHash, timingSafeEqual } from "node:crypto";
+import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { getPlatformSettings } from "@/lib/settings";
+import { constantTimeEqual } from "@/lib/secrets/compare";
 
 export type UcpAuthFailure = { ok: false; status: 401 | 403; reason: string };
 export type UcpAuthSuccess = { ok: true; profile: string | null };
 
 function hashKey(value: string): string {
     return createHash("sha256").update(value, "utf8").digest("hex");
-}
-
-function safeEq(a: string, b: string): boolean {
-    try {
-        const ab = Buffer.from(a, "utf8");
-        const bb = Buffer.from(b, "utf8");
-        if (ab.length !== bb.length) return false;
-        return timingSafeEqual(ab, bb);
-    } catch {
-        return false;
-    }
 }
 
 /**
@@ -56,7 +46,7 @@ export async function authoriseUcpRequest(): Promise<UcpAuthFailure | UcpAuthSuc
         return { ok: false, status: 401, reason: "missing_credentials" };
     }
 
-    if (!safeEq(hashKey(supplied), expectedHash)) {
+    if (!constantTimeEqual(hashKey(supplied), expectedHash)) {
         return { ok: false, status: 401, reason: "invalid_api_key" };
     }
 

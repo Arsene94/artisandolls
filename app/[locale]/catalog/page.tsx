@@ -10,6 +10,7 @@ import {
 } from "@/lib/settings";
 import { getSiteUrl, localeAlternates, localeUrl } from "@/lib/site";
 import type { Locale } from "@/i18n/routing";
+import { safeLdJson } from "@/lib/seo/ld-json";
 
 const PAGE_SIZE = 24;
 
@@ -112,9 +113,6 @@ export default async function CatalogPage({
         );
     }
 
-    const startDate = getSearchParamValue(params?.start);
-    const endDate = getSearchParamValue(params?.end);
-
     const [allDolls, collections] = await Promise.all([
         getDolls(locale),
         getCollections(),
@@ -166,8 +164,6 @@ export default async function CatalogPage({
                 dolls={pagedDolls}
                 collections={collections}
                 initialMode={mode}
-                initialStartDate={startDate}
-                initialEndDate={endDate}
                 settings={settings}
             />
             {totalPages > 1 ? (
@@ -183,12 +179,12 @@ export default async function CatalogPage({
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(breadcrumbLd) }}
             />
             <script
                 type="application/ld+json"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+                dangerouslySetInnerHTML={{ __html: safeLdJson(itemListLd) }}
             />
         </>
     );

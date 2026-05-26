@@ -40,10 +40,40 @@ export type ApplyResult = {
     previousStatus: PaymentStatus | null;
 };
 
+// Statusurile sunt monotonice — odată ce o comandă a ajuns `paid`/`refunded`
+// nu o mai degradăm înapoi la `pending`/`failed`/`authorised`. Stripe poate
+// trimite `payment_intent.payment_failed` *după* `checkout.session.completed`
+// dacă un PI ulterior eșuează; fără gate-ul ăsta, o comandă plătită ar
+// alterna înapoi spre failed la fiecare retry de webhook.
+const STATUS_RANK: Record<PaymentStatus, number> = {
+    // `not_required` ține locul comenzilor cash (provider niciodată setat).
+    // Webhook-urile nu vin niciodată cu status `not_required`, dar îl rank-ăm
+    // foarte jos ca să nu confunde gate-ul monotonic dacă ajunge cumva în
+    // `previousStatus`.
+    not_required: 0,
+    pending: 0,
+    failed: 1,
+    voided: 1,
+    authorised: 2,
+    paid: 3,
+    refunded: 4,
+};
+
+function shouldApply(
+    current: PaymentStatus | null,
+    next: PaymentStatus,
+): boolean {
+    if (!current) return true;
+    return STATUS_RANK[next] >= STATUS_RANK[current];
+}
+
 /**
  * Move a `shop_orders` row through its payment lifecycle in response to a
  * provider webhook. Looks up the order either by the metadata-echoed
  * `orderId` or by the persisted `payment_external_id`.
+ *
+ * Pentru Netopia `event.orderId` este `order_number` (e.g. „ORD-2026-001"),
+ * nu UUID-ul de DB; pentru Stripe e UUID-ul direct din `session.metadata`.
  */
 export async function applyWebhookToOrder(
     provider: PaymentProviderId,
@@ -55,8 +85,13 @@ export async function applyWebhookToOrder(
         .select("id, status, payment_status, payment_external_id, total_amount, order_number")
         .eq("payment_provider", provider);
 
+    // Coloana de match depinde de provider: Netopia trimite order_number,
+    // Stripe trimite UUID-ul din metadata.
+    const orderIdColumn: "id" | "order_number" =
+        provider === "netopia" ? "order_number" : "id";
+
     const { data: candidates, error: lookupError } = event.orderId
-        ? await lookup.eq("id", event.orderId).limit(1)
+        ? await lookup.eq(orderIdColumn, event.orderId).limit(1)
         : await lookup.eq("payment_external_id", event.externalId).limit(1);
 
     if (lookupError) {
@@ -67,6 +102,18 @@ export async function applyWebhookToOrder(
     const row = candidates?.[0];
     if (!row) {
         return { updated: false, orderId: event.orderId ?? null, previousStatus: null };
+    }
+
+    const previousStatus = row.payment_status as PaymentStatus | null;
+
+    // Gate monotonic — vezi STATUS_RANK. Returnăm `updated: false` ca să nu
+    // retrigerăm side-effect-uri (notify operator) pe evenimente târzii.
+    if (!shouldApply(previousStatus, event.status)) {
+        return {
+            updated: false,
+            orderId: row.id as string,
+            previousStatus,
+        };
     }
 
     const patch: Record<string, unknown> = {
@@ -95,13 +142,13 @@ export async function applyWebhookToOrder(
         return {
             updated: false,
             orderId: row.id as string,
-            previousStatus: row.payment_status as PaymentStatus,
+            previousStatus,
         };
     }
 
     return {
         updated: true,
         orderId: row.id as string,
-        previousStatus: row.payment_status as PaymentStatus,
+        previousStatus,
     };
 }

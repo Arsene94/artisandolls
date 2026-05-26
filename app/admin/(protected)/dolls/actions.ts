@@ -73,6 +73,82 @@ async function revalidatePublicDollPaths(slug?: string) {
     await invalidateCatalog();
 }
 
+type RentalTierPayload = {
+    label: string | null;
+    unit: "hour" | "day";
+    min_qty: number;
+    max_qty: number;
+    price: number;
+};
+
+function getRentalTiersFromForm(formData: FormData): RentalTierPayload[] {
+    const raw = getString(formData, "rental_tiers");
+    if (!raw) return [];
+
+    try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+
+        return parsed
+            .map((item) => {
+                const unit = item?.unit === "hour" ? "hour" : "day";
+                const minQty = Math.max(1, Math.round(Number(item?.min_qty) || 0));
+                const maxQty = Math.max(minQty, Math.round(Number(item?.max_qty) || 0));
+                const price = Math.max(0, Math.round(Number(item?.price) || 0));
+                const labelRaw = typeof item?.label === "string" ? item.label.trim() : "";
+                return {
+                    label: labelRaw || null,
+                    unit,
+                    min_qty: minQty,
+                    max_qty: maxQty,
+                    price,
+                } satisfies RentalTierPayload;
+            })
+            .filter((tier) => tier.min_qty >= 1 && tier.max_qty >= tier.min_qty);
+    } catch {
+        return [];
+    }
+}
+
+async function persistRentalTiers(
+    supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+    dollId: string,
+    tiers: RentalTierPayload[],
+) {
+    // Replace strategy: clear then insert. Orders keep their own price/label
+    // snapshot, so removing tier rows never rewrites historical totals.
+    const { error: deleteError } = await supabase
+        .from("doll_rental_tiers")
+        .delete()
+        .eq("doll_id", dollId);
+
+    if (deleteError) {
+        throw new Error(deleteError.message);
+    }
+
+    if (tiers.length === 0) {
+        return;
+    }
+
+    const rows = tiers.map((tier, index) => ({
+        doll_id: dollId,
+        label: tier.label,
+        unit: tier.unit,
+        min_qty: tier.min_qty,
+        max_qty: tier.max_qty,
+        price: tier.price,
+        display_order: index,
+    }));
+
+    const { error: insertError } = await supabase
+        .from("doll_rental_tiers")
+        .insert(rows);
+
+    if (insertError) {
+        throw new Error(insertError.message);
+    }
+}
+
 function getStringArrayFromJson(formData: FormData, key: string) {
     const raw = getString(formData, key);
 
@@ -131,7 +207,6 @@ async function getDollPayload(
         availability: getString(formData, "availability") as DollAvailability,
         available_for_rent: getBoolean(formData, "available_for_rent"),
         available_for_buy: getBoolean(formData, "available_for_buy"),
-        rent_price_per_day: getNullableNumber(formData, "rent_price_per_day"),
         buy_price: getNullableNumber(formData, "buy_price"),
         tags,
         show_on_home_hero: getBoolean(formData, "show_on_home_hero"),
@@ -143,6 +218,7 @@ async function getDollPayload(
 export async function createDollAction(formData: FormData) {
     const supabase = await requireAdminSupabase();
     const payload = await getDollPayload(supabase, formData);
+    const tiers = getRentalTiersFromForm(formData);
 
     if (payload.show_on_home_hero) {
         const { error: clearError } = await supabase
@@ -163,6 +239,10 @@ export async function createDollAction(formData: FormData) {
 
     if (error) {
         throw new Error(error.message);
+    }
+
+    if (inserted) {
+        await persistRentalTiers(supabase, (inserted as DollRow).id, tiers);
     }
 
     await revalidatePublicDollPaths(payload.slug);
@@ -186,6 +266,7 @@ export async function createDollAction(formData: FormData) {
 export async function updateDollAction(id: string, formData: FormData) {
     const supabase = await requireAdminSupabase();
     const payload = await getDollPayload(supabase, formData);
+    const tiers = getRentalTiersFromForm(formData);
 
     if (payload.show_on_home_hero) {
         const { error: clearError } = await supabase
@@ -209,6 +290,8 @@ export async function updateDollAction(id: string, formData: FormData) {
     if (error) {
         throw new Error(error.message);
     }
+
+    await persistRentalTiers(supabase, id, tiers);
 
     await revalidatePublicDollPaths(payload.slug);
     revalidatePath("/admin/dolls");

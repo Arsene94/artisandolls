@@ -70,12 +70,17 @@ export default async function CheckoutPage({ params, searchParams }: CheckoutPag
         );
     }
 
+    const rawUnit = getSearchParamValue(resolvedSearchParams?.unit);
+
     return (
         <OrderCheckout
             doll={doll}
             mode={mode}
+            unit={rawUnit === "hour" ? "hour" : "day"}
+            qty={getSearchParamValue(resolvedSearchParams?.qty)}
+            tierId={getSearchParamValue(resolvedSearchParams?.tier)}
             startDate={getSearchParamValue(resolvedSearchParams?.start)}
-            endDate={getSearchParamValue(resolvedSearchParams?.end)}
+            startTime={getSearchParamValue(resolvedSearchParams?.startTime)}
             outfitId={getSearchParamValue(resolvedSearchParams?.outfit)}
             options={getSearchParamValue(resolvedSearchParams?.options)}
             total={getSearchParamValue(resolvedSearchParams?.total)}

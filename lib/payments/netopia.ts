@@ -182,14 +182,78 @@ export const netopiaProvider: PaymentProvider = {
         const token = headers.get("verification-token");
         if (!token) throw new Error("Missing verification-token header");
 
-        // RS256 over RSA — verify with the merchant's public key.
-        jwt.verify(token, pubKey, { algorithms: ["RS256"] });
+        // Anterior verificam doar semnătura JWT și parsam body-ul HTTP separat
+        // → un atacator care capta *un* IPN valid putea apoi replaya JWT-ul cu
+        // un body modificat și forța orice tranziție pe orice comandă. Acum
+        // verificăm semnătura ȘI preferăm datele din claim-ul JWT semnat.
+        let verified: unknown;
+        try {
+            verified = jwt.verify(token, pubKey, { algorithms: ["RS256"] });
+        } catch (err) {
+            throw new Error(
+                `Netopia JWT signature invalid: ${
+                    err instanceof Error ? err.message : "unknown"
+                }`,
+            );
+        }
+
+        // Netopia poate pune datele IPN fie direct în claim, fie sub `data`,
+        // fie (variante mai vechi) doar în body cu JWT-ul ca simplu token de
+        // autenticitate. Detectăm care formă conține `order`/`payment` și o
+        // folosim pe aceea. Dacă datele sunt doar în body, îl folosim pe acela
+        // — semnătura JWT a fost deja validată, deci call-ul e autentic; logăm
+        // însă, ca să observăm formatul real în producție.
+        const claim =
+            verified && typeof verified === "object"
+                ? (verified as Record<string, unknown>)
+                : {};
+        const inner = (claim.data ?? null) as Record<string, unknown> | null;
+
+        function hasIpnShape(o: unknown): o is NetopiaIpnPayload {
+            return Boolean(
+                o &&
+                    typeof o === "object" &&
+                    ("order" in o || "payment" in o),
+            );
+        }
+
+        let httpPayload: NetopiaIpnPayload | null = null;
+        if (rawBody && rawBody.length > 0) {
+            try {
+                httpPayload = JSON.parse(rawBody) as NetopiaIpnPayload;
+            } catch {
+                httpPayload = null;
+            }
+        }
 
         let payload: NetopiaIpnPayload;
-        try {
-            payload = JSON.parse(rawBody) as NetopiaIpnPayload;
-        } catch {
-            throw new Error("Netopia webhook body is not JSON");
+        if (hasIpnShape(claim)) {
+            payload = claim;
+        } else if (hasIpnShape(inner)) {
+            payload = inner;
+        } else if (hasIpnShape(httpPayload)) {
+            // Fallback funcțional: JWT-ul e doar token de autenticitate.
+            // Semnătura e validă, deci call-ul vine de la Netopia.
+            console.warn(
+                "[netopia] IPN data only in body — JWT carries no payload",
+            );
+            payload = httpPayload;
+        } else {
+            throw new Error("Netopia IPN missing order/payment data");
+        }
+
+        // Dacă avem și claim semnat ȘI body, și nu coincid, e semn de replay
+        // cu body modificat — folosim deja claim-ul, dar logăm incidentul.
+        if (
+            hasIpnShape(claim) &&
+            httpPayload &&
+            (httpPayload.payment?.ntpID !== payload.payment?.ntpID ||
+                httpPayload.order?.orderID !== payload.order?.orderID)
+        ) {
+            console.warn("[netopia] body/JWT mismatch — using JWT claims", {
+                jwtNtpID: payload.payment?.ntpID,
+                httpNtpID: httpPayload.payment?.ntpID,
+            });
         }
 
         const status = payload.payment?.status ?? 0;

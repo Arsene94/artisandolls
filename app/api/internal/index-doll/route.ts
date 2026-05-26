@@ -1,5 +1,6 @@
 import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
+import { constantTimeEqual } from "@/lib/secrets/compare";
 import {
     deleteDollVectors,
     upsertDollVectors,
@@ -16,8 +17,8 @@ type Payload =
 function authorise(request: Request): boolean {
     const expected = process.env.INTERNAL_WEBHOOK_SECRET;
     if (!expected) return false;
-    const provided = request.headers.get("x-internal-secret");
-    return provided === expected;
+    const provided = request.headers.get("x-internal-secret") ?? "";
+    return constantTimeEqual(provided, expected);
 }
 
 export async function POST(request: Request) {
