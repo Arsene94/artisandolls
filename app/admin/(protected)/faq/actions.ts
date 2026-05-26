@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
 import { invalidateFaq } from "@/lib/upstash/cache";
 import { isFaqCategory } from "@/lib/faq/shared";
+import { enqueueEntityTranslations } from "@/lib/translations/queue";
 
 async function requireAdmin() {
     const supabase = await createSupabaseServerClient();
@@ -78,9 +79,23 @@ export async function createFaqItemAction(formData: FormData) {
     if (!data.question || !data.answer) {
         throw new Error("Întrebarea și răspunsul sunt obligatorii.");
     }
-    const { error } = await supabase.from("faq_items").insert(data);
+    const { data: inserted, error } = await supabase
+        .from("faq_items")
+        .insert(data)
+        .select("id")
+        .single();
     if (error) throw new Error(error.message);
     await revalidate();
+    if (inserted?.id) {
+        await enqueueEntityTranslations({
+            entity: "faq_item",
+            entityId: inserted.id as string,
+            fields: [
+                { key: "question", value: data.question },
+                { key: "answer", value: data.answer },
+            ],
+        });
+    }
     redirect("/admin/faq");
 }
 
@@ -93,6 +108,14 @@ export async function updateFaqItemAction(id: string, formData: FormData) {
     const { error } = await supabase.from("faq_items").update(data).eq("id", id);
     if (error) throw new Error(error.message);
     await revalidate();
+    await enqueueEntityTranslations({
+        entity: "faq_item",
+        entityId: id,
+        fields: [
+            { key: "question", value: data.question },
+            { key: "answer", value: data.answer },
+        ],
+    });
     redirect("/admin/faq");
 }
 

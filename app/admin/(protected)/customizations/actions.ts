@@ -7,6 +7,7 @@ import type {
     CustomizationMode,
     CustomizationSelectionType,
 } from "@/lib/customizations/shared";
+import { enqueueEntityTranslations } from "@/lib/translations/queue";
 
 async function requireAdminSupabase() {
     const supabase = await createSupabaseServerClient();
@@ -100,12 +101,22 @@ function getOptionPayload(groupId: string, formData: FormData) {
     };
 }
 
+function groupTranslatableFields(payload: ReturnType<typeof getGroupPayload>) {
+    return [
+        { key: "title", value: payload.title },
+        { key: "description", value: payload.description },
+    ];
+}
+
 export async function createCustomizationGroupAction(formData: FormData) {
     const supabase = await requireAdminSupabase();
+    const payload = getGroupPayload(formData);
 
-    const { error } = await supabase
+    const { data: inserted, error } = await supabase
         .from("doll_customization_groups")
-        .insert(getGroupPayload(formData));
+        .insert(payload)
+        .select("id")
+        .single();
 
     if (error) {
         throw new Error(error.message);
@@ -113,15 +124,23 @@ export async function createCustomizationGroupAction(formData: FormData) {
 
     revalidatePath("/admin/customizations");
     revalidatePath("/catalog");
+    if (inserted?.id) {
+        await enqueueEntityTranslations({
+            entity: "doll_customization_group",
+            entityId: inserted.id as string,
+            fields: groupTranslatableFields(payload),
+        });
+    }
     redirect("/admin/customizations");
 }
 
 export async function updateCustomizationGroupAction(id: string, formData: FormData) {
     const supabase = await requireAdminSupabase();
+    const payload = getGroupPayload(formData);
 
     const { error } = await supabase
         .from("doll_customization_groups")
-        .update(getGroupPayload(formData))
+        .update(payload)
         .eq("id", id);
 
     if (error) {
@@ -130,6 +149,11 @@ export async function updateCustomizationGroupAction(id: string, formData: FormD
 
     revalidatePath("/admin/customizations");
     revalidatePath("/catalog");
+    await enqueueEntityTranslations({
+        entity: "doll_customization_group",
+        entityId: id,
+        fields: groupTranslatableFields(payload),
+    });
     redirect("/admin/customizations");
 }
 
@@ -149,13 +173,23 @@ export async function deleteCustomizationGroupAction(id: string) {
     revalidatePath("/catalog");
 }
 
+function optionTranslatableFields(payload: ReturnType<typeof getOptionPayload>) {
+    return [
+        { key: "label", value: payload.label },
+        { key: "description", value: payload.description },
+    ];
+}
+
 export async function createCustomizationOptionAction(groupId: string, formData: FormData) {
     const supabase = await requireAdminSupabase();
     const redirectTo = getString(formData, "redirect_to") || "/admin/customizations";
+    const payload = getOptionPayload(groupId, formData);
 
-    const { error } = await supabase
+    const { data: inserted, error } = await supabase
         .from("doll_customization_options")
-        .insert(getOptionPayload(groupId, formData));
+        .insert(payload)
+        .select("id")
+        .single();
 
     if (error) {
         throw new Error(error.message);
@@ -163,6 +197,13 @@ export async function createCustomizationOptionAction(groupId: string, formData:
 
     revalidatePath("/admin/customizations");
     revalidatePath("/catalog");
+    if (inserted?.id) {
+        await enqueueEntityTranslations({
+            entity: "doll_customization_option",
+            entityId: inserted.id as string,
+            fields: optionTranslatableFields(payload),
+        });
+    }
     redirect(redirectTo);
 }
 
@@ -171,10 +212,11 @@ export async function updateCustomizationOptionAction(optionId: string, formData
 
     const groupId = getString(formData, "group_id");
     const redirectTo = getString(formData, "redirect_to") || "/admin/customizations";
+    const payload = getOptionPayload(groupId, formData);
 
     const { error } = await supabase
         .from("doll_customization_options")
-        .update(getOptionPayload(groupId, formData))
+        .update(payload)
         .eq("id", optionId);
 
     if (error) {
@@ -183,6 +225,11 @@ export async function updateCustomizationOptionAction(optionId: string, formData
 
     revalidatePath("/admin/customizations");
     revalidatePath("/catalog");
+    await enqueueEntityTranslations({
+        entity: "doll_customization_option",
+        entityId: optionId,
+        fields: optionTranslatableFields(payload),
+    });
     redirect(redirectTo);
 }
 

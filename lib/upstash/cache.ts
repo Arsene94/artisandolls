@@ -9,10 +9,10 @@ export function cacheKey(...parts: string[]): string {
 
 export const CACHE_KEYS = {
     settings: cacheKey("settings", "public", "v1"),
-    dolls: cacheKey("dolls", "public", "v1"),
+    dolls: cacheKey("dolls", "public", "v2"),
     collections: cacheKey("collections", "public", "v1"),
-    heroDoll: cacheKey("dolls", "hero", "v1"),
-    dollBySlug: (slug: string) => cacheKey("dolls", "slug", slug, "v1"),
+    heroDoll: cacheKey("dolls", "hero", "v2"),
+    dollBySlug: (slug: string) => cacheKey("dolls", "slug", slug, "v2"),
     blogPosts: cacheKey("blog", "public", "v1"),
     faqItems: cacheKey("faq", "public", "v1"),
     blogPostBySlug: (slug: string) => cacheKey("blog", "slug", slug, "v1"),

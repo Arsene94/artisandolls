@@ -10,6 +10,7 @@ import {
     upsertDollVectors,
 } from "@/lib/upstash/vector-sync";
 import type { DollRow } from "@/lib/dolls";
+import { enqueueEntityTranslations } from "@/lib/translations/queue";
 
 async function requireAdminSupabase() {
     const supabase = await createSupabaseServerClient();
@@ -168,6 +169,15 @@ export async function createDollAction(formData: FormData) {
     revalidatePath("/admin/dolls");
     if (inserted) {
         await upsertDollVectors(inserted as DollRow);
+        await enqueueEntityTranslations({
+            entity: "doll",
+            entityId: (inserted as DollRow).id,
+            fields: [
+                { key: "name", value: payload.name },
+                { key: "description", value: payload.description },
+                { key: "badge", value: payload.badge },
+            ],
+        });
     }
 
     redirect("/admin/dolls");
@@ -205,6 +215,15 @@ export async function updateDollAction(id: string, formData: FormData) {
     if (updated) {
         await upsertDollVectors(updated as DollRow);
     }
+    await enqueueEntityTranslations({
+        entity: "doll",
+        entityId: id,
+        fields: [
+            { key: "name", value: payload.name },
+            { key: "description", value: payload.description },
+            { key: "badge", value: payload.badge },
+        ],
+    });
 
     redirect("/admin/dolls");
 }

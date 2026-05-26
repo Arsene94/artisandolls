@@ -115,7 +115,10 @@ export default async function CatalogPage({
     const startDate = getSearchParamValue(params?.start);
     const endDate = getSearchParamValue(params?.end);
 
-    const [allDolls, collections] = await Promise.all([getDolls(), getCollections()]);
+    const [allDolls, collections] = await Promise.all([
+        getDolls(locale),
+        getCollections(),
+    ]);
 
     const totalPages = Math.max(1, Math.ceil(allDolls.length / PAGE_SIZE));
     const requestedPage = parsePage(getSearchParamValue(params?.page));

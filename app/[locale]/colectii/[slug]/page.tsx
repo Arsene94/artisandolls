@@ -61,7 +61,7 @@ export default async function CollectionDetailPage({ params }: Props) {
         getTranslations({ locale, namespace: "collections" }),
         getTranslations({ locale, namespace: "catalog" }),
         getPublicPlatformSettings().catch(() => null),
-        getDollsByCollectionId(collection.id),
+        getDollsByCollectionId(collection.id, locale),
     ]);
     const siteUrl = getSiteUrl(settings?.public_site_url ?? null);
     const heroImagePath = collection.main_image_path || collection.image_path;

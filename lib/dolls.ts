@@ -1,6 +1,8 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { cached, CACHE_KEYS } from "@/lib/upstash/cache";
+import type { Locale } from "@/i18n/routing";
+import { getEntityTranslations } from "@/lib/translations/store";
 
 export type CatalogMode = "rent" | "buy";
 
@@ -67,6 +69,66 @@ export function mapDollRowToDoll(row: DollRow): Doll {
     };
 }
 
+/**
+ * Aplică traducerile auto-generate peste un array de păpuși. RO trece prin
+ * fără modificări. Pentru EN/NL suprascriem `name`, `description` și `badge`
+ * dacă există în content_translations.
+ *
+ * Notă: cheia entității de tradus rămâne `doll` (uuid-ul rândului DB), dar
+ * `Doll.id` expus public e slug-ul. Folosim row → id-ul real pentru lookup.
+ */
+export async function localizeDolls<
+    T extends { id: string; name: string; description: string; badge: string },
+>(rowOrDolls: Array<T & { id: string }>, locale: Locale): Promise<T[]> {
+    if (locale === "ro" || rowOrDolls.length === 0) return rowOrDolls;
+    const translations = await getEntityTranslations(
+        "doll",
+        rowOrDolls.map((d) => d.id),
+        locale,
+    );
+    if (translations.size === 0) return rowOrDolls;
+    return rowOrDolls.map((doll) => {
+        const t = translations.get(doll.id);
+        if (!t) return doll;
+        return {
+            ...doll,
+            name: t.name?.trim() || doll.name,
+            description: t.description?.trim() || doll.description,
+            badge: t.badge?.trim() || doll.badge,
+        };
+    });
+}
+
+/**
+ * Variantă care lucrează cu tipul public `Doll` (unde `id` e slug-ul). Citește
+ * separat translation-urile pentru DB-id-urile reale.
+ */
+export async function localizeDollsBySlug(
+    dolls: Doll[],
+    rows: Pick<DollRow, "id" | "slug">[],
+    locale: Locale,
+): Promise<Doll[]> {
+    if (locale === "ro" || dolls.length === 0) return dolls;
+    const slugToDbId = new Map(rows.map((r) => [r.slug, r.id]));
+    const dbIds = dolls
+        .map((d) => slugToDbId.get(d.id))
+        .filter((id): id is string => Boolean(id));
+    if (dbIds.length === 0) return dolls;
+    const translations = await getEntityTranslations("doll", dbIds, locale);
+    if (translations.size === 0) return dolls;
+    return dolls.map((doll) => {
+        const dbId = slugToDbId.get(doll.id);
+        const t = dbId ? translations.get(dbId) : undefined;
+        if (!t) return doll;
+        return {
+            ...doll,
+            name: t.name?.trim() || doll.name,
+            description: t.description?.trim() || doll.description,
+            badge: t.badge?.trim() || doll.badge,
+        };
+    });
+}
+
 export async function getDollRows(includeInactive = false) {
     const supabase = await createSupabaseServerClient();
 
@@ -89,14 +151,27 @@ export async function getDollRows(includeInactive = false) {
     return (data ?? []) as DollRow[];
 }
 
-export async function getDolls() {
-    return cached(CACHE_KEYS.dolls, 300, async () => {
+export async function getDolls(locale?: Locale) {
+    // Cache shared per cluster — locale-overlay-ul se aplică in-memory după read.
+    const result = await cached(CACHE_KEYS.dolls, 300, async () => {
         const rows = await getDollRows(false);
-        return rows.map(mapDollRowToDoll);
+        return rows.map((row) => ({
+            doll: mapDollRowToDoll(row),
+            dbId: row.id,
+        }));
     });
+    if (!locale || locale === "ro") {
+        return result.map((r) => r.doll);
+    }
+    const localized = await localizeDollsBySlug(
+        result.map((r) => r.doll),
+        result.map((r) => ({ id: r.dbId, slug: r.doll.id })),
+        locale,
+    );
+    return localized;
 }
 
-export async function getDollsByCollectionId(collectionId: string) {
+export async function getDollsByCollectionId(collectionId: string, locale?: Locale) {
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase
         .from("dolls")
@@ -107,11 +182,18 @@ export async function getDollsByCollectionId(collectionId: string) {
         .order("created_at", { ascending: false });
 
     if (error || !data) return [];
-    return (data as DollRow[]).map(mapDollRowToDoll);
+    const rows = data as DollRow[];
+    const dolls = rows.map(mapDollRowToDoll);
+    if (!locale || locale === "ro") return dolls;
+    return localizeDollsBySlug(
+        dolls,
+        rows.map((r) => ({ id: r.id, slug: r.slug })),
+        locale,
+    );
 }
 
-export async function getDollBySlug(slug: string) {
-    return cached(CACHE_KEYS.dollBySlug(slug), 300, async () => {
+export async function getDollBySlug(slug: string, locale?: Locale) {
+    const cachedDoll = await cached(CACHE_KEYS.dollBySlug(slug), 300, async () => {
         const supabase = await createSupabaseServerClient();
         const { data, error } = await supabase
             .from("dolls")
@@ -120,12 +202,21 @@ export async function getDollBySlug(slug: string) {
             .single();
 
         if (error || !data) return null;
-        return mapDollRowToDoll(data as DollRow);
+        const row = data as DollRow;
+        return { doll: mapDollRowToDoll(row), dbId: row.id };
     });
+    if (!cachedDoll) return null;
+    if (!locale || locale === "ro") return cachedDoll.doll;
+    const [localized] = await localizeDollsBySlug(
+        [cachedDoll.doll],
+        [{ id: cachedDoll.dbId, slug: cachedDoll.doll.id }],
+        locale,
+    );
+    return localized ?? cachedDoll.doll;
 }
 
-export async function getHomepageHeroDoll() {
-    return cached(CACHE_KEYS.heroDoll, 300, async () => {
+export async function getHomepageHeroDoll(locale?: Locale) {
+    const cachedHero = await cached(CACHE_KEYS.heroDoll, 300, async () => {
         const supabase = await createSupabaseServerClient();
         const { data, error } = await supabase
             .from("dolls")
@@ -135,8 +226,17 @@ export async function getHomepageHeroDoll() {
             .maybeSingle();
 
         if (error || !data) return null;
-        return mapDollRowToDoll(data as DollRow);
+        const row = data as DollRow;
+        return { doll: mapDollRowToDoll(row), dbId: row.id };
     });
+    if (!cachedHero) return null;
+    if (!locale || locale === "ro") return cachedHero.doll;
+    const [localized] = await localizeDollsBySlug(
+        [cachedHero.doll],
+        [{ id: cachedHero.dbId, slug: cachedHero.doll.id }],
+        locale,
+    );
+    return localized ?? cachedHero.doll;
 }
 
 export async function getDollRowBySlug(slug: string) {

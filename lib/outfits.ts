@@ -6,6 +6,8 @@ import type {
     OutfitRow,
 } from "@/lib/outfits/shared";
 import { getOutfitImage } from "@/lib/outfits/shared";
+import type { Locale } from "@/i18n/routing";
+import { getEntityTranslations } from "@/lib/translations/store";
 
 export type {
     OutfitMode,
@@ -72,25 +74,40 @@ export async function getOutfitById(id: string) {
     return data as OutfitRow;
 }
 
-export async function getOutfitsForMode(mode: Exclude<OutfitMode, "both">) {
+export async function getOutfitsForMode(
+    mode: Exclude<OutfitMode, "both">,
+    locale?: Locale,
+) {
     const rows = await getOutfitRows(false);
+    const filtered = rows.filter(
+        (outfit) => outfit.mode === mode || outfit.mode === "both",
+    );
+    const translations =
+        locale && locale !== "ro"
+            ? await getEntityTranslations(
+                  "doll_outfit",
+                  filtered.map((o) => o.id),
+                  locale,
+              )
+            : new Map<string, Record<string, string>>();
 
-    return rows
-        .filter((outfit) => outfit.mode === mode || outfit.mode === "both")
-        .map<OutfitOptionForCatalog>((outfit) => ({
+    return filtered.map<OutfitOptionForCatalog>((outfit) => {
+        const t = translations.get(outfit.id);
+        return {
             id: outfit.id,
-            label: outfit.label,
-            description: outfit.description ?? "",
+            label: t?.label?.trim() || outfit.label,
+            description: t?.description?.trim() || outfit.description || "",
             price: outfit.price,
             image: getOutfitImage(outfit),
             icon_name: outfit.icon_name,
-        }));
+        };
+    });
 }
 
-export async function getOutfitsForCatalog() {
+export async function getOutfitsForCatalog(locale?: Locale) {
     const [rent, buy] = await Promise.all([
-        getOutfitsForMode("rent"),
-        getOutfitsForMode("buy"),
+        getOutfitsForMode("rent", locale),
+        getOutfitsForMode("buy", locale),
     ]);
 
     return { rent, buy };

@@ -7,6 +7,8 @@ import {
     getFeaturedProducts,
     getShopCategories,
     getShopProducts,
+    localizeCategories,
+    localizeProducts,
 } from "@/lib/shop/products";
 import { getPublicPlatformSettings } from "@/lib/settings";
 import { getSiteUrl, localeAlternates, localeUrl } from "@/lib/site";
@@ -47,13 +49,17 @@ export default async function ShopLandingPage({ params }: Props) {
     const { locale } = await params;
     setRequestLocale(locale);
 
-    const [categoryRows, featured, allProducts, settings] = await Promise.all([
+    const [categoryRows, featuredRaw, allProductsRaw, settings] = await Promise.all([
         getShopCategories().catch(() => []),
         getFeaturedProducts(8).catch(() => []),
         getShopProducts().catch(() => []),
         getPublicPlatformSettings().catch(() => null),
     ]);
-    const categories = categoriesAsPublic(categoryRows, locale);
+    const [categories, featured, allProducts] = await Promise.all([
+        localizeCategories(categoriesAsPublic(categoryRows, locale), categoryRows, locale),
+        localizeProducts(featuredRaw, locale),
+        localizeProducts(allProductsRaw, locale),
+    ]);
     const t = await getTranslations("shop");
     const siteUrl = getSiteUrl(settings?.public_site_url ?? null);
 

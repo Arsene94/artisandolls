@@ -9,6 +9,8 @@ import {
     getProductsForCategory,
     getShopCategories,
     getShopProductBySlug,
+    localizeCategories,
+    localizeProducts,
 } from "@/lib/shop/products";
 import { similarShopProducts } from "@/lib/upstash/shop-vector-search";
 import { getPublicPlatformSettings } from "@/lib/settings";
@@ -30,12 +32,13 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { locale, slug } = await params;
-    const [product, settings] = await Promise.all([
+    const [rawProduct, settings] = await Promise.all([
         getShopProductBySlug(slug),
         getPublicPlatformSettings().catch(() => null),
     ]);
     const siteUrl = getSiteUrl(settings?.public_site_url ?? null);
-    if (!product) return { robots: { index: false, follow: true } };
+    if (!rawProduct) return { robots: { index: false, follow: true } };
+    const [product] = await localizeProducts([rawProduct], locale);
 
     const canonical = localeUrl(siteUrl, locale, `/shop/p/${slug}`);
     const imageUrl = product.image
@@ -64,17 +67,21 @@ export default async function ShopProductPage({ params }: Props) {
     const { locale, slug } = await params;
     setRequestLocale(locale);
 
-    const product = await getShopProductBySlug(slug);
-    if (!product) notFound();
+    const rawProduct = await getShopProductBySlug(slug);
+    if (!rawProduct) notFound();
 
     const [categoryRows, t, settings] = await Promise.all([
         getShopCategories().catch(() => []),
         getTranslations("shop"),
         getPublicPlatformSettings().catch(() => null),
     ]);
-    const category = categoriesAsPublic(categoryRows, locale).find(
-        (c) => c.id === product.categoryId,
+    const [product] = await localizeProducts([rawProduct], locale);
+    const localizedCategories = await localizeCategories(
+        categoriesAsPublic(categoryRows, locale),
+        categoryRows,
+        locale,
     );
+    const category = localizedCategories.find((c) => c.id === product.categoryId);
 
     const seedText = [
         product.name,
@@ -102,6 +109,7 @@ export default async function ShopProductPage({ params }: Props) {
             .filter((p) => p.slug !== product.slug)
             .slice(0, 4);
     }
+    related = await localizeProducts(related, locale);
 
     const onSale =
         product.compareAtPrice !== null && product.compareAtPrice > product.price;

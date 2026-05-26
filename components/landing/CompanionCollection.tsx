@@ -128,7 +128,7 @@ export default async function CompanionCollection({
                             return (
                                 <li key={doll.id}>
                                     <article
-                                        className="group bg-velvet-950 rounded-2xl overflow-hidden border border-gold/15 hover:border-gold/45 transition-colors duration-300 motion-reduce:transition-none flex flex-col h-full shadow-xl shadow-velvet-950/40"
+                                        className="group relative isolate bg-velvet-950 rounded-2xl overflow-hidden border border-gold/15 hover:border-gold/45 transition-colors duration-300 motion-reduce:transition-none flex flex-col h-full shadow-xl shadow-velvet-950/40"
                                         aria-labelledby={`doll-${doll.id}-name`}
                                     >
                                         <div className="relative aspect-[4/5] overflow-hidden">
@@ -161,7 +161,20 @@ export default async function CompanionCollection({
                                                 id={`doll-${doll.id}-name`}
                                                 className="font-display italic text-2xl text-silk mb-2"
                                             >
-                                                {doll.name}
+                                                {/*
+                                                 * Card-wide click → pagina păpușii.
+                                                 * Overlay-ul `::after` acoperă toată
+                                                 * `article` (e `relative isolate`), iar
+                                                 * butonul de inquiry are `relative z-10`
+                                                 * ca să rămână interactiv.
+                                                 */}
+                                                <Link
+                                                    href={`/catalog/${doll.id}`}
+                                                    aria-label={`${doll.name} — ${t("viewDetails")}`}
+                                                    className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:underline"
+                                                >
+                                                    {doll.name}
+                                                </Link>
                                             </h3>
                                             <p className="text-silk/75 text-sm leading-relaxed mb-4 line-clamp-3 flex-1">
                                                 {doll.description}
@@ -196,7 +209,7 @@ export default async function CompanionCollection({
                                                 </dl>
                                             )}
 
-                                            <div className="flex justify-between items-center pt-4 border-t border-velvet-800 gap-3 mt-auto">
+                                            <div className="relative z-10 flex justify-between items-center pt-4 border-t border-velvet-800 gap-3 mt-auto">
                                                 <span className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-silk/70">
                                                     <span
                                                         aria-hidden="true"

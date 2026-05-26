@@ -314,6 +314,8 @@
 }
 
 .card {
+    position: relative;
+    isolation: isolate;
     display: flex;
     min-width: 0;
     overflow: hidden;
@@ -324,6 +326,33 @@
     background: rgba(30, 9, 12, 0.6);
     box-shadow: 0 25px 55px rgba(0, 0, 0, 0.32);
     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Card-wide click: titlul devine link, iar `::after` se întinde peste toată
+   suprafața `.card` (care e relative isolate). Butonul de CTA primește
+   `relative z-index: 2` ca să rămână interactiv peste overlay. */
+.cardTitleLink {
+    color: inherit;
+    text-decoration: none;
+    outline: none;
+}
+
+.cardTitleLink::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+}
+
+.cardTitleLink:focus-visible::after {
+    outline: 2px solid rgba(212, 175, 55, 0.7);
+    outline-offset: -4px;
+}
+
+.cardFooter {
+    position: relative;
+    z-index: 2;
 }
 
 .card:hover {

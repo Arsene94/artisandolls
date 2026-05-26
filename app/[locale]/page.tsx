@@ -45,8 +45,8 @@ export default async function Home({ params }: HomePageProps) {
 
     const [settings, galleryDolls, heroDoll] = await Promise.all([
         getPublicPlatformSettings(),
-        getDolls(),
-        getHomepageHeroDoll(),
+        getDolls(locale),
+        getHomepageHeroDoll(locale),
     ]);
 
     if (settings.maintenance_mode) {

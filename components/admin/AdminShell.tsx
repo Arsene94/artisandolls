@@ -11,6 +11,7 @@ import {
     IconSettings,
     IconShoppingBag,
     IconShoppingCart,
+    IconTool,
     IconUsers,
 } from "@tabler/icons-react";
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
@@ -84,6 +85,12 @@ const menuItems = [
         href: "/admin/customers",
         description: "Date contact și istoric",
         icon: IconUsers,
+    },
+    {
+        label: "Operațiuni",
+        href: "/admin/operations",
+        description: "Traduceri & job-uri bulk",
+        icon: IconTool,
     },
     {
         label: "Setări",

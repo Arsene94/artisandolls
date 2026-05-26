@@ -6,6 +6,8 @@ import {
     categoriesAsPublic,
     getProductsForCategory,
     getShopCategories,
+    localizeCategories,
+    localizeProducts,
 } from "@/lib/shop/products";
 import { getPublicPlatformSettings } from "@/lib/settings";
 import { getSiteUrl, localeAlternates, localeUrl } from "@/lib/site";
@@ -52,9 +54,12 @@ export async function generateMetadata({
         getPublicPlatformSettings().catch(() => null),
         getTranslations({ locale, namespace: "shop" }),
     ]);
-    const category = categoriesAsPublic(categoryRows, locale).find(
-        (c) => c.slug === slug,
+    const localizedCategories = await localizeCategories(
+        categoriesAsPublic(categoryRows, locale),
+        categoryRows,
+        locale,
     );
+    const category = localizedCategories.find((c) => c.slug === slug);
     const siteUrl = getSiteUrl(settings?.public_site_url ?? null);
     const canonical = buildCategoryCanonical(siteUrl, locale, slug, page);
     const pageSuffix = page > 1 ? ` — pagina ${page}` : "";
@@ -83,12 +88,18 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         getTranslations("shop"),
         getPublicPlatformSettings().catch(() => null),
     ]);
-    const category = categoriesAsPublic(categoryRows, locale).find(
-        (c) => c.slug === slug,
+    const localizedCategories = await localizeCategories(
+        categoriesAsPublic(categoryRows, locale),
+        categoryRows,
+        locale,
     );
+    const category = localizedCategories.find((c) => c.slug === slug);
     if (!category) notFound();
 
-    const allProducts = await getProductsForCategory(category.id);
+    const allProducts = await localizeProducts(
+        await getProductsForCategory(category.id),
+        locale,
+    );
     const totalPages = Math.max(1, Math.ceil(allProducts.length / PAGE_SIZE));
     const requestedPage = parsePage(getParam(sp?.page));
     const page = Math.min(requestedPage, totalPages);

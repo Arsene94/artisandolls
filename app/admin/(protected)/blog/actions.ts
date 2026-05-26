@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
 import { invalidateBlog } from "@/lib/upstash/cache";
 import { isBlogCategory } from "@/lib/blog/shared";
+import { enqueueEntityTranslations } from "@/lib/translations/queue";
 
 async function requireAdmin() {
     const supabase = await createSupabaseServerClient();
@@ -103,15 +104,36 @@ function payload(formData: FormData) {
     };
 }
 
+function blogTranslatableFields(data: ReturnType<typeof payload>) {
+    return [
+        { key: "title", value: data.title },
+        { key: "excerpt", value: data.excerpt },
+        { key: "body", value: data.body },
+        { key: "seo_title", value: data.seo_title },
+        { key: "seo_description", value: data.seo_description },
+    ];
+}
+
 export async function createBlogPostAction(formData: FormData) {
     const supabase = await requireAdmin();
     const data = payload(formData);
     if (!data.title || !data.body || !data.excerpt) {
         throw new Error("Titlul, excerpt-ul și body sunt obligatorii.");
     }
-    const { error } = await supabase.from("blog_posts").insert(data);
+    const { data: inserted, error } = await supabase
+        .from("blog_posts")
+        .insert(data)
+        .select("id")
+        .single();
     if (error) throw new Error(error.message);
     await revalidateBlogPaths();
+    if (inserted?.id) {
+        await enqueueEntityTranslations({
+            entity: "blog_post",
+            entityId: inserted.id as string,
+            fields: blogTranslatableFields(data),
+        });
+    }
     redirect("/admin/blog");
 }
 
@@ -124,6 +146,11 @@ export async function updateBlogPostAction(id: string, formData: FormData) {
     const { error } = await supabase.from("blog_posts").update(data).eq("id", id);
     if (error) throw new Error(error.message);
     await revalidateBlogPaths();
+    await enqueueEntityTranslations({
+        entity: "blog_post",
+        entityId: id,
+        fields: blogTranslatableFields(data),
+    });
     redirect("/admin/blog");
 }
 

@@ -513,7 +513,20 @@ export default function DollsCatalog({
                                             <div className={styles.cardBody}>
                                                 <div>
                                                     <div className={styles.cardTop}>
-                                                        <h3>{doll.name}</h3>
+                                                        <h3>
+                                                            <Link
+                                                                href={getDetailsHref(
+                                                                    doll,
+                                                                    mode,
+                                                                    period.startDate,
+                                                                    period.endDate,
+                                                                )}
+                                                                aria-label={`${doll.name} — ${t("viewDetails")}`}
+                                                                className={styles.cardTitleLink}
+                                                            >
+                                                                {doll.name}
+                                                            </Link>
+                                                        </h3>
                                                         <span className={styles.pricePill}>{priceLabel}</span>
                                                     </div>
                                                     <p>{doll.description}</p>

@@ -5,7 +5,7 @@ import { generateReviewTokenAction } from "@/app/admin/(protected)/orders/[id]/r
 import {
     composeReviewMessage,
     whatsappDeepLink,
-} from "@/lib/reviews/invitations";
+} from "@/lib/reviews/wa-helpers";
 import type {
     ReviewOrderType,
     ReviewTargetType,

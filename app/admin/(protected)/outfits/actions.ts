@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
 import type { OutfitMode } from "@/lib/outfits/shared";
+import { enqueueEntityTranslations } from "@/lib/translations/queue";
 
 async function requireAdminSupabase() {
     const supabase = await createSupabaseServerClient();
@@ -78,12 +79,22 @@ function getOutfitPayload(formData: FormData) {
     };
 }
 
+function outfitTranslatableFields(payload: ReturnType<typeof getOutfitPayload>) {
+    return [
+        { key: "label", value: payload.label },
+        { key: "description", value: payload.description },
+    ];
+}
+
 export async function createOutfitAction(formData: FormData) {
     const supabase = await requireAdminSupabase();
+    const payload = getOutfitPayload(formData);
 
-    const { error } = await supabase
+    const { data: inserted, error } = await supabase
         .from("doll_outfits")
-        .insert(getOutfitPayload(formData));
+        .insert(payload)
+        .select("id")
+        .single();
 
     if (error) {
         throw new Error(error.message);
@@ -91,15 +102,23 @@ export async function createOutfitAction(formData: FormData) {
 
     revalidatePath("/admin/outfits");
     revalidatePath("/catalog");
+    if (inserted?.id) {
+        await enqueueEntityTranslations({
+            entity: "doll_outfit",
+            entityId: inserted.id as string,
+            fields: outfitTranslatableFields(payload),
+        });
+    }
     redirect("/admin/outfits");
 }
 
 export async function updateOutfitAction(id: string, formData: FormData) {
     const supabase = await requireAdminSupabase();
+    const payload = getOutfitPayload(formData);
 
     const { error } = await supabase
         .from("doll_outfits")
-        .update(getOutfitPayload(formData))
+        .update(payload)
         .eq("id", id);
 
     if (error) {
@@ -108,6 +127,11 @@ export async function updateOutfitAction(id: string, formData: FormData) {
 
     revalidatePath("/admin/outfits");
     revalidatePath("/catalog");
+    await enqueueEntityTranslations({
+        entity: "doll_outfit",
+        entityId: id,
+        fields: outfitTranslatableFields(payload),
+    });
     redirect("/admin/outfits");
 }
 

@@ -11,6 +11,8 @@ import {
     type ShopProduct,
     type ShopProductRow,
 } from "@/lib/shop/shared";
+import type { Locale } from "@/i18n/routing";
+import { getEntityTranslations } from "@/lib/translations/store";
 
 const CACHE = {
     categories: cacheKey("shop", "categories", "v1"),
@@ -74,6 +76,66 @@ async function getRawShopProducts(): Promise<ShopProduct[]> {
             .order("created_at", { ascending: false });
         if (error) throw new Error(error.message);
         return ((data ?? []) as ShopProductRow[]).map(mapProductRow);
+    });
+}
+
+/**
+ * Aplică traducerile auto-generate pentru un set de produse. RO trece prin
+ * fără modificări. Pentru EN/NL, suprascriem `name`, `shortDescription`,
+ * `description` cu valoarea localizată (dacă există). Câmpurile rămân la
+ * RO ca fallback dacă jobul nu a rulat încă.
+ */
+export async function localizeProducts(
+    products: ShopProduct[],
+    locale: Locale,
+): Promise<ShopProduct[]> {
+    if (locale === "ro" || products.length === 0) return products;
+    const translations = await getEntityTranslations(
+        "shop_product",
+        products.map((p) => p.id),
+        locale,
+    );
+    if (translations.size === 0) return products;
+    return products.map((product) => {
+        const t = translations.get(product.id);
+        if (!t) return product;
+        return {
+            ...product,
+            name: t.name?.trim() || product.name,
+            shortDescription: t.short_description?.trim() || product.shortDescription,
+            description: t.description?.trim() || product.description,
+        };
+    });
+}
+
+export async function localizeCategories(
+    categories: ShopCategory[],
+    rows: ShopCategoryRow[],
+    locale: Locale,
+): Promise<ShopCategory[]> {
+    // `categoriesAsPublic` deja folosește coloanele _en/_nl când există. Aici
+    // doar acoperim cazul în care editorul nu le-a completat manual și worker-ul
+    // a populat content_translations.
+    if (locale === "ro" || categories.length === 0) return categories;
+    const translations = await getEntityTranslations(
+        "shop_category",
+        categories.map((c) => c.id),
+        locale,
+    );
+    if (translations.size === 0) return categories;
+    const rowById = new Map(rows.map((r) => [r.id, r]));
+    return categories.map((cat) => {
+        const t = translations.get(cat.id);
+        if (!t) return cat;
+        const row = rowById.get(cat.id);
+        const manualName = locale === "en" ? row?.name_en : row?.name_nl;
+        const manualDesc =
+            locale === "en" ? row?.description_en : row?.description_nl;
+        return {
+            ...cat,
+            name: manualName?.trim() || t.name?.trim() || cat.name,
+            description: manualDesc?.trim() || t.description?.trim() || cat.description,
+        };
     });
 }
 

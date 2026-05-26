@@ -6,6 +6,8 @@ import type {
     CustomizationMode,
     CustomizationOptionRow,
 } from "@/lib/customizations/shared";
+import type { Locale } from "@/i18n/routing";
+import { getEntityTranslations } from "@/lib/translations/store";
 
 export type {
     CustomizationGroupRow,
@@ -221,11 +223,45 @@ export async function getCustomizationOptionById(id: string) {
     return data as CustomizationOptionRow;
 }
 
-export async function getCustomizationGroupsWithOptionsForCatalog() {
+async function localizeGroups(
+    groups: CustomizationGroupWithOptions[],
+    locale: Locale,
+): Promise<CustomizationGroupWithOptions[]> {
+    if (locale === "ro" || groups.length === 0) return groups;
+
+    const allOptions = groups.flatMap((g) => g.options);
+    const [groupTr, optionTr] = await Promise.all([
+        getEntityTranslations("doll_customization_group", groups.map((g) => g.id), locale),
+        getEntityTranslations("doll_customization_option", allOptions.map((o) => o.id), locale),
+    ]);
+
+    return groups.map((group) => {
+        const gt = groupTr.get(group.id);
+        return {
+            ...group,
+            title: gt?.title?.trim() || group.title,
+            description: gt?.description?.trim() || group.description,
+            options: group.options.map((option) => {
+                const ot = optionTr.get(option.id);
+                return {
+                    ...option,
+                    label: ot?.label?.trim() || option.label,
+                    description: ot?.description?.trim() || option.description,
+                };
+            }),
+        };
+    });
+}
+
+export async function getCustomizationGroupsWithOptionsForCatalog(locale?: Locale) {
     const [rent, buy] = await Promise.all([
         getCustomizationGroupsWithOptionsForMode("rent"),
         getCustomizationGroupsWithOptionsForMode("buy"),
     ]);
-
-    return { rent, buy };
+    if (!locale || locale === "ro") return { rent, buy };
+    const [rentL, buyL] = await Promise.all([
+        localizeGroups(rent, locale),
+        localizeGroups(buy, locale),
+    ]);
+    return { rent: rentL, buy: buyL };
 }

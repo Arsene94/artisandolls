@@ -1,6 +1,8 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { CollectionRow } from "@/lib/collections/shared";
+import type { Locale } from "@/i18n/routing";
+import { getEntityTranslations } from "@/lib/translations/store";
 
 export type {
     CollectionRow,
@@ -10,6 +12,33 @@ export type {
 export {
     formatCollectionType,
 } from "@/lib/collections/shared";
+
+/**
+ * Aplică traducerile auto pe rândurile de colecție. `name`, `description`
+ * și `badge` sunt câmpurile enqueued în lib/translations/queue.
+ */
+export async function localizeCollectionRows(
+    rows: CollectionRow[],
+    locale: Locale,
+): Promise<CollectionRow[]> {
+    if (locale === "ro" || rows.length === 0) return rows;
+    const translations = await getEntityTranslations(
+        "doll_collection",
+        rows.map((r) => r.id),
+        locale,
+    );
+    if (translations.size === 0) return rows;
+    return rows.map((row) => {
+        const t = translations.get(row.id);
+        if (!t) return row;
+        return {
+            ...row,
+            name: t.name?.trim() || row.name,
+            description: t.description?.trim() || row.description,
+            badge: t.badge?.trim() || row.badge,
+        };
+    });
+}
 
 export async function getCollectionRows(includeInactive = false) {
     const supabase = await createSupabaseServerClient();

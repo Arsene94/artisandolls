@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: DollPageProps): Promise<Metad
     const { id, locale } = await params;
     const t = await getTranslations({ locale, namespace: "metadata" });
     const [doll, settings] = await Promise.all([
-        getDollBySlug(id),
+        getDollBySlug(id, locale),
         getPublicPlatformSettings().catch(() => null),
     ]);
     const siteUrl = getSiteUrl(settings?.public_site_url ?? null);
@@ -104,9 +104,9 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
     const tFooter = await getTranslations({ locale, namespace: "footer" });
 
     const [doll, customizations, outfits, settings] = await Promise.all([
-        getDollBySlug(id),
-        getCustomizationGroupsWithOptionsForCatalog(),
-        getOutfitsForCatalog(),
+        getDollBySlug(id, locale),
+        getCustomizationGroupsWithOptionsForCatalog(locale),
+        getOutfitsForCatalog(locale),
         getPublicPlatformSettings(),
     ]);
 

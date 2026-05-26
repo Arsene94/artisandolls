@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
 import type { CollectionType } from "@/lib/collections/shared";
 import { invalidateCatalog } from "@/lib/upstash/cache";
+import { enqueueEntityTranslations } from "@/lib/translations/queue";
 
 async function requireAdminSupabase() {
     const supabase = await createSupabaseServerClient();
@@ -90,13 +91,23 @@ function getCollectionPayload(formData: FormData) {
     };
 }
 
+function collectionTranslatableFields(payload: ReturnType<typeof getCollectionPayload>) {
+    return [
+        { key: "name", value: payload.name },
+        { key: "description", value: payload.description },
+        { key: "badge", value: payload.badge },
+    ];
+}
+
 export async function createCollectionAction(formData: FormData) {
     const supabase = await requireAdminSupabase();
     const payload = getCollectionPayload(formData);
 
-    const { error } = await supabase
+    const { data: inserted, error } = await supabase
         .from("doll_collections")
-        .insert(payload);
+        .insert(payload)
+        .select("id")
+        .single();
 
     if (error) {
         throw new Error(error.message);
@@ -105,6 +116,14 @@ export async function createCollectionAction(formData: FormData) {
     revalidatePath("/admin/collections");
     revalidatePath("/admin/dolls");
     await revalidatePublicCollectionPaths();
+
+    if (inserted?.id) {
+        await enqueueEntityTranslations({
+            entity: "doll_collection",
+            entityId: inserted.id as string,
+            fields: collectionTranslatableFields(payload),
+        });
+    }
 
     redirect("/admin/collections");
 }
@@ -132,6 +151,12 @@ export async function updateCollectionAction(id: string, formData: FormData) {
     revalidatePath("/admin/collections");
     revalidatePath("/admin/dolls");
     await revalidatePublicCollectionPaths();
+
+    await enqueueEntityTranslations({
+        entity: "doll_collection",
+        entityId: id,
+        fields: collectionTranslatableFields(payload),
+    });
 
     redirect("/admin/collections");
 }

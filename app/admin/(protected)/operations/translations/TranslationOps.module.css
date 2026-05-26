@@ -1,0 +1,367 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.summary {
+    background: rgba(16, 7, 16, 0.82);
+    border: 1px solid rgba(255, 79, 163, 0.16);
+    box-shadow: var(--shadow-sm);
+    border-radius: 18px;
+    padding: 28px;
+}
+
+.summaryHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.eyebrow {
+    display: block;
+    color: var(--color-gold-light);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.bigNumber {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    color: var(--color-white);
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-weight: 500;
+    line-height: 1;
+}
+
+.bigNumber small {
+    color: rgba(255, 255, 255, 0.55);
+    font-family: var(--font-body, inherit);
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.statRow {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.statPill {
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(212, 175, 55, 0.18);
+    border-radius: 12px;
+    padding: 10px 16px;
+    min-width: 110px;
+}
+
+.statPill span {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.statPill strong {
+    color: var(--color-white);
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.statPillDanger {
+    border-color: rgba(228, 99, 99, 0.45);
+}
+
+.statPillDanger strong {
+    color: #ff9a9a;
+}
+
+.progressTrack {
+    width: 100%;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.progressBar {
+    height: 100%;
+    transition: width 0.4s ease;
+    border-radius: 999px;
+}
+
+.progressBarLow {
+    background: linear-gradient(90deg, #e46363, #f49a59);
+}
+
+.progressBarMid {
+    background: linear-gradient(90deg, #f4b758, #f0d36e);
+}
+
+.progressBarHigh {
+    background: linear-gradient(90deg, #e0d27a, #b5e87a);
+}
+
+.progressBarComplete {
+    background: linear-gradient(90deg, #5dd082, #8ce0a0);
+}
+
+.actionRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.primaryBtn,
+.secondaryBtn,
+.dangerBtn,
+.dangerBtnSmall,
+.linkBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.primaryBtn {
+    background: var(--color-gold);
+    color: var(--color-velvet-950, #0F0406);
+}
+
+.primaryBtn:hover:not(:disabled) {
+    background: var(--color-gold-light);
+}
+
+.secondaryBtn {
+    background: transparent;
+    border-color: rgba(212, 175, 55, 0.4);
+    color: var(--color-gold-light);
+}
+
+.secondaryBtn:hover:not(:disabled) {
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.dangerBtn {
+    background: rgba(228, 99, 99, 0.18);
+    border-color: rgba(228, 99, 99, 0.45);
+    color: #ff9a9a;
+}
+
+.dangerBtn:hover:not(:disabled) {
+    background: rgba(228, 99, 99, 0.32);
+}
+
+.dangerBtnSmall {
+    padding: 6px 12px;
+    font-size: 0.7rem;
+    background: rgba(228, 99, 99, 0.14);
+    border-color: rgba(228, 99, 99, 0.35);
+    color: #ffb3b3;
+}
+
+.dangerBtnSmall:hover:not(:disabled) {
+    background: rgba(228, 99, 99, 0.28);
+}
+
+.linkBtn {
+    background: transparent;
+    color: var(--color-white);
+    border-color: rgba(255, 255, 255, 0.15);
+    padding: 6px 12px;
+    font-size: 0.72rem;
+}
+
+.linkBtn:hover:not(:disabled) {
+    border-color: rgba(212, 175, 55, 0.55);
+    color: var(--color-gold-light);
+}
+
+.primaryBtn:disabled,
+.secondaryBtn:disabled,
+.dangerBtn:disabled,
+.dangerBtnSmall:disabled,
+.linkBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.autoRefresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.78rem;
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.autoRefresh input[type="checkbox"] {
+    accent-color: var(--color-gold);
+}
+
+.status {
+    margin-top: 14px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.82rem;
+}
+
+.error {
+    margin-top: 14px;
+    color: #ff9a9a;
+    font-size: 0.82rem;
+}
+
+.tableWrap {
+    background: rgba(16, 7, 16, 0.82);
+    border: 1px solid rgba(255, 79, 163, 0.16);
+    box-shadow: var(--shadow-sm);
+    border-radius: 18px;
+    padding: 28px;
+}
+
+.tableHeader {
+    margin-bottom: 18px;
+}
+
+.tableHeader h2 {
+    color: var(--color-white);
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin: 0 0 6px;
+}
+
+.tableHeader p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 720px;
+}
+
+.table {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tableHead,
+.tableRow {
+    display: grid;
+    grid-template-columns: minmax(180px, 1.6fr) 80px 1.4fr 90px 90px 90px 100px 1.6fr;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+}
+
+.tableHead {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.18);
+}
+
+.tableRow {
+    background: rgba(0, 0, 0, 0.22);
+    color: var(--color-white);
+    font-size: 0.9rem;
+}
+
+.tableRow:hover {
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.entityName {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.entityName strong {
+    font-weight: 600;
+    color: var(--color-white);
+}
+
+.entityName small {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+}
+
+.progressCell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.progressTrackInline {
+    flex: 1;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progressBarInline {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease;
+}
+
+.progressCell strong {
+    min-width: 42px;
+    text-align: right;
+    color: var(--color-white);
+}
+
+.rowActions {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.danger {
+    color: #ff9a9a;
+    font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+    .tableHead,
+    .tableRow {
+        grid-template-columns: 1fr 1fr;
+    }
+    .tableHead {
+        display: none;
+    }
+    .tableRow {
+        grid-template-columns: 1fr;
+    }
+    .rowActions {
+        justify-content: flex-start;
+    }
+}

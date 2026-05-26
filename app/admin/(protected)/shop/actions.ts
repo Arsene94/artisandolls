@@ -9,6 +9,7 @@ import {
     upsertShopProductVectors,
 } from "@/lib/upstash/shop-vector-sync";
 import type { ShopOrderStatus, ShopProductRow } from "@/lib/shop/shared";
+import { enqueueEntityTranslations } from "@/lib/translations/queue";
 
 async function requireAdmin() {
     const supabase = await createSupabaseServerClient();
@@ -110,13 +111,31 @@ function categoryPayload(formData: FormData) {
     };
 }
 
+function categoryTranslatableFields(payload: ReturnType<typeof categoryPayload>) {
+    return [
+        { key: "name", value: payload.name },
+        { key: "description", value: payload.description },
+    ];
+}
+
 export async function createCategoryAction(formData: FormData) {
     const supabase = await requireAdmin();
     const payload = categoryPayload(formData);
     if (!payload.name) throw new Error("Numele este obligatoriu.");
-    const { error } = await supabase.from("shop_categories").insert(payload);
+    const { data: inserted, error } = await supabase
+        .from("shop_categories")
+        .insert(payload)
+        .select("id")
+        .single();
     if (error) throw new Error(error.message);
     await revalidateShopPaths();
+    if (inserted?.id) {
+        await enqueueEntityTranslations({
+            entity: "shop_category",
+            entityId: inserted.id as string,
+            fields: categoryTranslatableFields(payload),
+        });
+    }
     redirect("/admin/shop/categories");
 }
 
@@ -130,6 +149,11 @@ export async function updateCategoryAction(id: string, formData: FormData) {
         .eq("id", id);
     if (error) throw new Error(error.message);
     await revalidateShopPaths();
+    await enqueueEntityTranslations({
+        entity: "shop_category",
+        entityId: id,
+        fields: categoryTranslatableFields(payload),
+    });
     redirect("/admin/shop/categories");
 }
 
@@ -208,6 +232,14 @@ function productPayload(formData: FormData) {
     };
 }
 
+function productTranslatableFields(payload: ReturnType<typeof productPayload>) {
+    return [
+        { key: "name", value: payload.name },
+        { key: "short_description", value: payload.short_description },
+        { key: "description", value: payload.description },
+    ];
+}
+
 export async function createProductAction(formData: FormData) {
     const supabase = await requireAdmin();
     const payload = productPayload(formData);
@@ -221,6 +253,11 @@ export async function createProductAction(formData: FormData) {
     await revalidateShopPaths();
     if (inserted) {
         await upsertShopProductVectors(inserted as ShopProductRow);
+        await enqueueEntityTranslations({
+            entity: "shop_product",
+            entityId: (inserted as ShopProductRow).id,
+            fields: productTranslatableFields(payload),
+        });
     }
     redirect("/admin/shop/products");
 }
@@ -240,6 +277,11 @@ export async function updateProductAction(id: string, formData: FormData) {
     if (updated) {
         await upsertShopProductVectors(updated as ShopProductRow);
     }
+    await enqueueEntityTranslations({
+        entity: "shop_product",
+        entityId: id,
+        fields: productTranslatableFields(payload),
+    });
     redirect("/admin/shop/products");
 }
 
