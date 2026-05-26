@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -15,6 +14,11 @@ import { similarShopProducts } from "@/lib/upstash/shop-vector-search";
 import { getPublicPlatformSettings } from "@/lib/settings";
 import { formatMoney } from "@/lib/shop/format";
 import { getSiteUrl, localeAlternates, localeUrl } from "@/lib/site";
+import ReviewsSection from "@/components/reviews/ReviewsSection";
+import { getApprovedReviewsForTarget } from "@/lib/reviews/queries";
+import { buildReviewsLd } from "@/lib/reviews/ld";
+import VariantSelector from "@/components/shop/VariantSelector";
+import { getVariantSiblings } from "@/lib/shop/products";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import AddToCartButton from "@/components/shop/AddToCartButton";
 import ShopProductCard from "@/components/shop/ShopProductCard";
@@ -108,25 +112,136 @@ export default async function ShopProductPage({ params }: Props) {
           : t("inStock");
 
     const siteUrl = getSiteUrl(settings?.public_site_url ?? null);
-    const productLd = {
+    const canonicalUrl = localeUrl(siteUrl, locale, `/shop/p/${product.slug}`);
+    const galleryImages = [product.image, ...(product.images ?? [])]
+        .filter((src): src is string => Boolean(src))
+        .map((src) => getSupabaseImageUrl(src, "gallery"));
+    const priceValidUntil = new Date(
+        Date.now() + 90 * 24 * 60 * 60 * 1000,
+    ).toISOString().slice(0, 10);
+
+    const productLd: Record<string, unknown> = {
         "@context": "https://schema.org",
         "@type": "Product",
+        "@id": `${canonicalUrl}#product`,
         name: product.name,
         description: product.description ?? product.shortDescription ?? undefined,
-        sku: product.sku ?? undefined,
-        brand: product.brand ?? undefined,
-        image: product.image
-            ? [getSupabaseImageUrl(product.image, "card")]
-            : undefined,
+        sku: product.sku ?? product.slug,
+        mpn: product.sku ?? product.slug,
+        brand: { "@type": "Brand", name: product.brand ?? "Velvet Companions" },
+        audience: { "@type": "PeopleAudience", suggestedMinAge: 18 },
+        isFamilyFriendly: false,
         offers: {
             "@type": "Offer",
-            url: localeUrl(siteUrl, locale, `/shop/p/${product.slug}`),
+            url: canonicalUrl,
             priceCurrency: product.currency,
             price: product.price,
+            priceValidUntil,
+            itemCondition: "https://schema.org/NewCondition",
             availability: product.isInStock
                 ? "https://schema.org/InStock"
                 : "https://schema.org/OutOfStock",
+            seller: { "@id": `${siteUrl}/#org` },
         },
+    };
+    if (galleryImages.length > 0) productLd.image = galleryImages;
+    if (category) productLd.category = category.name;
+
+    const variantSiblings = product.variantGroupId
+        ? await getVariantSiblings(product.variantGroupId)
+        : [];
+    const hasVariants = variantSiblings.length > 1;
+
+    let productGroupLd: Record<string, unknown> | null = null;
+    if (hasVariants && product.variantGroupId) {
+        // Schema ProductGroup descrie grupul abstract; fiecare variantă rămâne
+        // un Product distinct cu propriul URL + propriul Offer. variesBy
+        // enumerează axele detectate în siblings — Google le folosește pentru
+        // a afișa selector în SERP rich result.
+        const variesBy = new Set<string>();
+        for (const sibling of variantSiblings) {
+            if (sibling.variantAxes) {
+                for (const axis of Object.keys(sibling.variantAxes)) {
+                    variesBy.add(axis);
+                }
+            }
+        }
+        productGroupLd = {
+            "@context": "https://schema.org",
+            "@type": "ProductGroup",
+            "@id": `${siteUrl}/#variant-group/${product.variantGroupId}`,
+            name: product.name,
+            description: product.description ?? product.shortDescription ?? undefined,
+            brand: { "@type": "Brand", name: product.brand ?? "Velvet Companions" },
+            productGroupID: product.variantGroupId,
+            variesBy: Array.from(variesBy).map((axis) => `https://schema.org/${axis}`),
+            hasVariant: variantSiblings.map((sibling) => ({
+                "@type": "Product",
+                "@id": `${localeUrl(siteUrl, locale, `/shop/p/${sibling.slug}`)}#product`,
+                url: localeUrl(siteUrl, locale, `/shop/p/${sibling.slug}`),
+                name: sibling.variantLabel ?? sibling.name,
+                sku: sibling.sku ?? sibling.slug,
+                additionalProperty: sibling.variantAxes
+                    ? Object.entries(sibling.variantAxes).map(([name, value]) => ({
+                          "@type": "PropertyValue",
+                          name,
+                          value,
+                      }))
+                    : undefined,
+                offers: {
+                    "@type": "Offer",
+                    priceCurrency: sibling.currency,
+                    price: sibling.price,
+                    availability: sibling.isInStock
+                        ? "https://schema.org/InStock"
+                        : "https://schema.org/OutOfStock",
+                },
+            })),
+        };
+        productLd.isVariantOf = { "@id": productGroupLd["@id"] };
+        if (product.variantAxes) {
+            productLd.additionalProperty = Object.entries(product.variantAxes).map(
+                ([name, value]) => ({
+                    "@type": "PropertyValue",
+                    name,
+                    value,
+                }),
+            );
+        }
+    }
+
+    const { reviews: productReviews, aggregate: productAggregate } =
+        await getApprovedReviewsForTarget("shop_product", product.id);
+    const reviewsLd = buildReviewsLd(productReviews, productAggregate);
+    if (reviewsLd) Object.assign(productLd, reviewsLd);
+
+    const breadcrumbLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            {
+                "@type": "ListItem",
+                position: 1,
+                name: t("title"),
+                item: localeUrl(siteUrl, locale, "/shop"),
+            },
+            ...(category
+                ? [
+                      {
+                          "@type": "ListItem",
+                          position: 2,
+                          name: category.name,
+                          item: localeUrl(siteUrl, locale, `/shop/c/${category.slug}`),
+                      },
+                  ]
+                : []),
+            {
+                "@type": "ListItem",
+                position: category ? 3 : 2,
+                name: product.name,
+                item: canonicalUrl,
+            },
+        ],
     };
 
     return (
@@ -172,7 +287,9 @@ export default async function ShopProductPage({ params }: Props) {
                             {product.image ? (
                                 <Image
                                     src={getSupabaseImageUrl(product.image, "gallery")}
-                                    alt={product.name}
+                                    alt={[product.name, product.brand, category?.name]
+                                        .filter(Boolean)
+                                        .join(" — ")}
                                     fill
                                     sizes="(max-width: 1024px) 100vw, 50vw"
                                     priority
@@ -189,7 +306,7 @@ export default async function ShopProductPage({ params }: Props) {
                                     >
                                         <Image
                                             src={getSupabaseImageUrl(path, "card")}
-                                            alt={`${product.name} — ${idx + 2}`}
+                                            alt={`${product.name} — vedere ${idx + 2}`}
                                             fill
                                             sizes="120px"
                                             className="object-cover object-center"
@@ -241,6 +358,15 @@ export default async function ShopProductPage({ params }: Props) {
                                 {stockBadge}
                             </span>
                         </div>
+
+                        {hasVariants ? (
+                            <VariantSelector
+                                current={product}
+                                siblings={variantSiblings}
+                                label={t("variantsLabel")}
+                                outOfStockLabel={t("outOfStock")}
+                            />
+                        ) : null}
 
                         <div className="mt-8 max-w-sm">
                             <AddToCartButton
@@ -317,10 +443,30 @@ export default async function ShopProductPage({ params }: Props) {
                 ) : null}
             </div>
 
-            <Script
-                id={`ld-shop-product-${product.id}`}
+            <ReviewsSection
+                locale={locale}
+                reviews={productReviews}
+                aggregate={productAggregate}
+            />
+
+            <script
                 type="application/ld+json"
+                // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
+            />
+            {productGroupLd ? (
+                <script
+                    type="application/ld+json"
+                    // eslint-disable-next-line react/no-danger
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify(productGroupLd),
+                    }}
+                />
+            ) : null}
+            <script
+                type="application/ld+json"
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
             />
         </main>
     );

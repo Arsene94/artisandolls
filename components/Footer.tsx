@@ -50,9 +50,13 @@ export default async function Footer({
     const navLinks = [
         { href: "/", label: t("navHome") },
         { href: "/catalog", label: t("navCatalog") },
-        { href: "/#servicii", label: t("navServices") },
-        { href: "/#hygiene", label: t("navHygiene") },
-        { href: "/#contact", label: t("navContact") },
+        { href: "/colectii", label: t("collections") },
+        { href: "/shop", label: t("navShop") },
+        { href: "/blog", label: t("navBlog") },
+        { href: "/faq", label: t("navFaq") },
+        { href: "/glosar", label: t("navGlossary") },
+        { href: "/about", label: t("navAbout") },
+        { href: "/contact", label: t("navContact") },
     ];
 
     const legalLinks = [

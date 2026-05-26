@@ -11,6 +11,10 @@ import {
     deleteOrderAction,
     updateOrderStatusFromFormAction,
 } from "@/app/admin/(protected)/orders/actions";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSiteUrl } from "@/lib/site";
+import { getPublicPlatformSettings } from "@/lib/settings";
+import ReviewInvitationCard from "@/components/admin/reviews/ReviewInvitationCard";
 import styles from "../../page.module.css";
 
 type AdminOrderPageProps = {
@@ -146,6 +150,21 @@ function getWhatsappHref(phone: string) {
     return `https://wa.me/${cleanPhone}`;
 }
 
+async function getExistingReviewToken(
+    orderId: string,
+    targetId: string,
+): Promise<string | null> {
+    const supabase = await createSupabaseServerClient();
+    const { data } = await supabase
+        .from("reviews")
+        .select("review_token, status")
+        .eq("order_id", orderId)
+        .eq("target_id", targetId)
+        .in("status", ["invited", "pending", "approved"])
+        .maybeSingle();
+    return data && typeof data.review_token === "string" ? data.review_token : null;
+}
+
 export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
     const { id } = await params;
     const order = await getAdminOrderById(id);
@@ -157,6 +176,11 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
     const statusOptions = getOrderStatusOptions(order.mode);
     const isRent = order.mode === "rent";
     const pricePerDay = getPricePerDay(order);
+    const settings = await getPublicPlatformSettings().catch(() => null);
+    const siteUrl = getSiteUrl(settings?.public_site_url ?? null);
+    const existingReviewToken = order.doll_id
+        ? await getExistingReviewToken(order.id, order.doll_id)
+        : null;
 
     return (
         <main className={styles.page}>
@@ -368,6 +392,24 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
                     </article>
                 </aside>
             </section>
+
+            {order.doll_id ? (
+                <section className="max-w-4xl mx-auto px-6 py-8">
+                    <ReviewInvitationCard
+                        productLabel={order.doll_name}
+                        targetType="doll"
+                        targetId={order.doll_id}
+                        orderType={order.mode === "buy" ? "doll_purchase" : "doll_rental"}
+                        orderId={order.id}
+                        customerName={order.customer_name}
+                        customerPhone={order.customer_phone}
+                        siteUrl={siteUrl}
+                        customerLocale="ro"
+                        existingToken={existingReviewToken}
+                        revalidatePath={`/admin/orders/${order.id}`}
+                    />
+                </section>
+            ) : null}
         </main>
     );
 }

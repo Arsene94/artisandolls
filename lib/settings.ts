@@ -15,7 +15,7 @@ export type {
 } from "@/lib/settings/shared";
 
 const defaultPublicSettings: PublicPlatformSettings = {
-    business_name: "Artisan Dolls",
+    business_name: "Velvet Companions",
     public_site_url: null,
     contact_email: null,
     contact_phone: null,

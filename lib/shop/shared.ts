@@ -59,6 +59,9 @@ export type ShopProductRow = {
     is_active: boolean;
     display_order: number;
     category_id: string | null;
+    variant_group_id: string | null;
+    variant_axes: Record<string, string> | null;
+    variant_label: string | null;
     created_at: string;
     updated_at: string;
 };
@@ -85,6 +88,9 @@ export type ShopProduct = {
     isFeatured: boolean;
     isInStock: boolean;
     categoryId: string | null;
+    variantGroupId: string | null;
+    variantAxes: Record<string, string> | null;
+    variantLabel: string | null;
 };
 
 export function mapCategoryRow(row: ShopCategoryRow): ShopCategory {
@@ -120,6 +126,9 @@ export function mapProductRow(row: ShopProductRow): ShopProduct {
         isFeatured: row.is_featured,
         isInStock: !row.track_stock || row.stock_quantity > 0,
         categoryId: row.category_id,
+        variantGroupId: row.variant_group_id,
+        variantAxes: row.variant_axes,
+        variantLabel: row.variant_label,
     };
 }
 

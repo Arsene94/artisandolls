@@ -145,6 +145,32 @@ export async function deleteCategoryAction(id: string) {
 
 // ─── Products ──────────────────────────────────────────────────────
 
+function parseVariantAxes(raw: string): Record<string, string> | null {
+    if (!raw) return null;
+    try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+            const out: Record<string, string> = {};
+            for (const [k, v] of Object.entries(parsed)) {
+                const key = String(k).trim();
+                if (!key) continue;
+                out[key] = String(v).trim();
+            }
+            return Object.keys(out).length > 0 ? out : null;
+        }
+    } catch {
+        // Acceptăm și forma „size: L; color: red" pentru când admin-ul nu vrea JSON.
+        const pairs = raw
+            .split(/[;\n]+/)
+            .map((p) => p.split(":").map((s) => s.trim()))
+            .filter((pair) => pair.length === 2 && pair[0] && pair[1]);
+        if (pairs.length > 0) {
+            return Object.fromEntries(pairs) as Record<string, string>;
+        }
+    }
+    return null;
+}
+
 function productPayload(formData: FormData) {
     const name = getString(formData, "name");
     const customSlug = getString(formData, "slug");
@@ -176,6 +202,9 @@ function productPayload(formData: FormData) {
         is_featured: getBoolean(formData, "is_featured"),
         is_active: getBoolean(formData, "is_active"),
         display_order: getNumber(formData, "display_order"),
+        variant_group_id: getNullableString(formData, "variant_group_id"),
+        variant_axes: parseVariantAxes(getString(formData, "variant_axes")),
+        variant_label: getNullableString(formData, "variant_label"),
     };
 }
 
@@ -316,6 +345,8 @@ const VALID_STATUSES: ShopOrderStatus[] = [
     "refunded",
 ];
 
+const SHOP_DELIVERED_STATUSES: ShopOrderStatus[] = ["delivered", "completed"];
+
 export async function updateShopOrderStatusAction(
     id: string,
     status: ShopOrderStatus,
@@ -329,6 +360,51 @@ export async function updateShopOrderStatusAction(
         .update({ status })
         .eq("id", id);
     if (error) throw new Error(error.message);
+
+    if (SHOP_DELIVERED_STATUSES.includes(status)) {
+        // Generăm invitații de review pentru fiecare produs din comandă. Lazy
+        // import — evităm încărcarea modulului review-invitations la fiecare hit
+        // pe actions.ts când nu e nevoie de el (e folosit doar pe terminale).
+        try {
+            const { data: lines } = await supabase
+                .from("shop_order_items")
+                .select("product_id")
+                .eq("order_id", id);
+            const { data: order } = await supabase
+                .from("shop_orders")
+                .select("customer_name")
+                .eq("id", id)
+                .maybeSingle();
+            if (Array.isArray(lines) && lines.length > 0) {
+                const { createOrFetchInvitation } = await import(
+                    "@/lib/reviews/invitations"
+                );
+                for (const line of lines) {
+                    if (typeof line.product_id !== "string") continue;
+                    await createOrFetchInvitation({
+                        targetType: "shop_product",
+                        targetId: line.product_id,
+                        orderType: "shop_order",
+                        orderId: id,
+                        customerName:
+                            typeof order?.customer_name === "string"
+                                ? order.customer_name
+                                : null,
+                    }).catch((err) => {
+                        console.warn(
+                            "[reviews] shop invitation auto-create failed",
+                            id,
+                            line.product_id,
+                            err,
+                        );
+                    });
+                }
+            }
+        } catch (err) {
+            console.warn("[reviews] shop invitations bulk failed", id, err);
+        }
+    }
+
     revalidatePath("/admin/shop/orders");
     revalidatePath(`/admin/shop/orders/${id}`);
 }

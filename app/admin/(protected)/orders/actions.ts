@@ -9,6 +9,7 @@ import {
     type OrderMode,
     type OrderStatus,
 } from "@/lib/orders/shared";
+import { createOrFetchInvitation } from "@/lib/reviews/invitations";
 
 async function requireAdminSupabase() {
     const supabase = await createSupabaseServerClient();
@@ -86,12 +87,21 @@ function formatTotalLabel(total: number) {
         : "Se confirmă după verificare";
 }
 
+// Statusuri terminale pe care le tratăm ca semnal că livrarea s-a încheiat
+// — declanșează generarea invitației de review pentru produsul comandat.
+const DOLL_DELIVERED_STATUSES: OrderStatus[] = [
+    "rent_delivered",
+    "rent_completed",
+    "buy_delivered",
+    "buy_completed",
+];
+
 export async function updateOrderStatusAction(orderId: string, status: OrderStatus) {
     const supabase = await requireAdminSupabase();
 
     const { data: order, error: orderError } = await supabase
         .from("orders")
-        .select("id, mode")
+        .select("id, mode, doll_id, customer_name")
         .eq("id", orderId)
         .single();
 
@@ -110,6 +120,30 @@ export async function updateOrderStatusAction(orderId: string, status: OrderStat
 
     if (error) {
         throw new Error(error.message);
+    }
+
+    // Creează invitație de review când comanda atinge un status livrat.
+    // Idempotent — re-trigger nu duplică tokenul. Eșecul nu rupe actualizarea
+    // statusului (review e secundar fluxului de comenzi).
+    if (
+        DOLL_DELIVERED_STATUSES.includes(status) &&
+        typeof order.doll_id === "string"
+    ) {
+        try {
+            await createOrFetchInvitation({
+                targetType: "doll",
+                targetId: order.doll_id,
+                orderType: order.mode === "buy" ? "doll_purchase" : "doll_rental",
+                orderId,
+                customerName:
+                    typeof order.customer_name === "string"
+                        ? order.customer_name
+                        : null,
+                locale: null,
+            });
+        } catch (err) {
+            console.warn("[reviews] doll invitation auto-create failed", orderId, err);
+        }
     }
 
     revalidatePath("/admin");

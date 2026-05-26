@@ -7,6 +7,9 @@ import {
     type ShopOrderStatus,
 } from "@/lib/shop/shared";
 import { updateShopOrderStatusAction } from "@/app/admin/(protected)/shop/actions";
+import { getPublicPlatformSettings } from "@/lib/settings";
+import { getSiteUrl } from "@/lib/site";
+import ReviewInvitationCard from "@/components/admin/reviews/ReviewInvitationCard";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -34,6 +37,29 @@ export default async function ShopOrderDetailPage({ params }: Props) {
     if (!order) notFound();
 
     const currency = order.currency ?? "RON";
+    const settings = await getPublicPlatformSettings().catch(() => null);
+    const siteUrl = getSiteUrl(settings?.public_site_url ?? null);
+
+    const productIds = (items ?? [])
+        .map((item) => (typeof item.product_id === "string" ? item.product_id : null))
+        .filter((v): v is string => Boolean(v));
+    const existingTokens = new Map<string, string>();
+    if (productIds.length > 0) {
+        const { data: existingRows } = await supabase
+            .from("reviews")
+            .select("target_id, review_token, status")
+            .eq("order_id", id)
+            .in("target_id", productIds)
+            .in("status", ["invited", "pending", "approved"]);
+        for (const row of existingRows ?? []) {
+            if (
+                typeof row.target_id === "string" &&
+                typeof row.review_token === "string"
+            ) {
+                existingTokens.set(row.target_id, row.review_token);
+            }
+        }
+    }
 
     return (
         <main className="px-6 sm:px-10 py-10 max-w-5xl">
@@ -155,6 +181,34 @@ export default async function ShopOrderDetailPage({ params }: Props) {
                     </div>
                 </aside>
             </div>
+
+            {(items ?? []).length > 0 ? (
+                <section className="mt-10 space-y-4">
+                    <h2 className="font-display italic text-xl text-silk mb-2">
+                        Invitații review per produs
+                    </h2>
+                    {(items ?? []).map((item) => {
+                        const existingToken = existingTokens.get(String(item.product_id));
+                        if (typeof item.product_id !== "string") return null;
+                        return (
+                            <ReviewInvitationCard
+                                key={item.id}
+                                productLabel={item.product_name}
+                                targetType="shop_product"
+                                targetId={item.product_id}
+                                orderType="shop_order"
+                                orderId={id}
+                                customerName={order.customer_name}
+                                customerPhone={order.customer_phone}
+                                siteUrl={siteUrl}
+                                customerLocale="ro"
+                                existingToken={existingToken ?? null}
+                                revalidatePath={`/admin/shop/orders/${id}`}
+                            />
+                        );
+                    })}
+                </section>
+            ) : null}
         </main>
     );
 }

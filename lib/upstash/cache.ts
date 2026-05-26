@@ -13,6 +13,11 @@ export const CACHE_KEYS = {
     collections: cacheKey("collections", "public", "v1"),
     heroDoll: cacheKey("dolls", "hero", "v1"),
     dollBySlug: (slug: string) => cacheKey("dolls", "slug", slug, "v1"),
+    blogPosts: cacheKey("blog", "public", "v1"),
+    faqItems: cacheKey("faq", "public", "v1"),
+    blogPostBySlug: (slug: string) => cacheKey("blog", "slug", slug, "v1"),
+    reviewsByTarget: (type: "doll" | "shop_product", id: string) =>
+        cacheKey("reviews", type, id, "v1"),
 } as const;
 
 export async function cached<T>(
@@ -77,4 +82,23 @@ export async function invalidateCatalog(): Promise<void> {
 
 export async function invalidateSettings(): Promise<void> {
     await invalidateKeys(CACHE_KEYS.settings);
+}
+
+export async function invalidateBlog(): Promise<void> {
+    await invalidateKeys(CACHE_KEYS.blogPosts);
+    await invalidatePrefix(cacheKey("blog", "slug"));
+}
+
+export async function invalidateFaq(): Promise<void> {
+    await invalidateKeys(CACHE_KEYS.faqItems);
+}
+
+export async function invalidateReviews(
+    target: { type: "doll" | "shop_product"; id: string } | null = null,
+): Promise<void> {
+    if (target) {
+        await invalidateKeys(CACHE_KEYS.reviewsByTarget(target.type, target.id));
+        return;
+    }
+    await invalidatePrefix(cacheKey("reviews"));
 }

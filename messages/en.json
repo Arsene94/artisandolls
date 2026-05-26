@@ -2,13 +2,13 @@
   "metadata": {
     "homeTitle": "Velvet Companions – Premium Hyper-Realistic Doll Rental & Purchase",
     "homeDescription": "Luxury, intimacy and hyper-realism. Discreet rental and purchase of personalised companions.",
-    "catalogTitle": "Companion catalog – Velvet Studio",
-    "catalogDescription": "Explore the Velvet Studio collection available to rent or buy.",
-    "dollUnavailableTitle": "Companion unavailable – Velvet Studio",
-    "checkoutTitle": "Checkout – Velvet Studio",
-    "checkoutDescription": "Complete the delivery details for your Velvet Studio order.",
-    "successTitle": "Order sent – Velvet Studio",
-    "successDescription": "Confirmation for your Velvet Studio request."
+    "catalogTitle": "Companion catalogue – Velvet Companions",
+    "catalogDescription": "Browse the Velvet Companions collection: premium realistic TPE and silicone dolls, available for discreet rental or bespoke purchase across the UK and EU.",
+    "dollUnavailableTitle": "Companion unavailable – Velvet Companions",
+    "checkoutTitle": "Checkout – Velvet Companions",
+    "checkoutDescription": "Complete the delivery details for your Velvet Companions order.",
+    "successTitle": "Order sent – Velvet Companions",
+    "successDescription": "Confirmation for your Velvet Companions request."
   },
   "nav": {
     "home": "Home",
@@ -32,7 +32,10 @@
     "customizerMobile": "Companion customizer",
     "experiencesMobile": "Rent vs buy",
     "faqMobile": "Frequently asked questions",
-    "skipToContent": "Skip to main content"
+    "skipToContent": "Skip to main content",
+    "glossary": "Glossary",
+    "about": "About",
+    "blog": "Blog"
   },
   "common": {
     "rent": "Rental",
@@ -306,7 +309,15 @@
     "pickDates": "Pick dates to continue"
   },
   "datePicker": {
-    "weekDays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "weekDays": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ],
     "chooseEnd": "choose end",
     "placeholder": "Choose start date – end date",
     "ariaChoose": "Choose rental period",
@@ -360,7 +371,10 @@
     "resetFilters": "Reset filters",
     "activeFiltersLabel": "Active filters",
     "removeFilter": "Remove filter {label}",
-    "tagsMore": "+{count} more"
+    "tagsMore": "+{count} more",
+    "paginationLabel": "Catalogue pagination",
+    "paginationPrev": "Previous page",
+    "paginationNext": "Next page"
   },
   "details": {
     "back": "Back to catalog",
@@ -615,7 +629,12 @@
     "privacy": "Privacy policy",
     "terms": "Terms & conditions",
     "cookies": "Cookie policy",
-    "ageLimit": "18+ policy"
+    "ageLimit": "18+ policy",
+    "navShop": "Accessories shop",
+    "navGlossary": "Glossary",
+    "navAbout": "About",
+    "navBlog": "Blog",
+    "navFaq": "FAQ"
   },
   "shop": {
     "label": "Discreet shop",
@@ -704,7 +723,11 @@
     "paymentPaidDescription": "We received your payment. Packing starts now.",
     "paymentFailedTitle": "Payment failed",
     "paymentFailedDescription": "Your bank declined the transaction. You can retry with another card or switch to cash on delivery.",
-    "paymentCancelled": "Payment was cancelled. Your cart is intact — you can retry whenever you want."
+    "paymentCancelled": "Payment was cancelled. Your cart is intact — you can retry whenever you want.",
+    "paginationLabel": "Shop pagination",
+    "paginationPrev": "Previous page",
+    "paginationNext": "Next page",
+    "variantsLabel": "Available variants"
   },
   "ageGate": {
     "eyebrow": "18+ verification",
@@ -743,5 +766,160 @@
     "analyticsHelp": "Help us understand how the site is used. Anonymised.",
     "learnMore": "Read the full policy"
   },
-  "skipToContent": "Skip to main content"
+  "skipToContent": "Skip to main content",
+  "glossary": {
+    "indexTitle": "Glossary – essential Velvet Companions terms",
+    "indexDescription": "Concrete definitions for material, anatomy, hygiene and legal terms in the premium realistic-companion world. 25 entries, with sources and real measurements.",
+    "eyebrow": "Niche glossary 18+",
+    "indexLede": "The terms you'll hear most when comparing models, evaluating the deposit, or reading the warranty. Each definition contains verifiable data — tolerances, lifespans, legal articles — so you can decide informed, not on estimates.",
+    "jumpNavLabel": "Jump to category",
+    "relatedHeading": "Related terms",
+    "category": {
+      "material": "Materials",
+      "anatomy": "Anatomy & structure",
+      "process": "Procedures & modules",
+      "service": "Service",
+      "legal": "Legal & consumer rights"
+    }
+  },
+  "collections": {
+    "indexTitle": "Velvet Companions collections",
+    "indexDescription": "Our curated collections — from Limited Edition to seasonal series. Each collection has its own selection criteria for material, skeleton and personalisation.",
+    "eyebrow": "Curated collections",
+    "indexLede": "The selection we keep in studio changes slowly — we add models only after they pass 6-month technical evaluations. That keeps each collection visually coherent and consistent in execution standards.",
+    "emptyTitle": "No active collections",
+    "emptyDescription": "Please check back soon — we are preparing the launch of a new series.",
+    "emptyCollectionTitle": "This collection currently has no active models",
+    "emptyCollectionDescription": "Browse the full catalogue or ask us about availability of a specific piece.",
+    "countLabel": "{count, plural, one {# model} other {# models}} in this collection"
+  },
+  "about": {
+    "title": "About Velvet Companions",
+    "eyebrow": "About us",
+    "lede": "Velvet Companions is the Romanian studio that produces and operates rentals of premium realistic companions, with clinical hygiene standards and an unconditional discretion policy.",
+    "pillars": [
+      {
+        "heading": "Why we started",
+        "body": "Born from a private workshop in 2024, the brand appeared as a response to a concrete problem: the European market for realistic companions was polarised between low-cost products with questionable materials and bespoke pieces with six-month lead times. We wanted a middle path — controlled manufacturing, an option to test through rental, and support in three languages for a regional market until now served only from outside the EU."
+      },
+      {
+        "heading": "What we do differently",
+        "body": "Every model we rent or sell passes through an internal technical evaluation on 14 criteria — from joint tolerances to skin resistance to solvents. The rejection rate is between 20% and 30% per batch. Models that enter the catalogue are then photographed in natural light, without retouching, so there are no surprises at delivery.\n\nBetween rentals every companion goes through a five-step hygiene protocol documented per cycle. Buyers receive the same level of preparation plus 12 months of technical support for the internal skeleton and 6 months for the outer skin."
+      },
+      {
+        "heading": "Who we work for",
+        "body": "Our clients are mostly adults between 30 and 55, with stable incomes, who value discretion above price. The majority of enquiries come from Romania, the Netherlands, and the United Kingdom. Our working languages are Romanian, English and Dutch — each adviser is fluent in at least two."
+      }
+    ],
+    "valuesHeading": "Operating values",
+    "values": [
+      {
+        "label": "Discretion",
+        "text": "Your name never lives in our database beyond the strict duration of the order. Maximum 30 days, then deleted — written confirmation on request."
+      },
+      {
+        "label": "Certified material",
+        "text": "Medical-grade TPE and platinum-cure silicone, both phthalate-free, hypoallergenic, REACH-certified for EU skin contact."
+      },
+      {
+        "label": "Trace-free payment",
+        "text": "Statements show „Velvet Studio SRL” — no adult MCC, no content description. Cash on delivery remains the default."
+      },
+      {
+        "label": "Technical support",
+        "text": "12 months for skeleton and electronic modules, 6 months for outer skin. Minor repairs happen in studio, no upsell."
+      }
+    ],
+    "legalHeading": "Legal operator",
+    "legalIntro": "The legal operator is {operator}, registered in Romania. For tax and legal contact details, see the Terms & Conditions page.",
+    "contactCta": "Contact us for a confidential appointment"
+  },
+  "contact": {
+    "title": "Discreet contact",
+    "eyebrow": "How to reach us",
+    "lede": "We respond within 4 hours during 10:00 – 22:00, seven days a week. The channels below are monitored by human advisers — no chatbot, no auto-replies.",
+    "channelsHeading": "Contact channels",
+    "whatsappLabel": "WhatsApp",
+    "whatsappHelp": "Fastest channel. Your message reaches a dedicated adviser, not a bot.",
+    "phoneLabel": "Phone",
+    "phoneHelp": "For clients who prefer voice. Calls are charged as a national call inside Romania.",
+    "emailLabel": "Commercial email",
+    "emailHelp": "For detailed enquiries, personalised quotes or design previews.",
+    "dpoLabel": "Data protection officer (DPO)",
+    "dpoHelp": "GDPR requests — access, rectification, erasure of your data.",
+    "addressHeading": "Registered office",
+    "addressNote": "Studio visits are by appointment only — access is strictly via confidential booking.",
+    "legalDataHeading": "Legal identification",
+    "legalLine": "Operator: {operator}, VAT ID: {cui}, Trade Register: {reg}.",
+    "termsLink": "Read the full terms & conditions"
+  },
+  "blog": {
+    "indexTitle": "Velvet Companions blog",
+    "indexDescription": "Technical guides, comparisons and legal interpretations for the premium realistic-companion market. Written in-house, with verifiable data.",
+    "eyebrow": "Editorial",
+    "indexLede": "We write an article when a question shows up often enough to deserve its own page. TPE vs silicone, our hygiene protocol, EU right of withdrawal, what to expect on a first rental.",
+    "emptyTitle": "No articles published yet",
+    "emptyDescription": "We are preparing the first four pillar articles. Check back in a few days.",
+    "readMore": "Read article",
+    "readingTime": "{minutes} min read",
+    "tableOfContents": "Table of contents",
+    "tagsLabel": "Tags",
+    "relatedHeading": "Read next",
+    "countLabel": "{count, plural, one {# article} other {# articles}}",
+    "category": {
+      "guide": "Guides",
+      "comparison": "Comparisons",
+      "legal": "Legal",
+      "culture": "Culture"
+    }
+  },
+  "reviews": {
+    "sectionHeading": "Verified reviews",
+    "sectionLede": "Reviews left by customers after delivery. Each one is moderated manually before publication. Total: {count}.",
+    "aggregateLabel": "{count, plural, one {from # review} other {from # reviews}}",
+    "targetLabel": "Review for {name}",
+    "introHeading": "Tell us how it went",
+    "introHelp": "Your answers help us select better models and refine logistics. The review field allows up to 4,000 characters; the optional title, 120.",
+    "ratingLegend": "Overall rating",
+    "ratingLabels": {
+      "1": "Wrong fit",
+      "2": "Below expectations",
+      "3": "Acceptable",
+      "4": "Good",
+      "5": "Excellent"
+    },
+    "titleLabel": "Title (optional)",
+    "bodyLabel": "Your review",
+    "bodyHelp": "At least 30 characters. Technical detail (texture, joints, delivery) helps the most.",
+    "nameLabel": "How you wish to appear publicly",
+    "nameHelp": "We default to initials if the box is unchecked. Your full name stays internal, in our database, for the strict duration of the order.",
+    "publicName": "Publish my full name",
+    "submit": "Submit review",
+    "sending": "Submitting…",
+    "thanksHeading": "Thank you — your review is in moderation",
+    "thanksBody": "A moderator verifies the text within 48 hours. If it goes live on the product page, you will receive a WhatsApp notification.",
+    "statusAlreadySubmittedEyebrow": "Review already received",
+    "statusAlreadySubmittedHeading": "Thank you — we already have your review",
+    "statusAlreadySubmittedBody": "This link has been used. If you need to amend your review, reach us on your preferred channel."
+  },
+  "faq": {
+    "indexTitle": "Frequently asked questions",
+    "indexDescription": "The questions we hear the most — on delivery, hygiene, payment, materials, right of withdrawal. All grounded in concrete data.",
+    "eyebrow": "Help centre",
+    "indexLede": "The most relevant answers, grouped by topic. Search quickly or jump straight to the right category.",
+    "emptyTitle": "No questions published yet.",
+    "searchPlaceholder": "Search the questions…",
+    "searchNoResults": "No matches. Rephrase or write to us directly.",
+    "jumpLabel": "Jump to category",
+    "category": {
+      "delivery": "Delivery",
+      "hygiene": "Hygiene",
+      "payment": "Payment",
+      "materials": "Materials",
+      "rental": "Rental",
+      "purchase": "Purchase",
+      "legal": "Legal",
+      "general": "General"
+    }
+  }
 }

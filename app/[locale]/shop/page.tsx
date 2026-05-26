@@ -47,19 +47,60 @@ export default async function ShopLandingPage({ params }: Props) {
     const { locale } = await params;
     setRequestLocale(locale);
 
-    const [categoryRows, featured, allProducts] = await Promise.all([
+    const [categoryRows, featured, allProducts, settings] = await Promise.all([
         getShopCategories().catch(() => []),
         getFeaturedProducts(8).catch(() => []),
         getShopProducts().catch(() => []),
+        getPublicPlatformSettings().catch(() => null),
     ]);
     const categories = categoriesAsPublic(categoryRows, locale);
     const t = await getTranslations("shop");
+    const siteUrl = getSiteUrl(settings?.public_site_url ?? null);
+
+    const breadcrumbLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            {
+                "@type": "ListItem",
+                position: 1,
+                name: t("title"),
+                item: localeUrl(siteUrl, locale, "/shop"),
+            },
+        ],
+    };
+
+    const collectionLd = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "@id": `${localeUrl(siteUrl, locale, "/shop")}#collection`,
+        name: t("title"),
+        description: t("subtitle"),
+        url: localeUrl(siteUrl, locale, "/shop"),
+        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : "en-GB",
+        isPartOf: { "@id": `${siteUrl}/#website` },
+        hasPart: featured.slice(0, 20).map((product) => ({
+            "@type": "Product",
+            name: product.name,
+            url: localeUrl(siteUrl, locale, `/shop/p/${product.slug}`),
+        })),
+    };
 
     return (
         <main
             data-surface="dark"
             className="bg-velvet-950 text-silk min-h-screen pt-32 pb-24"
         >
+            <script
+                type="application/ld+json"
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+            />
+            <script
+                type="application/ld+json"
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }}
+            />
             <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
                 <p className="text-[0.72rem] uppercase tracking-[0.32em] text-gold">
                     {t("label")}

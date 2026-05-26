@@ -102,6 +102,14 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
         normalizedPathname === "/catalog" || normalizedPathname.startsWith("/catalog/");
     const isShopPath =
         normalizedPathname === "/shop" || normalizedPathname.startsWith("/shop/");
+    const isGlossaryPath =
+        normalizedPathname === "/glosar" || normalizedPathname.startsWith("/glosar/");
+    const isBlogPath =
+        normalizedPathname === "/blog" || normalizedPathname.startsWith("/blog/");
+    const isFaqPath =
+        normalizedPathname === "/faq" || normalizedPathname.startsWith("/faq/");
+    const isAboutPath = normalizedPathname === "/about";
+    const isContactPath = normalizedPathname === "/contact";
 
     const homePath = locale === defaultLocale ? "/" : `/${locale}`;
     const sectionHref = useCallback(
@@ -115,6 +123,21 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
         ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
         : navLinkClassName;
     const shopLinkClassName = isShopPath
+        ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
+        : navLinkClassName;
+    const glossaryLinkClassName = isGlossaryPath
+        ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
+        : navLinkClassName;
+    const blogLinkClassName = isBlogPath
+        ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
+        : navLinkClassName;
+    const faqLinkClassName = isFaqPath
+        ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
+        : navLinkClassName;
+    const aboutLinkClassName = isAboutPath
+        ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
+        : navLinkClassName;
+    const contactLinkClassName = isContactPath
         ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
         : navLinkClassName;
 
@@ -262,19 +285,49 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
                             </Link>
                         </li>
                         <li>
-                            <a href={sectionHref("servicii")} className={navLinkClassName}>
-                                {t("services")}
-                            </a>
+                            <Link
+                                href="/blog"
+                                className={blogLinkClassName}
+                                aria-current={isBlogPath ? "page" : undefined}
+                            >
+                                {t("blog")}
+                            </Link>
                         </li>
                         <li>
-                            <a href={sectionHref("galerie")} className={navLinkClassName}>
-                                {t("gallery")}
-                            </a>
+                            <Link
+                                href="/faq"
+                                className={faqLinkClassName}
+                                aria-current={isFaqPath ? "page" : undefined}
+                            >
+                                {t("faq")}
+                            </Link>
                         </li>
                         <li>
-                            <a href={sectionHref("contact")} className={navLinkClassName}>
+                            <Link
+                                href="/glosar"
+                                className={glossaryLinkClassName}
+                                aria-current={isGlossaryPath ? "page" : undefined}
+                            >
+                                {t("glossary")}
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                href="/about"
+                                className={aboutLinkClassName}
+                                aria-current={isAboutPath ? "page" : undefined}
+                            >
+                                {t("about")}
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                href="/contact"
+                                className={contactLinkClassName}
+                                aria-current={isContactPath ? "page" : undefined}
+                            >
                                 {t("contact")}
-                            </a>
+                            </Link>
                         </li>
 
                         <li className="ml-1 hidden md:flex items-center">
@@ -441,31 +494,64 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
                         </Link>
                     </li>
                     <li>
-                        <a
-                            href={sectionHref("servicii")}
+                        <Link
+                            href="/blog"
                             onClick={closeMobile}
-                            className="flex items-center min-h-12 px-2 text-base font-medium text-silk hover:text-gold rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                            aria-current={isBlogPath ? "page" : undefined}
+                            className={`flex items-center min-h-12 px-2 text-base font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+                                isBlogPath ? "text-gold" : "text-silk hover:text-gold"
+                            }`}
                         >
-                            {t("services")}
-                        </a>
+                            {t("blog")}
+                        </Link>
                     </li>
                     <li>
-                        <a
-                            href={sectionHref("galerie")}
+                        <Link
+                            href="/faq"
                             onClick={closeMobile}
-                            className="flex items-center min-h-12 px-2 text-base font-medium text-silk hover:text-gold rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                            aria-current={isFaqPath ? "page" : undefined}
+                            className={`flex items-center min-h-12 px-2 text-base font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+                                isFaqPath ? "text-gold" : "text-silk hover:text-gold"
+                            }`}
                         >
-                            {t("gallery")}
-                        </a>
+                            {t("faq")}
+                        </Link>
                     </li>
                     <li>
-                        <a
-                            href={sectionHref("contact")}
+                        <Link
+                            href="/glosar"
                             onClick={closeMobile}
-                            className="flex items-center min-h-12 px-2 text-base font-medium text-silk hover:text-gold rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                            aria-current={isGlossaryPath ? "page" : undefined}
+                            className={`flex items-center min-h-12 px-2 text-base font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+                                isGlossaryPath ? "text-gold" : "text-silk hover:text-gold"
+                            }`}
+                        >
+                            {t("glossary")}
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            href="/about"
+                            onClick={closeMobile}
+                            aria-current={isAboutPath ? "page" : undefined}
+                            className={`flex items-center min-h-12 px-2 text-base font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+                                isAboutPath ? "text-gold" : "text-silk hover:text-gold"
+                            }`}
+                        >
+                            {t("about")}
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            href="/contact"
+                            onClick={closeMobile}
+                            aria-current={isContactPath ? "page" : undefined}
+                            className={`flex items-center min-h-12 px-2 text-base font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+                                isContactPath ? "text-gold" : "text-silk hover:text-gold"
+                            }`}
                         >
                             {t("contact")}
-                        </a>
+                        </Link>
                     </li>
                 </ul>
 

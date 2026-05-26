@@ -148,6 +148,7 @@ export default async function Hero({
                                     alt={altText}
                                     fill
                                     priority
+                                    fetchPriority="high"
                                     sizes="(max-width: 1024px) 100vw, 460px"
                                     className="object-cover object-[center_25%]"
                                     unoptimized={image.includes("placehold.co")}

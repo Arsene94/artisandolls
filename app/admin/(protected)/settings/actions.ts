@@ -42,7 +42,7 @@ export async function updatePlatformSettingsAction(formData: FormData) {
     const { error } = await supabase
         .from("platform_settings")
         .update({
-            business_name: getString(formData, "business_name") || "Artisan Dolls",
+            business_name: getString(formData, "business_name") || "Velvet Companions",
             public_site_url: getNullableString(formData, "public_site_url"),
             contact_email: getNullableString(formData, "contact_email"),
             contact_phone: getNullableString(formData, "contact_phone"),

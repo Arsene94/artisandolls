@@ -15,16 +15,22 @@ function normalize(value: string) {
         .trim();
 }
 
-export default function FAQ() {
+type Props = {
+    /** Lista de Q&A. Dacă lipsește, cade pe `messages.home.faq.items` (legacy). */
+    items?: FaqItem[];
+};
+
+export default function FAQ({ items: itemsProp }: Props = {}) {
     const t = useTranslations("home.faq");
     const baseId = useId();
     const items = useMemo(() => {
+        if (itemsProp && itemsProp.length > 0) return itemsProp;
         try {
             return (t.raw("items") as FaqItem[]) ?? [];
         } catch {
             return [];
         }
-    }, [t]);
+    }, [t, itemsProp]);
 
     const [open, setOpen] = useState<number | null>(null);
     const [query, setQuery] = useState("");

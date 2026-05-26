@@ -10,14 +10,43 @@ import {
 import { getPublicPlatformSettings } from "@/lib/settings";
 import { getSiteUrl, localeAlternates, localeUrl } from "@/lib/site";
 import ShopProductCard from "@/components/shop/ShopProductCard";
+import Pagination from "@/components/Pagination";
 import type { Locale } from "@/i18n/routing";
+
+const PAGE_SIZE = 24;
 
 type Props = {
     params: Promise<{ locale: Locale; slug: string }>;
+    searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+function getParam(value: string | string[] | undefined) {
+    if (Array.isArray(value)) return value[0] ?? "";
+    return value ?? "";
+}
+
+function parsePage(raw: string): number {
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) && n >= 1 ? n : 1;
+}
+
+function buildCategoryCanonical(
+    siteUrl: string,
+    locale: Locale,
+    slug: string,
+    page: number,
+): string {
+    const base = localeUrl(siteUrl, locale, `/shop/c/${slug}`);
+    return page <= 1 ? base : `${base}?page=${page}`;
+}
+
+export async function generateMetadata({
+    params,
+    searchParams,
+}: Props): Promise<Metadata> {
     const { locale, slug } = await params;
+    const sp = await searchParams;
+    const page = parsePage(getParam(sp?.page));
     const [categoryRows, settings, t] = await Promise.all([
         getShopCategories().catch(() => []),
         getPublicPlatformSettings().catch(() => null),
@@ -27,39 +56,94 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         (c) => c.slug === slug,
     );
     const siteUrl = getSiteUrl(settings?.public_site_url ?? null);
-    const canonical = localeUrl(siteUrl, locale, `/shop/c/${slug}`);
+    const canonical = buildCategoryCanonical(siteUrl, locale, slug, page);
+    const pageSuffix = page > 1 ? ` — pagina ${page}` : "";
 
     return {
-        title: category ? `${category.name} — ${t("title")}` : t("title"),
+        title: category ? `${category.name}${pageSuffix} — ${t("title")}` : t("title"),
         description: category?.description ?? t("subtitle"),
         alternates: {
             canonical,
             languages: localeAlternates(siteUrl, `/shop/c/${slug}`),
         },
-        robots: { index: true, follow: true },
+        robots:
+            page > 1
+                ? { index: false, follow: true }
+                : { index: true, follow: true },
     };
 }
 
-export default async function CategoryPage({ params }: Props) {
+export default async function CategoryPage({ params, searchParams }: Props) {
     const { locale, slug } = await params;
     setRequestLocale(locale);
 
-    const [categoryRows, t] = await Promise.all([
+    const sp = await searchParams;
+    const [categoryRows, t, settings] = await Promise.all([
         getShopCategories().catch(() => []),
         getTranslations("shop"),
+        getPublicPlatformSettings().catch(() => null),
     ]);
     const category = categoriesAsPublic(categoryRows, locale).find(
         (c) => c.slug === slug,
     );
     if (!category) notFound();
 
-    const products = await getProductsForCategory(category.id);
+    const allProducts = await getProductsForCategory(category.id);
+    const totalPages = Math.max(1, Math.ceil(allProducts.length / PAGE_SIZE));
+    const requestedPage = parsePage(getParam(sp?.page));
+    const page = Math.min(requestedPage, totalPages);
+    const start = (page - 1) * PAGE_SIZE;
+    const products = allProducts.slice(start, start + PAGE_SIZE);
+    const siteUrl = getSiteUrl(settings?.public_site_url ?? null);
+
+    const breadcrumbLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            {
+                "@type": "ListItem",
+                position: 1,
+                name: t("title"),
+                item: localeUrl(siteUrl, locale, "/shop"),
+            },
+            {
+                "@type": "ListItem",
+                position: 2,
+                name: category.name,
+                item: localeUrl(siteUrl, locale, `/shop/c/${category.slug}`),
+            },
+        ],
+    };
+
+    const itemListLd = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: category.name,
+        description: category.description ?? undefined,
+        numberOfItems: allProducts.length,
+        itemListElement: products.map((product, index) => ({
+            "@type": "ListItem",
+            position: start + index + 1,
+            url: localeUrl(siteUrl, locale, `/shop/p/${product.slug}`),
+            name: product.name,
+        })),
+    };
 
     return (
         <main
             data-surface="dark"
             className="bg-velvet-950 text-silk min-h-screen pt-32 pb-24"
         >
+            <script
+                type="application/ld+json"
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+            />
+            <script
+                type="application/ld+json"
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+            />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <nav
                     aria-label="Breadcrumb"
@@ -111,13 +195,29 @@ export default async function CategoryPage({ params }: Props) {
                         </div>
                     </div>
                 ) : (
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 list-none p-0">
-                        {products.map((product) => (
-                            <li key={product.id}>
-                                <ShopProductCard product={product} locale={locale} />
-                            </li>
-                        ))}
-                    </ul>
+                    <>
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 list-none p-0">
+                            {products.map((product) => (
+                                <li key={product.id}>
+                                    <ShopProductCard product={product} locale={locale} />
+                                </li>
+                            ))}
+                        </ul>
+                        {totalPages > 1 ? (
+                            <Pagination
+                                currentPage={page}
+                                totalPages={totalPages}
+                                hrefFor={(p) =>
+                                    p <= 1
+                                        ? `/shop/c/${slug}`
+                                        : `/shop/c/${slug}?page=${p}`
+                                }
+                                label={t("paginationLabel")}
+                                prevLabel={t("paginationPrev")}
+                                nextLabel={t("paginationNext")}
+                            />
+                        ) : null}
+                    </>
                 )}
             </div>
         </main>

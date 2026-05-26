@@ -47,41 +47,43 @@ export default function HeroRentalActions({
     }
 
     return (
-        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="mt-8 flex flex-col gap-4">
             {rentEnabled && (
                 <div className="w-full sm:w-72 lg:w-80">
                     <RentalDateRangePicker onChange={setRange} placement="bottom" />
                 </div>
             )}
 
-            {rentEnabled &&
-                (hasRange ? (
-                    <Link
-                        href={rentHref}
-                        className="inline-flex min-h-12 items-center justify-center rounded-full bg-gradient-to-r from-gold to-gold-dark px-8 text-sm font-bold tracking-wide text-velvet-950 shadow-xl shadow-gold/10 transition-transform duration-300 hover:-translate-y-0.5 hover:from-silk hover:to-silk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-silk focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-900 motion-reduce:transition-none motion-reduce:hover:translate-y-0 whitespace-nowrap"
-                    >
-                        {t("rentLabel")}
-                    </Link>
-                ) : (
-                    <button
-                        type="button"
-                        disabled
-                        aria-disabled="true"
-                        title={t("pickDates")}
-                        className="inline-flex min-h-12 items-center justify-center rounded-full bg-velvet-800 border border-velvet-700 px-8 text-sm font-semibold tracking-wide text-silk/80 cursor-not-allowed whitespace-nowrap"
-                    >
-                        {t("pickDates")}
-                    </button>
-                ))}
+            <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+                {rentEnabled &&
+                    (hasRange ? (
+                        <Link
+                            href={rentHref}
+                            className="inline-flex min-h-12 items-center justify-center rounded-full bg-gradient-to-r from-gold to-gold-dark px-8 text-sm font-bold tracking-wide text-velvet-950 shadow-xl shadow-gold/10 transition-transform duration-300 hover:-translate-y-0.5 hover:from-silk hover:to-silk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-silk focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-900 motion-reduce:transition-none motion-reduce:hover:translate-y-0 whitespace-nowrap"
+                        >
+                            {t("rentLabel")}
+                        </Link>
+                    ) : (
+                        <button
+                            type="button"
+                            disabled
+                            aria-disabled="true"
+                            title={t("pickDates")}
+                            className="inline-flex min-h-12 items-center justify-center rounded-full bg-velvet-800 border border-velvet-700 px-8 text-sm font-semibold tracking-wide text-silk/80 cursor-not-allowed whitespace-nowrap"
+                        >
+                            {t("pickDates")}
+                        </button>
+                    ))}
 
-            {buyEnabled && (
-                <Link
-                    href={buyHref}
-                    className="inline-flex min-h-12 items-center justify-center rounded-full border border-silk/40 bg-white/5 px-8 text-sm font-semibold tracking-wide text-silk backdrop-blur-sm transition-colors duration-300 hover:border-gold hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-900 motion-reduce:transition-none whitespace-nowrap"
-                >
-                    {t("buyLabel")}
-                </Link>
-            )}
+                {buyEnabled && (
+                    <Link
+                        href={buyHref}
+                        className="inline-flex min-h-12 items-center justify-center rounded-full border border-silk/40 bg-white/5 px-8 text-sm font-semibold tracking-wide text-silk backdrop-blur-sm transition-colors duration-300 hover:border-gold hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-900 motion-reduce:transition-none whitespace-nowrap"
+                    >
+                        {t("buyLabel")}
+                    </Link>
+                )}
+            </div>
         </div>
     );
 }

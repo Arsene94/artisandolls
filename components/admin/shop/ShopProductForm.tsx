@@ -160,6 +160,56 @@ export default function ShopProductForm({
                 </div>
             </section>
 
+            <details className="rounded-2xl border border-velvet-800 p-5 bg-velvet-900/40">
+                <summary className="cursor-pointer font-display italic text-lg text-silk">
+                    Variante de produs — opțional
+                </summary>
+                <p className="mt-3 text-xs text-silk/65 leading-relaxed max-w-prose">
+                    Pentru produse cu mărimi sau culori multiple: setează același{" "}
+                    <code className="text-gold-light">variant_group_id</code> (UUID) pe
+                    toate variantele. Axele se exprimă ca JSON, ex.{" "}
+                    <code className="text-gold-light">{`{"size":"L","color":"Red"}`}</code>.
+                    Sau, mai simplu, ca <code className="text-gold-light">size: L; color: Red</code>.
+                </p>
+                <div className="mt-4 grid sm:grid-cols-3 gap-3">
+                    <div>
+                        <label className={label} htmlFor="p-variant-group">Variant group ID (UUID)</label>
+                        <input
+                            id="p-variant-group"
+                            name="variant_group_id"
+                            defaultValue={initial?.variant_group_id ?? ""}
+                            className={input}
+                            placeholder="ex. 11111111-2222-…"
+                        />
+                    </div>
+                    <div>
+                        <label className={label} htmlFor="p-variant-label">Variant label</label>
+                        <input
+                            id="p-variant-label"
+                            name="variant_label"
+                            defaultValue={initial?.variant_label ?? ""}
+                            className={input}
+                            placeholder="Mărimea L"
+                        />
+                    </div>
+                    <div className="sm:col-span-3">
+                        <label className={label} htmlFor="p-variant-axes">Axe variantă (JSON sau pairs)</label>
+                        <textarea
+                            id="p-variant-axes"
+                            name="variant_axes"
+                            rows={2}
+                            defaultValue={
+                                initial?.variant_axes
+                                    ? JSON.stringify(initial.variant_axes)
+                                    : ""
+                            }
+                            className={`${input} resize-y font-mono text-[0.8rem]`}
+                            placeholder='{"size":"L","color":"Red"}'
+                        />
+                    </div>
+                </div>
+            </details>
+
             <button
                 type="submit"
                 disabled={pending}

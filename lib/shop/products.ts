@@ -154,6 +154,15 @@ export async function getProductsForCategory(
     return all.filter((p) => p.categoryId === categoryId);
 }
 
+/** Toate variantele active dintr-un group, incluzând produsul-seed. Ordinea
+ *  e cea din `display_order`/insert order, păstrată de cache-ul shared. */
+export async function getVariantSiblings(
+    variantGroupId: string,
+): Promise<ShopProduct[]> {
+    const all = await getShopProducts();
+    return all.filter((p) => p.variantGroupId === variantGroupId);
+}
+
 /** Used by admin actions after any product/category mutation. */
 export async function invalidateShopCache(): Promise<void> {
     await invalidatePrefix(cacheKey("shop"));

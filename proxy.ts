@@ -12,6 +12,19 @@ const AGE_GATE_EXEMPT = [
     /^\/(terms|privacy|cookies|age-policy)(\/.*)?$/,
 ];
 
+// Crawler-uri legitime care nu pot rezolva interstitial-ul de vârstă. Le lăsăm
+// să indexeze direct conținutul — pagina e oricum 18+ (eticheta `rating=adult`
+// + RTA label), iar fără bypass site-ul devine practic invizibil în Google/Bing
+// și nereferențiat de motoarele AI. Lista e o uniune între bot-urile clasice
+// de search, social previewers și bot-urile AI majore în 2026.
+const BOT_USER_AGENT_PATTERN =
+    /(googlebot|google-extended|google-inspectiontool|google-cloudvertexbot|storebot-google|adsbot-google|bingbot|microsoftpreview|msnbot|slurp|duckduckbot|yandex|baiduspider|sogou|seznambot|qwant|naverbot|petalbot|applebot|applebot-extended|gptbot|chatgpt-user|oai-searchbot|claudebot|claude-web|anthropic-ai|perplexitybot|perplexity-user|youbot|ccbot|amazonbot|cohere-ai|mistralai-user|diffbot|ia_archiver|archive\.org_bot|facebookexternalhit|facebookcatalog|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|pinterestbot|tumblr|redditbot|skypeuripreview|embedly)/i;
+
+function isLegitimateBot(userAgent: string | null) {
+    if (!userAgent) return false;
+    return BOT_USER_AGENT_PATTERN.test(userAgent);
+}
+
 function isAdminUser(user: { app_metadata?: Record<string, unknown> } | null) {
     return user?.app_metadata?.role === "admin";
 }
@@ -104,14 +117,29 @@ export async function proxy(request: NextRequest) {
     }
 
     const ageVerified = request.cookies.get(AGE_COOKIE)?.value === "1";
-    if (!ageVerified) {
+    const userAgent = request.headers.get("user-agent");
+    const isBot = isLegitimateBot(userAgent);
+
+    if (!ageVerified && !isBot) {
         const { locale, rest } = stripLocale(pathname);
         if (!isAgeGateExempt(rest)) {
             return NextResponse.redirect(buildAgeGateUrl(request, locale));
         }
     }
 
-    return handleI18nRouting(request);
+    const response = handleI18nRouting(request);
+
+    if (isBot) {
+        // Semnal explicit pentru index-uire: previzualizare bogată, dar marcat
+        // adult ca SafeSearch să nu ne penalizeze. `noyaca` previne Google să
+        // aleagă singur descrieri din directoare externe (ex. DMOZ legacy).
+        response.headers.set(
+            "X-Robots-Tag",
+            "index, follow, max-image-preview:large, max-snippet:-1, noyaca",
+        );
+    }
+
+    return response;
 }
 
 export const config = {

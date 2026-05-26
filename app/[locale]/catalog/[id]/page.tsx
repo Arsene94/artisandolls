@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import DollDetails from "@/components/DollDetails";
@@ -14,8 +13,11 @@ import {
     getPublicPlatformSettings,
     getSafeCatalogMode,
 } from "@/lib/settings";
-import { getSiteUrl, localeAlternates, localeUrl } from "@/lib/site";
+import { CANONICAL_BRAND, getSiteUrl, localeAlternates, localeUrl } from "@/lib/site";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
+import ReviewsSection from "@/components/reviews/ReviewsSection";
+import { getApprovedReviewsForTarget } from "@/lib/reviews/queries";
+import { buildReviewsLd } from "@/lib/reviews/ld";
 import type { Locale } from "@/i18n/routing";
 
 type DollPageProps = {
@@ -48,9 +50,9 @@ export async function generateMetadata({ params }: DollPageProps): Promise<Metad
     }
 
     const canonical = localeUrl(siteUrl, locale, `/catalog/${id}`);
-    const businessName = settings?.business_name ?? "Velvet Studio";
+    const businessName = settings?.business_name?.trim() || CANONICAL_BRAND;
     const description = doll.description?.slice(0, 200) ?? t("homeDescription");
-    const imageUrl = doll.image ? getSupabaseImageUrl(doll.image, "card") : undefined;
+    const imageUrl = doll.image ? getSupabaseImageUrl(doll.image, "gallery") : undefined;
 
     return {
         title: `${doll.name} — ${businessName}`,
@@ -60,11 +62,16 @@ export async function generateMetadata({ params }: DollPageProps): Promise<Metad
             languages: localeAlternates(siteUrl, `/catalog/${id}`),
         },
         openGraph: {
+            // Folosim `product.item` ca să asociem corect prețul în share cards
+            // (Facebook Catalog & WhatsApp). `og:type=product` rămâne canonical
+            // chiar și pentru închiriere — Schema.org RentAction nu are echivalent OG.
             type: "website",
             url: canonical,
             title: doll.name,
             description,
-            images: imageUrl ? [{ url: imageUrl, alt: doll.name }] : undefined,
+            images: imageUrl
+                ? [{ url: imageUrl, alt: `${doll.name} — ${businessName}` }]
+                : undefined,
             locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : "en_GB",
         },
         twitter: {
@@ -72,6 +79,17 @@ export async function generateMetadata({ params }: DollPageProps): Promise<Metad
             title: doll.name,
             description,
             images: imageUrl ? [imageUrl] : undefined,
+        },
+        other: {
+            ...(doll.buyPrice && doll.availableForBuy
+                ? {
+                      "product:price:amount": String(doll.buyPrice),
+                      "product:price:currency": settings?.currency || "RON",
+                      "product:availability": "in stock",
+                      "product:condition": "new",
+                      "product:brand": businessName,
+                  }
+                : {}),
         },
     };
 }
@@ -125,16 +143,41 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
 
     const siteUrl = getSiteUrl(settings.public_site_url ?? null);
     const currency = settings.currency || "RON";
-    const imageUrl = doll.image ? getSupabaseImageUrl(doll.image, "card") : undefined;
+    const businessName = settings.business_name?.trim() || CANONICAL_BRAND;
+    const canonicalUrl = localeUrl(siteUrl, locale, `/catalog/${id}`);
+    const galleryImages = (doll.images?.length ? doll.images : [doll.image])
+        .filter(Boolean)
+        .map((src) => getSupabaseImageUrl(src as string, "gallery"));
+    const primaryImage = galleryImages[0];
 
-    const offers: Record<string, unknown>[] = [];
+    // priceValidUntil cere format ISO; setăm 90 zile rolling — Google penalizează
+    // ofertele fără termen explicit, iar pe nișa noastră prețurile se ajustează
+    // sezonier oricum.
+    const priceValidUntil = new Date(
+        Date.now() + 90 * 24 * 60 * 60 * 1000,
+    ).toISOString().slice(0, 10);
+
+    type SchemaOffer = Record<string, unknown>;
+    const offers: SchemaOffer[] = [];
     if (doll.availableForRent && doll.rentPricePerDay) {
         offers.push({
             "@type": "Offer",
             priceCurrency: currency,
             price: doll.rentPricePerDay,
             availability: "https://schema.org/InStock",
+            url: canonicalUrl + "?mode=rent",
+            priceValidUntil,
             category: "Rental",
+            seller: { "@id": `${siteUrl}/#org` },
+            // Schema-ul nu are un type dedicat „per-day"; convenția acceptată e
+            // un PriceSpecification cu unitCode `DAY` (UN/CEFACT recommendation 20).
+            priceSpecification: {
+                "@type": "UnitPriceSpecification",
+                price: doll.rentPricePerDay,
+                priceCurrency: currency,
+                unitCode: "DAY",
+                referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitCode: "DAY" },
+            },
         });
     }
     if (doll.availableForBuy && doll.buyPrice) {
@@ -143,21 +186,66 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
             priceCurrency: currency,
             price: doll.buyPrice,
             availability: "https://schema.org/InStock",
-            category: "Purchase",
+            itemCondition: "https://schema.org/NewCondition",
+            url: canonicalUrl + "?mode=buy",
+            priceValidUntil,
+            seller: { "@id": `${siteUrl}/#org` },
         });
     }
 
-    const productLd = {
+    const offerNode: SchemaOffer | undefined =
+        offers.length === 0
+            ? undefined
+            : offers.length === 1
+              ? offers[0]
+              : {
+                    "@type": "AggregateOffer",
+                    priceCurrency: currency,
+                    lowPrice: Math.min(
+                        ...offers
+                            .map((o) => Number(o.price))
+                            .filter((n) => Number.isFinite(n)),
+                    ),
+                    highPrice: Math.max(
+                        ...offers
+                            .map((o) => Number(o.price))
+                            .filter((n) => Number.isFinite(n)),
+                    ),
+                    offerCount: offers.length,
+                    offers,
+                };
+
+    const materialTag = doll.tags?.find((tag) => /tpe|silicon/i.test(tag));
+    const heightTag = doll.tags?.find((tag) => /\d+\s*cm/i.test(tag));
+
+    const productLd: Record<string, unknown> = {
         "@context": "https://schema.org",
         "@type": "Product",
+        "@id": `${canonicalUrl}#product`,
         name: doll.name,
-        description: doll.description,
-        image: imageUrl ? [imageUrl] : undefined,
+        description: doll.description || undefined,
         sku: doll.id,
-        brand: settings.business_name ?? "Velvet Studio",
+        mpn: doll.id,
+        brand: { "@type": "Brand", name: businessName },
         category: doll.collection || undefined,
-        offers: offers.length === 1 ? offers[0] : offers.length > 1 ? offers : undefined,
+        audience: { "@type": "PeopleAudience", suggestedMinAge: 18 },
+        isFamilyFriendly: false,
     };
+    if (galleryImages.length > 0) productLd.image = galleryImages;
+    if (materialTag) productLd.material = materialTag;
+    if (heightTag) {
+        productLd.height = {
+            "@type": "QuantitativeValue",
+            value: parseInt(heightTag, 10),
+            unitCode: "CMT",
+        };
+    }
+    if (offerNode) productLd.offers = offerNode;
+
+    const { reviews: dollReviews, aggregate: dollAggregate } =
+        await getApprovedReviewsForTarget("doll", doll.id);
+    const reviewsLd = buildReviewsLd(dollReviews, dollAggregate);
+    if (reviewsLd) Object.assign(productLd, reviewsLd);
 
     const breadcrumbLd = {
         "@context": "https://schema.org",
@@ -206,6 +294,11 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
                 outfits={outfits}
                 settings={settings}
             />
+            <ReviewsSection
+                locale={locale}
+                reviews={dollReviews}
+                aggregate={dollAggregate}
+            />
             {hasRecommendations ? (
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 space-y-12">
                     {crossSellProducts.length > 0 ? (
@@ -227,14 +320,14 @@ export default async function DollPage({ params, searchParams }: DollPageProps) 
                     ) : null}
                 </div>
             ) : null}
-            <Script
-                id={`ld-product-${doll.id}`}
+            <script
                 type="application/ld+json"
+                // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
             />
-            <Script
-                id={`ld-breadcrumb-${doll.id}`}
+            <script
                 type="application/ld+json"
+                // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
             />
         </>

@@ -4,8 +4,9 @@ import AdminLoginForm from "@/components/admin/AdminLoginForm";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
-    title: "Admin Login — Artisan Dolls",
-    description: "Autentificare admin Artisan Dolls.",
+    title: "Admin Login — Velvet Companions",
+    description: "Autentificare admin Velvet Companions.",
+    robots: { index: false, follow: false },
 };
 
 export default function AdminLoginPage() {

@@ -1,4 +1,6 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { getHomeFaqItems } from "@/lib/faq/queries";
+import type { Locale } from "@/i18n/routing";
 import CompanionCollection, {
     type CompanionCard,
 } from "@/components/landing/CompanionCollection";
@@ -56,6 +58,10 @@ export default async function ArtisanDollsLanding({
         })),
     );
 
+    const locale = (await getLocale()) as Locale;
+    const faqRows = await getHomeFaqItems(locale).catch(() => []);
+    const faqItems = faqRows.map((row) => ({ q: row.question, a: row.answer }));
+
     return (
         <>
             <Hero
@@ -94,7 +100,7 @@ export default async function ArtisanDollsLanding({
                 whatsappPhone={settings.whatsapp_phone}
                 contactEmail={settings.contact_email}
             />
-            <FAQ />
+            <FAQ items={faqItems.length > 0 ? faqItems : undefined} />
         </>
     );
 }

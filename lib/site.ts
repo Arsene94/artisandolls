@@ -1,6 +1,9 @@
 import { locales, defaultLocale, type Locale } from "@/i18n/routing";
 
-const FALLBACK_SITE_URL = "https://artisandolls.local";
+// Fallback folosit doar la dezvoltare locală / preview neconfigurat. În producție
+// `NEXT_PUBLIC_SITE_URL` din `.env` trebuie să fie setat — altfel canonical-urile,
+// hreflang-urile, sitemap-ul și OpenGraph-ul vor cita acest domeniu.
+const FALLBACK_SITE_URL = "https://velvet-companions.com";
 
 /** Numele canonic al brandului, folosit ca fallback în UI și meta. */
 export const CANONICAL_BRAND = "Velvet Companions";
@@ -34,7 +37,10 @@ export const SUBPROCESSORS = [
 export function getSiteUrl(override?: string | null): string {
     const fromEnv = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.SITE_URL;
     const raw = override?.trim() || fromEnv?.trim() || FALLBACK_SITE_URL;
-    return raw.replace(/\/$/, "");
+    const trimmed = raw.replace(/\/$/, "");
+    // Defensiv: dacă admin-ul scrie `velvet-companions.com` fără schemă, o completăm
+    // ca să nu producem URL-uri rupte în sitemap / canonical.
+    return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
 export function localePath(locale: Locale, path: string): string {

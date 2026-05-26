@@ -23,7 +23,7 @@ function getCleanPhone(phone: string) {
 function getWhatsappHref(phone: string, orderNumber: string, customerName: string) {
     const cleanPhone = getCleanPhone(phone).replace("+", "");
     const message = encodeURIComponent(
-        `Bună, ${customerName}! Te contactăm pentru cererea Artisan Dolls ${orderNumber}.`
+        `Bună, ${customerName}! Te contactăm pentru cererea Velvet Companions ${orderNumber}.`
     );
 
     return `https://wa.me/${cleanPhone}?text=${message}`;

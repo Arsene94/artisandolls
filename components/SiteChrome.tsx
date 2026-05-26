@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import { getPublicPlatformSettings } from "@/lib/settings";
+import { CANONICAL_BRAND } from "@/lib/site";
 
 export default async function SiteChrome({
     children,
@@ -11,7 +12,7 @@ export default async function SiteChrome({
 }) {
     const t = await getTranslations("nav");
     const settings = await getPublicPlatformSettings().catch(() => null);
-    const brandName = settings?.business_name?.trim() || "Velvet Studio";
+    const brandName = settings?.business_name?.trim() || CANONICAL_BRAND;
 
     return (
         <>

@@ -22,6 +22,16 @@ export default async function ShopProductCard({
         ? getSupabaseImageUrl(product.image, "card")
         : null;
 
+    // Alt text descriptiv: includem marca și categoria așa cum apar pe site;
+    // pe nișa adult, Google Images aduce trafic disproporționat când alt-ul
+    // are atribute concrete (material, tip, scop).
+    const altParts = [product.name];
+    if (product.brand) altParts.push(product.brand);
+    if (product.shortDescription) {
+        altParts.push(product.shortDescription.replace(/\s+/g, " ").slice(0, 120));
+    }
+    const altText = altParts.join(" — ");
+
     const onSale =
         product.compareAtPrice !== null && product.compareAtPrice > product.price;
 
@@ -49,7 +59,7 @@ export default async function ShopProductCard({
                 {imageUrl ? (
                     <Image
                         src={imageUrl}
-                        alt={product.name}
+                        alt={altText}
                         fill
                         sizes={
                             compact

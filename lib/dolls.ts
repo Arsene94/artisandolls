@@ -96,6 +96,20 @@ export async function getDolls() {
     });
 }
 
+export async function getDollsByCollectionId(collectionId: string) {
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase
+        .from("dolls")
+        .select("*")
+        .eq("is_active", true)
+        .eq("collection_id", collectionId)
+        .order("display_order", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: false });
+
+    if (error || !data) return [];
+    return (data as DollRow[]).map(mapDollRowToDoll);
+}
+
 export async function getDollBySlug(slug: string) {
     return cached(CACHE_KEYS.dollBySlug(slug), 300, async () => {
         const supabase = await createSupabaseServerClient();

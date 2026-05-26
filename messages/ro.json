@@ -2,13 +2,13 @@
   "metadata": {
     "homeTitle": "Velvet Companions – Închiriere & Achiziție Păpuși Realiste Premium",
     "homeDescription": "Lux, intimitate și hiper-realism. Închiriere discretă și achiziție de companioni personalizați.",
-    "catalogTitle": "Catalog companioni – Velvet Studio",
-    "catalogDescription": "Explorează colecția Velvet Studio disponibilă pentru închiriere sau cumpărare.",
-    "dollUnavailableTitle": "Companion indisponibil – Velvet Studio",
-    "checkoutTitle": "Finalizare comandă – Velvet Studio",
-    "checkoutDescription": "Completează datele de livrare pentru comanda Velvet Studio.",
-    "successTitle": "Comandă trimisă – Velvet Studio",
-    "successDescription": "Confirmarea cererii tale Velvet Studio."
+    "catalogTitle": "Catalog companioni – Velvet Companions",
+    "catalogDescription": "Explorează colecția Velvet Companions: păpuși realiste premium TPE și silicon, disponibile pentru închiriere discretă sau achiziție personalizată în România.",
+    "dollUnavailableTitle": "Companion indisponibil – Velvet Companions",
+    "checkoutTitle": "Finalizare comandă – Velvet Companions",
+    "checkoutDescription": "Completează datele de livrare pentru comanda Velvet Companions.",
+    "successTitle": "Comandă trimisă – Velvet Companions",
+    "successDescription": "Confirmarea cererii tale Velvet Companions."
   },
   "nav": {
     "home": "Acasă",
@@ -26,13 +26,16 @@
     "customizer": "Personalizator",
     "collection": "Colecția exclusivă",
     "experiences": "Experiențe",
-    "faq": "Întrebări",
+    "faq": "FAQ",
     "cta": "Rezervă discret",
     "ctaMobile": "Rezervă acum, discret",
     "customizerMobile": "Personalizator companioni",
     "experiencesMobile": "Închiriere vs achiziție",
     "faqMobile": "Întrebări frecvente",
-    "skipToContent": "Sari la conținutul principal"
+    "skipToContent": "Sari la conținutul principal",
+    "glossary": "Glosar",
+    "about": "Despre",
+    "blog": "Blog"
   },
   "common": {
     "rent": "Închiriere",
@@ -306,7 +309,15 @@
     "pickDates": "Alegeți datele pentru a continua"
   },
   "datePicker": {
-    "weekDays": ["Lu", "Ma", "Mi", "Jo", "Vi", "Sâ", "Du"],
+    "weekDays": [
+      "Lu",
+      "Ma",
+      "Mi",
+      "Jo",
+      "Vi",
+      "Sâ",
+      "Du"
+    ],
     "chooseEnd": "alege sfârșit",
     "placeholder": "Alege data de început – data de sfârșit",
     "ariaChoose": "Alege perioada de închiriere",
@@ -360,7 +371,10 @@
     "resetFilters": "Resetează filtrele",
     "activeFiltersLabel": "Filtre active",
     "removeFilter": "Elimină filtrul {label}",
-    "tagsMore": "+{count} mai multe"
+    "tagsMore": "+{count} mai multe",
+    "paginationLabel": "Paginare catalog",
+    "paginationPrev": "Pagina anterioară",
+    "paginationNext": "Pagina următoare"
   },
   "details": {
     "back": "Înapoi la catalog",
@@ -615,7 +629,12 @@
     "privacy": "Politica de confidențialitate",
     "terms": "Termeni & condiții",
     "cookies": "Politica de cookies",
-    "ageLimit": "Politica 18+"
+    "ageLimit": "Politica 18+",
+    "navShop": "Magazin accesorii",
+    "navGlossary": "Glosar",
+    "navAbout": "Despre",
+    "navBlog": "Blog",
+    "navFaq": "Întrebări frecvente"
   },
   "shop": {
     "label": "Magazin discret",
@@ -704,7 +723,11 @@
     "paymentPaidDescription": "Banii au ajuns la noi. Începem împachetarea discretă.",
     "paymentFailedTitle": "Plata a eșuat",
     "paymentFailedDescription": "Banca a refuzat tranzacția. Poți reîncerca cu alt card sau reveni la „cash la livrare”.",
-    "paymentCancelled": "Plata a fost anulată. Coșul a rămas intact — poți reîncerca."
+    "paymentCancelled": "Plata a fost anulată. Coșul a rămas intact — poți reîncerca.",
+    "paginationLabel": "Paginare magazin",
+    "paginationPrev": "Pagina anterioară",
+    "paginationNext": "Pagina următoare",
+    "variantsLabel": "Variante disponibile"
   },
   "ageGate": {
     "eyebrow": "Verificare 18+",
@@ -743,5 +766,177 @@
     "analyticsHelp": "Ne ajută să înțelegem cum este folosit site-ul. Anonimizate.",
     "learnMore": "Citește politica completă"
   },
-  "skipToContent": "Sari la conținutul principal"
+  "skipToContent": "Sari la conținutul principal",
+  "glossary": {
+    "indexTitle": "Glosar – termeni esențiali Velvet Companions",
+    "indexDescription": "Definiții concrete pentru material, anatomie, igienă și termeni legali din lumea companionilor realiști premium. 25 de intrări, cu surse și măsurători reale.",
+    "eyebrow": "Glosar nișă 18+",
+    "indexLede": "Termenii pe care îi auzi cel mai des când compari modele, când evaluezi cauțiunea sau când citești garanția. Fiecare definiție conține date verificabile — toleranțe, durate de viață, articole legale — ca să poți decide informat, nu pe estimări.",
+    "jumpNavLabel": "Sari la categorie",
+    "relatedHeading": "Termeni înrudiți",
+    "category": {
+      "material": "Materiale",
+      "anatomy": "Anatomie & structură",
+      "process": "Proceduri & module",
+      "service": "Serviciu",
+      "legal": "Legal & drept consumator"
+    }
+  },
+  "collections": {
+    "indexTitle": "Colecții Velvet Companions",
+    "indexDescription": "Colecțiile noastre curatoriale — de la Limited Edition la seriile sezoniere. Fiecare colecție are propriile criterii de selecție pentru material, schelet și personalizare.",
+    "eyebrow": "Colecții curatoriale",
+    "indexLede": "Selecția pe care o ținem în studio se schimbă lent — adăugăm modele după ce trec evaluări tehnice de 6 luni. Așa rămâne fiecare colecție coerentă vizual și consistentă ca standarde de execuție.",
+    "emptyTitle": "Nu există colecții active",
+    "emptyDescription": "Reveniți curând — pregătim lansarea unei noi serii.",
+    "emptyCollectionTitle": "Colecția nu are momentan modele active",
+    "emptyCollectionDescription": "Verificați catalog-ul complet sau întrebați-ne despre disponibilitatea unei piese specifice.",
+    "countLabel": "{count, plural, one {# model} few {# modele} other {# de modele}} în această colecție"
+  },
+  "about": {
+    "title": "Despre Velvet Companions",
+    "eyebrow": "Despre noi",
+    "lede": "Velvet Companions este studio-ul român care produce și operează închirierea de companioni realiști premium, cu standarde de igienă clinică și o filozofie de discreție necondiționată.",
+    "pillars": [
+      {
+        "heading": "De ce am început",
+        "body": "Plecat dintr-un atelier privat în 2024, brand-ul a apărut ca răspuns la o problemă concretă: piața europeană de păpuși realiste era polarizată între produse low-cost cu materiale dubioase și piese de comandă cu termene de șase luni. Am vrut o cale de mijloc — fabricație controlată, posibilitate de testare prin închiriere și suport în trei limbi pentru o piață regională deservită până atunci doar din afara UE."
+      },
+      {
+        "heading": "Ce facem diferit",
+        "body": "Toate modelele pe care le închiriem sau le vindem trec printr-o evaluare tehnică internă pe 14 criterii — de la toleranțele de articulație până la rezistența pielii la solvenți. Procentul de respingere e între 20 și 30% pe lot. Modelele care intră în catalog sunt apoi fotografiate la lumină naturală, fără retuș, ca să nu existe surprize la livrare.\n\nÎntre închirieri, fiecare companion trece printr-un protocol de igienă în cinci pași documentat per ciclu. Cumpărătorii primesc același nivel de pregătire plus 12 luni de asistență tehnică pentru scheletul intern și 6 luni pentru pielea exterioară."
+      },
+      {
+        "heading": "Pentru cine lucrăm",
+        "body": "Clienții noștri sunt în mare parte adulți între 30 și 55 de ani, cu venituri stabile, care apreciază discreția mai mult decât prețul. Cea mai mare parte din întrebări vine din România, Olanda și Marea Britanie. Limbile noastre de lucru sunt româna, engleza și neerlandeza — fiecare consilier vorbește fluent cel puțin două dintre ele."
+      }
+    ],
+    "valuesHeading": "Valori operaționale",
+    "values": [
+      {
+        "label": "Discreție",
+        "text": "Numele tău nu apare niciodată în baza noastră de date dincolo de durata strictă a comenzii. Maxim 30 de zile, apoi se șterge — primești confirmare scrisă la cerere."
+      },
+      {
+        "label": "Material certificat",
+        "text": "TPE de clasă chirurgicală și silicon platinum-cure, ambele fără ftalați, hipoalergenice, certificate REACH pentru contact cutanat în UE."
+      },
+      {
+        "label": "Plată fără urmă",
+        "text": "Pe extras apare „Velvet Studio SRL” — fără cod MCC adult, fără descriere de conținut. Cash la livrare rămâne opțiunea implicită."
+      },
+      {
+        "label": "Suport tehnic",
+        "text": "12 luni schelet și module electronice, 6 luni piele exterioară. Reparațiile minore se fac în studio, fără cerere de re-cumpărare."
+      }
+    ],
+    "legalHeading": "Operator legal",
+    "legalIntro": "Operatorul juridic este {operator}, înregistrat în România. Pentru detalii fiscale și de contact pe partea legală, consultați pagina de Termeni și condiții.",
+    "contactCta": "Contactează-ne pentru o programare confidențială"
+  },
+  "contact": {
+    "title": "Contact discret",
+    "eyebrow": "Cum ne contactezi",
+    "lede": "Răspundem în maximum 4 ore în intervalul 10:00 – 22:00, șapte zile pe săptămână. Canalele de mai jos sunt monitorizate de consilieri umani — fără chatbot și fără răspunsuri automate.",
+    "channelsHeading": "Canale de contact",
+    "whatsappLabel": "WhatsApp",
+    "whatsappHelp": "Cel mai rapid canal. Mesajul tău e citit de un consilier dedicat, nu un bot.",
+    "phoneLabel": "Telefon",
+    "phoneHelp": "Pentru clienții care preferă conversația vocală directă. Sunarea e tarifată ca apel național.",
+    "emailLabel": "Email comercial",
+    "emailHelp": "Pentru cereri detaliate, oferte personalizate sau pre-vizualizări.",
+    "dpoLabel": "Responsabil date personale (DPO)",
+    "dpoHelp": "Cereri GDPR — acces, rectificare, ștergere a datelor tale.",
+    "addressHeading": "Sediu legal",
+    "addressNote": "Pentru vizite în studio, contactează-ne în prealabil — accesul se face exclusiv pe bază de programare confidențială.",
+    "legalDataHeading": "Identificare legală",
+    "legalLine": "Operator: {operator}, CUI: {cui}, Reg. Comerțului: {reg}.",
+    "termsLink": "Citește termenii și condițiile complete"
+  },
+  "cityPillar": {
+    "eyebrow": "Velvet Companions {city}",
+    "h1": "Închiriere și achiziție păpuși realiste {city}",
+    "metaTitle": "Închiriere păpuși realiste {city} – Velvet Companions",
+    "metaDescription": "Închiriere și achiziție discretă de companioni realiști premium în {city}. Livrare neutră în 2 ore, plată la livrare, protocol clinic de igienă. 18+.",
+    "serviceType": "Închiriere și vânzare de companioni realiști premium",
+    "breadcrumbCities": "Acoperire geografică",
+    "statDeliveryWindow": "Fereastră livrare",
+    "statZones": "Zone deservite",
+    "statZonesValue": "{count, plural, one {# zonă} few {# zone} other {# de zone}}",
+    "statBilling": "Pe extras",
+    "zonesHeading": "Unde livrăm {city}",
+    "zonesNote": "Pentru adrese din afara perimetrului listat aici, contactează un consilier — în cele mai multe cazuri putem aranja livrare cu mașină proprie pentru cauțiuni mai mari.",
+    "featuredHeading": "Modele cu disponibilitate pentru {city}",
+    "seeFullCatalog": "Vezi catalog-ul complet",
+    "faqHeading": "Întrebări frecvente — {city}"
+  },
+  "blog": {
+    "indexTitle": "Blog Velvet Companions",
+    "indexDescription": "Ghiduri tehnice, comparații și interpretări legale pentru piața de companioni realiști premium. Conținut scris de echipa noastră, cu date verificabile.",
+    "eyebrow": "Editorial",
+    "indexLede": "Articole pe care le scriem când o întrebare apare suficient de des ca să merite o pagină dedicată. TPE vs silicon, protocolul nostru de igienă, drept de retragere în România, cum decurge prima închiriere.",
+    "emptyTitle": "Niciun articol publicat încă",
+    "emptyDescription": "Pregătim primele patru articole pillar. Reveniți în câteva zile.",
+    "readMore": "Citește articolul",
+    "readingTime": "{minutes} min citire",
+    "tableOfContents": "Tabela de cuprins",
+    "tagsLabel": "Etichete",
+    "relatedHeading": "Citește în continuare",
+    "countLabel": "{count, plural, one {# articol} few {# articole} other {# de articole}}",
+    "category": {
+      "guide": "Ghiduri",
+      "comparison": "Comparații",
+      "legal": "Legal",
+      "culture": "Cultură"
+    }
+  },
+  "reviews": {
+    "sectionHeading": "Recenzii verificate",
+    "sectionLede": "Recenzii lăsate de clienți după livrare. Fiecare e moderată manual înainte de publicare. Total: {count}.",
+    "aggregateLabel": "{count, plural, one {din # recenzie} few {din # recenzii} other {din # de recenzii}}",
+    "targetLabel": "Recenzie pentru {name}",
+    "introHeading": "Spune-ne cum a fost",
+    "introHelp": "Răspunsurile tale ne ajută să selectăm modele mai bune și să rafinăm logistica. Câmpul de recenzie are maxim 4 000 de caractere; titlul, opțional, are 120.",
+    "ratingLegend": "Punctaj general",
+    "ratingLabels": {
+      "1": "Nepotrivit",
+      "2": "Sub așteptări",
+      "3": "Acceptabil",
+      "4": "Bun",
+      "5": "Excelent"
+    },
+    "titleLabel": "Titlu (opțional)",
+    "bodyLabel": "Recenzia ta",
+    "bodyHelp": "Minim 30 de caractere. Detaliile tehnice (textură, articulații, livrare) ajută cel mai mult.",
+    "nameLabel": "Cum vrei să apari publicată",
+    "nameHelp": "Folosim inițialele dacă lași căsuța nebifată. Numele tău complet rămâne intern, în baza noastră de date, pe durata strictă a comenzii.",
+    "publicName": "Publică numele complet",
+    "submit": "Trimite recenzia",
+    "sending": "Se trimite…",
+    "thanksHeading": "Mulțumim — recenzia ta intră în moderare",
+    "thanksBody": "Un moderator verifică textul în maxim 48 de ore. Dacă apare pe pagina produsului, primești o notificare prin WhatsApp.",
+    "statusAlreadySubmittedEyebrow": "Recenzie deja primită",
+    "statusAlreadySubmittedHeading": "Mulțumim — am primit deja recenzia ta",
+    "statusAlreadySubmittedBody": "Acest link a fost folosit. Dacă ai nevoie să modifici recenzia, scrie-ne pe canalul tău preferat."
+  },
+  "faq": {
+    "indexTitle": "Întrebări frecvente",
+    "indexDescription": "Răspunsurile pe care le primim cel mai des — despre livrare, igienă, plată, materiale, drept de retragere. Toate cu date concrete.",
+    "eyebrow": "Centrul de ajutor",
+    "indexLede": "Răspunsurile cele mai relevante, grupate pe subiect. Caută rapid sau sari direct la categoria potrivită.",
+    "emptyTitle": "Nu există încă întrebări publicate.",
+    "searchPlaceholder": "Caută în întrebări…",
+    "searchNoResults": "Niciun rezultat. Reformulează sau scrie-ne direct.",
+    "jumpLabel": "Sari la categorie",
+    "category": {
+      "delivery": "Livrare",
+      "hygiene": "Igienă",
+      "payment": "Plată",
+      "materials": "Materiale",
+      "rental": "Închiriere",
+      "purchase": "Achiziție",
+      "legal": "Legal",
+      "general": "General"
+    }
+  }
 }

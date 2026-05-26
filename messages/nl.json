@@ -2,13 +2,13 @@
   "metadata": {
     "homeTitle": "Velvet Companions – Premium hyperrealistische poppen huren & kopen",
     "homeDescription": "Luxe, intimiteit en hyperrealisme. Discrete verhuur en aankoop van gepersonaliseerde partners.",
-    "catalogTitle": "Partnercatalogus – Velvet Studio",
-    "catalogDescription": "Ontdek de Velvet Studio collectie, beschikbaar om te huren of te kopen.",
-    "dollUnavailableTitle": "Partner niet beschikbaar – Velvet Studio",
-    "checkoutTitle": "Afrekenen – Velvet Studio",
-    "checkoutDescription": "Vul de leveringsgegevens in voor uw Velvet Studio bestelling.",
-    "successTitle": "Bestelling verzonden – Velvet Studio",
-    "successDescription": "Bevestiging van uw Velvet Studio aanvraag."
+    "catalogTitle": "Partnercatalogus – Velvet Companions",
+    "catalogDescription": "Ontdek de Velvet Companions collectie: premium realistische TPE- en siliconenpoppen, beschikbaar voor discrete verhuur of persoonlijke aankoop binnen de Benelux en EU.",
+    "dollUnavailableTitle": "Partner niet beschikbaar – Velvet Companions",
+    "checkoutTitle": "Afrekenen – Velvet Companions",
+    "checkoutDescription": "Vul de leveringsgegevens in voor uw Velvet Companions bestelling.",
+    "successTitle": "Bestelling verzonden – Velvet Companions",
+    "successDescription": "Bevestiging van uw Velvet Companions aanvraag."
   },
   "nav": {
     "home": "Home",
@@ -26,13 +26,16 @@
     "customizer": "Personaliseren",
     "collection": "Exclusieve collectie",
     "experiences": "Ervaringen",
-    "faq": "Veelgestelde vragen",
+    "faq": "FAQ",
     "cta": "Discreet boeken",
     "ctaMobile": "Nu discreet boeken",
     "customizerMobile": "Partner personaliseren",
     "experiencesMobile": "Huren vs kopen",
     "faqMobile": "Veelgestelde vragen",
-    "skipToContent": "Ga naar de hoofdinhoud"
+    "skipToContent": "Ga naar de hoofdinhoud",
+    "glossary": "Woordenlijst",
+    "about": "Over ons",
+    "blog": "Blog"
   },
   "common": {
     "rent": "Huur",
@@ -306,7 +309,15 @@
     "pickDates": "Kies data om verder te gaan"
   },
   "datePicker": {
-    "weekDays": ["Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"],
+    "weekDays": [
+      "Ma",
+      "Di",
+      "Wo",
+      "Do",
+      "Vr",
+      "Za",
+      "Zo"
+    ],
     "chooseEnd": "kies einde",
     "placeholder": "Kies startdatum – einddatum",
     "ariaChoose": "Kies de huurperiode",
@@ -360,7 +371,10 @@
     "resetFilters": "Filters resetten",
     "activeFiltersLabel": "Actieve filters",
     "removeFilter": "Filter {label} verwijderen",
-    "tagsMore": "+{count} meer"
+    "tagsMore": "+{count} meer",
+    "paginationLabel": "Catalogus-paginering",
+    "paginationPrev": "Vorige pagina",
+    "paginationNext": "Volgende pagina"
   },
   "details": {
     "back": "Terug naar catalogus",
@@ -615,7 +629,12 @@
     "privacy": "Privacybeleid",
     "terms": "Algemene voorwaarden",
     "cookies": "Cookiebeleid",
-    "ageLimit": "18+ beleid"
+    "ageLimit": "18+ beleid",
+    "navShop": "Accessoires shop",
+    "navGlossary": "Woordenlijst",
+    "navAbout": "Over ons",
+    "navBlog": "Blog",
+    "navFaq": "FAQ"
   },
   "shop": {
     "label": "Discrete shop",
@@ -704,7 +723,11 @@
     "paymentPaidDescription": "We hebben uw betaling ontvangen. We beginnen met inpakken.",
     "paymentFailedTitle": "Betaling mislukt",
     "paymentFailedDescription": "Uw bank heeft de transactie geweigerd. U kunt het opnieuw proberen met een andere kaart of overschakelen naar contant bij levering.",
-    "paymentCancelled": "De betaling is geannuleerd. Uw winkelmandje is intact — u kunt het opnieuw proberen."
+    "paymentCancelled": "De betaling is geannuleerd. Uw winkelmandje is intact — u kunt het opnieuw proberen.",
+    "paginationLabel": "Winkelpaginering",
+    "paginationPrev": "Vorige pagina",
+    "paginationNext": "Volgende pagina",
+    "variantsLabel": "Beschikbare varianten"
   },
   "ageGate": {
     "eyebrow": "18+ verificatie",
@@ -743,5 +766,160 @@
     "analyticsHelp": "Helpen ons begrijpen hoe de site wordt gebruikt. Geanonimiseerd.",
     "learnMore": "Lees het volledige beleid"
   },
-  "skipToContent": "Ga naar de hoofdinhoud"
+  "skipToContent": "Ga naar de hoofdinhoud",
+  "glossary": {
+    "indexTitle": "Woordenlijst – essentiële Velvet Companions-termen",
+    "indexDescription": "Concrete definities voor materiaal, anatomie, hygiëne en juridische termen in de wereld van premium realistische partners. 25 vermeldingen, met bronnen en echte meetwaarden.",
+    "eyebrow": "Nichewoordenlijst 18+",
+    "indexLede": "De termen die u het meest hoort bij modelvergelijking, borgevaluatie of garantielezing. Elke definitie bevat verifieerbare data — toleranties, levensduur, juridische artikelen — zodat u geïnformeerd kunt beslissen, niet op schattingen.",
+    "jumpNavLabel": "Spring naar categorie",
+    "relatedHeading": "Verwante termen",
+    "category": {
+      "material": "Materialen",
+      "anatomy": "Anatomie & structuur",
+      "process": "Procedures & modules",
+      "service": "Service",
+      "legal": "Juridisch & consumentenrecht"
+    }
+  },
+  "collections": {
+    "indexTitle": "Velvet Companions collecties",
+    "indexDescription": "Onze curatorial collecties — van Limited Edition tot seizoenseries. Elke collectie heeft eigen selectiecriteria voor materiaal, skelet en personalisatie.",
+    "eyebrow": "Curatorial collecties",
+    "indexLede": "Onze selectie in studio verandert langzaam — modellen worden pas toegevoegd na een 6-maandse technische evaluatie. Daardoor blijft elke collectie visueel coherent en consistent in uitvoeringsstandaard.",
+    "emptyTitle": "Geen actieve collecties",
+    "emptyDescription": "Kom binnenkort terug — we bereiden de lancering van een nieuwe serie voor.",
+    "emptyCollectionTitle": "Deze collectie heeft momenteel geen actieve modellen",
+    "emptyCollectionDescription": "Bekijk de volledige catalogus of vraag ons naar beschikbaarheid van een specifiek stuk.",
+    "countLabel": "{count, plural, one {# model} other {# modellen}} in deze collectie"
+  },
+  "about": {
+    "title": "Over Velvet Companions",
+    "eyebrow": "Over ons",
+    "lede": "Velvet Companions is de Roemeense studio die premium realistische partners produceert en verhuurt, met klinische hygiënestandaarden en een onvoorwaardelijk discretiebeleid.",
+    "pillars": [
+      {
+        "heading": "Waarom we begonnen",
+        "body": "Ontstaan uit een privéwerkplaats in 2024, kwam het merk voort als antwoord op een concreet probleem: de Europese markt voor realistische partners was gepolariseerd tussen goedkope producten met twijfelachtige materialen en op maat gemaakte stukken met levertijden van zes maanden. We wilden een middenweg — gecontroleerde productie, de mogelijkheid om te testen via verhuur, en ondersteuning in drie talen voor een regionale markt die tot dan toe alleen vanuit buiten de EU werd bediend."
+      },
+      {
+        "heading": "Wat we anders doen",
+        "body": "Elk model dat we verhuren of verkopen ondergaat een interne technische evaluatie op 14 criteria — van gewrichtsstoleranties tot huidresistentie tegen oplosmiddelen. Het afwijzingspercentage ligt tussen 20% en 30% per partij. Modellen die in de catalogus komen, worden vervolgens in natuurlijk licht gefotografeerd, zonder retouche, zodat er geen verrassingen zijn bij levering.\n\nTussen verhuringen ondergaat elke partner een vijfstappige hygiëneprocedure, per cyclus gedocumenteerd. Kopers krijgen hetzelfde voorbereidingsniveau plus 12 maanden technische ondersteuning voor het interne skelet en 6 maanden voor de buitenhuid."
+      },
+      {
+        "heading": "Voor wie we werken",
+        "body": "Onze klanten zijn voornamelijk volwassenen tussen 30 en 55 jaar, met stabiel inkomen, die discretie boven prijs stellen. De meeste vragen komen uit Roemenië, Nederland en het Verenigd Koninkrijk. Onze werktalen zijn Roemeens, Engels en Nederlands — elke adviseur spreekt minstens twee daarvan vloeiend."
+      }
+    ],
+    "valuesHeading": "Operationele waarden",
+    "values": [
+      {
+        "label": "Discretie",
+        "text": "Uw naam blijft nooit langer in onze database dan strikt nodig voor de bestelling. Maximaal 30 dagen, daarna gewist — schriftelijke bevestiging op verzoek."
+      },
+      {
+        "label": "Gecertificeerd materiaal",
+        "text": "Medisch TPE en platinum-cure silicone, beide ftalaatvrij, hypoallergeen, REACH-gecertificeerd voor huidcontact in de EU."
+      },
+      {
+        "label": "Spoorloze betaling",
+        "text": "Op afschriften staat „Velvet Studio SRL” — geen volwassenen-MCC, geen inhoudsbeschrijving. Contant bij levering blijft de standaard."
+      },
+      {
+        "label": "Technische ondersteuning",
+        "text": "12 maanden voor skelet en elektronische modules, 6 maanden voor de buitenhuid. Kleine reparaties gebeuren in studio, zonder upsell."
+      }
+    ],
+    "legalHeading": "Juridische exploitant",
+    "legalIntro": "De juridische exploitant is {operator}, geregistreerd in Roemenië. Voor fiscale en juridische contactgegevens, zie de pagina Algemene Voorwaarden.",
+    "contactCta": "Neem contact op voor een vertrouwelijke afspraak"
+  },
+  "contact": {
+    "title": "Discreet contact",
+    "eyebrow": "Hoe u ons bereikt",
+    "lede": "We reageren binnen 4 uur tussen 10:00 – 22:00, zeven dagen per week. De onderstaande kanalen worden bemand door menselijke adviseurs — geen chatbot, geen automatische antwoorden.",
+    "channelsHeading": "Contactkanalen",
+    "whatsappLabel": "WhatsApp",
+    "whatsappHelp": "Snelste kanaal. Uw bericht bereikt een toegewezen adviseur, geen bot.",
+    "phoneLabel": "Telefoon",
+    "phoneHelp": "Voor klanten die voorkeur geven aan een gesprek. Bellen wordt afgerekend als nationale oproep binnen Roemenië.",
+    "emailLabel": "Commerciële e-mail",
+    "emailHelp": "Voor gedetailleerde aanvragen, gepersonaliseerde offertes of ontwerpvoorbeelden.",
+    "dpoLabel": "Functionaris gegevensbescherming (DPO)",
+    "dpoHelp": "AVG-verzoeken — inzage, rectificatie, verwijdering van uw gegevens.",
+    "addressHeading": "Maatschappelijke zetel",
+    "addressNote": "Studiobezoeken uitsluitend op afspraak — toegang strikt via vertrouwelijke boeking.",
+    "legalDataHeading": "Juridische identificatie",
+    "legalLine": "Exploitant: {operator}, BTW-nummer: {cui}, Handelsregister: {reg}.",
+    "termsLink": "Lees de volledige algemene voorwaarden"
+  },
+  "blog": {
+    "indexTitle": "Velvet Companions blog",
+    "indexDescription": "Technische gidsen, vergelijkingen en juridische interpretaties voor de premium realistische-partnermarkt. In-house geschreven, met verifieerbare data.",
+    "eyebrow": "Redactioneel",
+    "indexLede": "We schrijven een artikel wanneer een vraag vaak genoeg opduikt om een eigen pagina te verdienen. TPE versus silicone, ons hygiëneprotocol, EU-herroepingsrecht, wat te verwachten bij een eerste verhuur.",
+    "emptyTitle": "Nog geen artikelen gepubliceerd",
+    "emptyDescription": "We bereiden de eerste vier pijlerartikelen voor. Kom over enkele dagen terug.",
+    "readMore": "Lees het artikel",
+    "readingTime": "{minutes} min lezen",
+    "tableOfContents": "Inhoudsopgave",
+    "tagsLabel": "Labels",
+    "relatedHeading": "Lees verder",
+    "countLabel": "{count, plural, one {# artikel} other {# artikelen}}",
+    "category": {
+      "guide": "Gidsen",
+      "comparison": "Vergelijkingen",
+      "legal": "Juridisch",
+      "culture": "Cultuur"
+    }
+  },
+  "reviews": {
+    "sectionHeading": "Geverifieerde recensies",
+    "sectionLede": "Recensies achtergelaten door klanten na levering. Elke recensie wordt handmatig gemodereerd voor publicatie. Totaal: {count}.",
+    "aggregateLabel": "{count, plural, one {uit # recensie} other {uit # recensies}}",
+    "targetLabel": "Recensie voor {name}",
+    "introHeading": "Vertel ons hoe het ging",
+    "introHelp": "Uw antwoorden helpen ons betere modellen te selecteren en de logistiek te verfijnen. Het recensieveld laat tot 4.000 tekens toe; de optionele titel, 120.",
+    "ratingLegend": "Algemene beoordeling",
+    "ratingLabels": {
+      "1": "Verkeerde pasvorm",
+      "2": "Beneden verwachting",
+      "3": "Aanvaardbaar",
+      "4": "Goed",
+      "5": "Uitstekend"
+    },
+    "titleLabel": "Titel (optioneel)",
+    "bodyLabel": "Uw recensie",
+    "bodyHelp": "Minimaal 30 tekens. Technische details (textuur, gewrichten, levering) helpen het meest.",
+    "nameLabel": "Hoe u publiek wilt verschijnen",
+    "nameHelp": "Standaard gebruiken we initialen als het vakje niet is aangevinkt. Uw volledige naam blijft intern, in onze database, voor de strikte duur van de bestelling.",
+    "publicName": "Publiceer mijn volledige naam",
+    "submit": "Recensie versturen",
+    "sending": "Versturen…",
+    "thanksHeading": "Dank — uw recensie staat in moderatie",
+    "thanksBody": "Een moderator controleert de tekst binnen 48 uur. Als deze live gaat op de productpagina, ontvangt u een WhatsApp-melding.",
+    "statusAlreadySubmittedEyebrow": "Recensie al ontvangen",
+    "statusAlreadySubmittedHeading": "Dank — we hebben uw recensie al",
+    "statusAlreadySubmittedBody": "Deze link is gebruikt. Als u uw recensie wilt aanpassen, neem contact op via uw voorkeurskanaal."
+  },
+  "faq": {
+    "indexTitle": "Veelgestelde vragen",
+    "indexDescription": "De vragen die we het vaakst krijgen — over levering, hygiëne, betaling, materialen, herroepingsrecht. Alle met concrete data.",
+    "eyebrow": "Helpcenter",
+    "indexLede": "De meest relevante antwoorden, gegroepeerd per onderwerp. Zoek snel of spring direct naar de juiste categorie.",
+    "emptyTitle": "Nog geen vragen gepubliceerd.",
+    "searchPlaceholder": "Zoek in de vragen…",
+    "searchNoResults": "Geen resultaten. Herformuleer of schrijf ons rechtstreeks.",
+    "jumpLabel": "Spring naar categorie",
+    "category": {
+      "delivery": "Levering",
+      "hygiene": "Hygiëne",
+      "payment": "Betaling",
+      "materials": "Materialen",
+      "rental": "Verhuur",
+      "purchase": "Aankoop",
+      "legal": "Juridisch",
+      "general": "Algemeen"
+    }
+  }
 }
