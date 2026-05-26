@@ -21,6 +21,16 @@ import {
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import { formatPrice, getIntlLocale } from "@/i18n/format";
 import type { PublicPlatformSettings } from "@/lib/settings/shared";
+import type {
+    DollCouponError,
+    DollCouponValidation,
+} from "@/lib/shop/shared";
+import {
+    evaluateDollOffer,
+    offerBadgeLabel,
+    offerTitle,
+    type OfferRow,
+} from "@/lib/offers/shared";
 import {
     getCountyByCode,
     romanianCounties,
@@ -40,6 +50,13 @@ type OrderCheckoutProps = {
     options: string;
     total: string;
     action: (formData: FormData) => Promise<void>;
+    validateCouponAction: (input: {
+        code: string;
+        mode: CatalogMode;
+        base: number;
+        extras: number;
+    }) => Promise<DollCouponValidation>;
+    offers: OfferRow[];
     settings: PublicPlatformSettings;
 };
 
@@ -128,6 +145,8 @@ export default function OrderCheckout({
     options,
     total,
     action,
+    validateCouponAction,
+    offers,
     settings,
 }: OrderCheckoutProps) {
     const locale = useLocale();
@@ -135,6 +154,7 @@ export default function OrderCheckout({
     const tCommon = useTranslations("common");
     const tDetails = useTranslations("details");
     const tFooter = useTranslations("footer");
+    const tShop = useTranslations("shop");
     const currency = settings.currency || "RON";
     const reactId = useId();
     const formId = `${reactId}-checkout-form`;
@@ -151,6 +171,12 @@ export default function OrderCheckout({
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const formDirtyRef = useRef(false);
+
+    const [couponInput, setCouponInput] = useState("");
+    const [appliedCode, setAppliedCode] = useState("");
+    const [couponResult, setCouponResult] = useState<DollCouponValidation | null>(null);
+    const [couponError, setCouponError] = useState<DollCouponError | null>(null);
+    const [couponPending, setCouponPending] = useState(false);
 
     const durationSectionRef = useRef<HTMLDivElement | null>(null);
 
@@ -186,6 +212,72 @@ export default function OrderCheckout({
 
     const liveBaseTotal = isRent ? matchedTier?.price ?? 0 : doll.buyPrice ?? 0;
     const liveTotalAmount = Math.max(0, liveBaseTotal + extrasTotal);
+
+    const couponDiscount = couponResult?.ok
+        ? Math.min(liveTotalAmount, couponResult.discountAmount)
+        : 0;
+
+    // Automatic offer for this doll, evaluated live with the same pure logic the
+    // server uses. Competes with the coupon — the larger discount wins. Cheap
+    // enough to recompute each render (React Compiler memoizes it).
+    const offerEval = evaluateDollOffer(offers, {
+        mode,
+        base: liveBaseTotal,
+        extras: extrasTotal,
+        collectionId: doll.collectionId,
+    });
+    const offerDiscount = Math.min(liveTotalAmount, offerEval.discountAmount);
+    const discountSource: "coupon" | "offer" | null =
+        couponDiscount >= offerDiscount && couponDiscount > 0
+            ? "coupon"
+            : offerDiscount > 0
+              ? "offer"
+              : null;
+    const effectiveDiscount =
+        discountSource === "coupon"
+            ? couponDiscount
+            : discountSource === "offer"
+              ? offerDiscount
+              : 0;
+    const offerLabel =
+        discountSource === "offer" && offerEval.offer
+            ? offerBadgeLabel(offerEval.offer, locale) ??
+              offerTitle(offerEval.offer, locale)
+            : null;
+    const liveTotalAfterDiscount = Math.max(0, liveTotalAmount - effectiveDiscount);
+
+    // Re-validate the applied code whenever the base/extras change (e.g. the
+    // buyer edits the rental duration). The server action is the single source
+    // of truth for the discount; we never recompute it on the client.
+    useEffect(() => {
+        // Clearing is handled by removeCoupon; the effect only fetches.
+        if (!appliedCode) return;
+        let cancelled = false;
+        const run = async () => {
+            setCouponPending(true);
+            try {
+                const result = await validateCouponAction({
+                    code: appliedCode,
+                    mode,
+                    base: liveBaseTotal,
+                    extras: extrasTotal,
+                });
+                if (cancelled) return;
+                setCouponResult(result);
+                setCouponError(result.ok ? null : result.error);
+            } catch {
+                if (cancelled) return;
+                setCouponResult(null);
+                setCouponError("not_found");
+            } finally {
+                if (!cancelled) setCouponPending(false);
+            }
+        };
+        void run();
+        return () => {
+            cancelled = true;
+        };
+    }, [appliedCode, liveBaseTotal, extrasTotal, mode, validateCouponAction]);
 
     const [form, setForm] = useState<OrderFormState>({
         fullName: "",
@@ -242,8 +334,37 @@ export default function OrderCheckout({
         if (!Number.isFinite(liveTotalAmount) || liveTotalAmount <= 0) {
             return t("pendingTotal");
         }
-        return formatPrice(liveTotalAmount, locale, currency);
-    }, [currency, liveTotalAmount, locale, t]);
+        return formatPrice(liveTotalAfterDiscount, locale, currency);
+    }, [currency, liveTotalAmount, liveTotalAfterDiscount, locale, t]);
+
+    const applyCoupon = useCallback(() => {
+        const value = couponInput.trim().toUpperCase();
+        if (!value) return;
+        setCouponError(null);
+        setAppliedCode(value);
+    }, [couponInput]);
+
+    const removeCoupon = useCallback(() => {
+        setAppliedCode("");
+        setCouponInput("");
+        setCouponResult(null);
+        setCouponError(null);
+    }, []);
+
+    const couponErrorLabel = useMemo(() => {
+        if (!couponError) return null;
+        const key: Record<DollCouponError, string> = {
+            not_found: "couponErrorNotFound",
+            not_started: "couponErrorNotStarted",
+            expired: "couponErrorExpired",
+            exhausted: "couponErrorExhausted",
+            subtotal_too_low: "couponErrorSubtotalTooLow",
+            category_mismatch: "couponErrorNotFound",
+            mode_mismatch: "couponErrorModeMismatch",
+            inactive: "couponErrorNotFound",
+        };
+        return tShop(key[couponError] ?? "couponErrorNotFound");
+    }, [couponError, tShop]);
 
     const modeLabel = mode === "rent" ? tCommon("rent") : tCommon("buy");
     const summaryTypeLabel = mode === "rent" ? t("serviceTypeRent") : t("serviceTypeBuy");
@@ -457,6 +578,11 @@ export default function OrderCheckout({
                             <input type="hidden" name="outfit_id" value={outfitId} />
                             <input type="hidden" name="options" value={options} />
                             <input type="hidden" name="total" value={String(liveTotalAmount)} />
+                            <input
+                                type="hidden"
+                                name="coupon_code"
+                                value={couponResult?.ok ? appliedCode : ""}
+                            />
                             <input type="hidden" name="rental_unit" value={durationUnit} />
                             <input type="hidden" name="rental_quantity" value={hasValidQty ? String(qtyNumber) : ""} />
                             <input type="hidden" name="rental_tier_id" value={matchedTier?.id ?? tierId} />
@@ -1132,6 +1258,81 @@ export default function OrderCheckout({
                                         )}
                                     </dl>
 
+                                    {liveTotalAmount > 0 ? (
+                                        <div className="mb-4">
+                                            {couponResult?.ok ? (
+                                                <div className="rounded-xl border border-gold/30 bg-velvet-950/60 p-3">
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-gold">
+                                                                {tShop("couponApplied")}
+                                                            </p>
+                                                            <p className="mt-0.5 font-mono text-gold-light text-sm break-all">
+                                                                {appliedCode}
+                                                            </p>
+                                                            {couponResult.description ? (
+                                                                <p className="mt-1 text-[0.78rem] text-silk/70">
+                                                                    {couponResult.description}
+                                                                </p>
+                                                            ) : null}
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={removeCoupon}
+                                                            disabled={couponPending}
+                                                            className="text-[0.68rem] uppercase tracking-[0.16em] text-silk/65 hover:text-red-300 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-md px-2 py-1"
+                                                        >
+                                                            {tShop("couponRemove")}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div>
+                                                    <label
+                                                        htmlFor={`${formId}-coupon`}
+                                                        className="block text-[0.68rem] uppercase tracking-[0.18em] text-silk/70 mb-2"
+                                                    >
+                                                        {tShop("couponLabel")}
+                                                    </label>
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            id={`${formId}-coupon`}
+                                                            type="text"
+                                                            value={couponInput}
+                                                            onChange={(event) => {
+                                                                setCouponInput(event.target.value);
+                                                                if (couponError) setCouponError(null);
+                                                            }}
+                                                            onKeyDown={(event) => {
+                                                                if (event.key === "Enter") {
+                                                                    event.preventDefault();
+                                                                    applyCoupon();
+                                                                }
+                                                            }}
+                                                            placeholder={tShop("couponPlaceholder")}
+                                                            autoComplete="off"
+                                                            spellCheck={false}
+                                                            className="flex-1 bg-velvet-950 border border-velvet-700 focus:border-gold focus-visible:ring-2 focus-visible:ring-gold rounded-lg px-3 py-2 text-silk text-sm font-mono uppercase tracking-wider focus:outline-none"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={applyCoupon}
+                                                            disabled={couponPending || couponInput.trim().length === 0}
+                                                            className="bg-gold hover:bg-gold-light text-velvet-950 disabled:bg-velvet-700 disabled:text-silk/55 disabled:cursor-not-allowed font-semibold px-4 py-2 rounded-lg text-[0.68rem] uppercase tracking-[0.16em] transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                                                        >
+                                                            {couponPending ? "…" : tShop("couponApply")}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {couponErrorLabel ? (
+                                                <p role="alert" className="mt-2 text-[0.8rem] text-red-300">
+                                                    {couponErrorLabel}
+                                                </p>
+                                            ) : null}
+                                        </div>
+                                    ) : null}
+
                                     <div className="bg-velvet-950 p-4 rounded-2xl border border-velvet-700">
                                         {liveBaseTotal > 0 && (
                                             <div className="flex justify-between text-xs text-silk/80 mb-2">
@@ -1143,6 +1344,23 @@ export default function OrderCheckout({
                                             <div className="flex justify-between text-xs text-silk/80 mb-2">
                                                 <span>{t("extras")}</span>
                                                 <span>+{formatPrice(extrasTotal, locale, currency)}</span>
+                                            </div>
+                                        )}
+                                        {effectiveDiscount > 0 && (
+                                            <div className="flex justify-between text-xs text-gold mb-2">
+                                                <span>
+                                                    {t("discount")}
+                                                    {discountSource === "coupon" ? (
+                                                        <span className="text-silk/60 font-mono ml-1">
+                                                            ({appliedCode})
+                                                        </span>
+                                                    ) : offerLabel ? (
+                                                        <span className="text-silk/60 ml-1">
+                                                            ({offerLabel})
+                                                        </span>
+                                                    ) : null}
+                                                </span>
+                                                <span>−{formatPrice(effectiveDiscount, locale, currency)}</span>
                                             </div>
                                         )}
                                         <div className="flex justify-between text-xs text-silk/65 mb-3 pb-3 border-b border-velvet-700">

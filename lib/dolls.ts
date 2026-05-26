@@ -19,6 +19,7 @@ export type Doll = {
     id: string;
     name: string;
     collection: string;
+    collectionId: string | null;
     description: string;
     image: string;
     images?: string[];
@@ -61,6 +62,7 @@ export function mapDollRowToDoll(row: DollRow, tiers: RentalTier[] = []): Doll {
         id: row.slug,
         name: row.name,
         collection: row.collection,
+        collectionId: row.collection_id,
         description: row.description,
         image: row.main_image_path ?? row.main_image_url ?? "",
         images: row.image_paths ?? row.image_urls ?? [],

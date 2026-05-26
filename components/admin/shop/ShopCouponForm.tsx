@@ -30,6 +30,10 @@ export default function ShopCouponForm({
     const [pending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
     const [type, setType] = useState<string>(initial?.type ?? "percentage");
+    const [scope, setScope] = useState<string>(initial?.applies_to ?? "shop");
+
+    const appliesToDolls = scope === "dolls" || scope === "both";
+    const appliesToShop = scope === "shop" || scope === "both";
 
     const submit = (formData: FormData) => {
         setError(null);
@@ -154,6 +158,91 @@ export default function ShopCouponForm({
                 </div>
             </div>
 
+            <fieldset className="rounded-xl border border-velvet-800 bg-velvet-900/30 p-4 space-y-4">
+                <legend className="px-2 text-[0.7rem] uppercase tracking-[0.16em] text-gold">
+                    Aplicabilitate
+                </legend>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                        <label className={label} htmlFor="coupon-applies-to">
+                            Se aplică pe
+                        </label>
+                        <select
+                            id="coupon-applies-to"
+                            name="applies_to"
+                            value={scope}
+                            onChange={(e) => setScope(e.target.value)}
+                            className={input}
+                        >
+                            <option value="shop">Doar magazin (shop)</option>
+                            <option value="dolls">Doar păpuși (dolls)</option>
+                            <option value="both">Ambele</option>
+                        </select>
+                    </div>
+
+                    {appliesToDolls ? (
+                        <div>
+                            <label className={label} htmlFor="coupon-doll-base">
+                                Reducerea la păpuși se aplică pe
+                            </label>
+                            <select
+                                id="coupon-doll-base"
+                                name="doll_discount_base"
+                                defaultValue={initial?.doll_discount_base ?? "total"}
+                                className={input}
+                            >
+                                <option value="total">Total (preț bază + extras)</option>
+                                <option value="base">Doar prețul de bază</option>
+                                <option value="extras">Doar extras (ținute + personalizări)</option>
+                            </select>
+                        </div>
+                    ) : null}
+                </div>
+
+                {appliesToDolls ? (
+                    <div>
+                        <span className={label}>Moduri păpuși</span>
+                        <p className="-mt-1 mb-2 text-[0.78rem] text-silk/55">
+                            Lasă ambele nebifate pentru a aplica codul la orice
+                            comandă de păpușă (închiriere și cumpărare).
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            {[
+                                { value: "rent", label: "Închiriere" },
+                                { value: "buy", label: "Cumpărare" },
+                            ].map((m) => (
+                                <label
+                                    key={m.value}
+                                    className="flex items-center gap-2 text-sm text-silk/85 bg-velvet-900/50 border border-velvet-800 rounded-lg px-3 py-2"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        name="doll_modes"
+                                        value={m.value}
+                                        defaultChecked={
+                                            initial?.doll_modes?.includes(
+                                                m.value as "rent" | "buy",
+                                            ) ?? false
+                                        }
+                                        className="accent-gold"
+                                    />
+                                    {m.label}
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                ) : null}
+
+                {appliesToDolls && type === "free_shipping" ? (
+                    <p className="text-[0.78rem] text-amber-300/90">
+                        „Livrare gratuită” nu are efect la comenzile de păpuși
+                        (nu există taxă de livrare) — folosește procentaj sau
+                        sumă fixă pentru ele.
+                    </p>
+                ) : null}
+            </fieldset>
+
             <div className="grid sm:grid-cols-3 gap-4">
                 <div>
                     <label className={label} htmlFor="coupon-starts">
@@ -195,12 +284,13 @@ export default function ShopCouponForm({
                 </div>
             </div>
 
-            {categories.length > 0 ? (
+            {categories.length > 0 && appliesToShop ? (
                 <fieldset className="space-y-2">
-                    <legend className={label}>Limitare pe categorii</legend>
+                    <legend className={label}>Limitare pe categorii (shop)</legend>
                     <p className="text-[0.78rem] text-silk/55">
                         Bifează una sau mai multe categorii pentru a restricționa
-                        codul. Lasă gol pentru a-l aplica tuturor produselor.
+                        codul în magazin. Lasă gol pentru a-l aplica tuturor
+                        produselor. Nu afectează comenzile de păpuși.
                     </p>
                     <div className="grid sm:grid-cols-2 gap-2 max-h-48 overflow-auto pr-2">
                         {categories.map((category) => {

@@ -11,6 +11,9 @@ import Hero from "@/components/landing/Hero";
 import HygieneCallout from "@/components/landing/HygieneCallout";
 import SensoryBenefits from "@/components/landing/SensoryBenefits";
 import TrustRibbon from "@/components/landing/TrustRibbon";
+import OfferBanner from "@/components/OfferBanner";
+import { getActiveOffers } from "@/lib/offers/queries";
+import { homepageOffers } from "@/lib/offers/shared";
 import type { Doll } from "@/lib/dolls";
 import type { PublicPlatformSettings } from "@/lib/settings/shared";
 import { getSupabaseImageUrlServer } from "@/lib/supabase/images-server";
@@ -62,6 +65,8 @@ export default async function ArtisanDollsLanding({
     const faqRows = await getHomeFaqItems(locale).catch(() => []);
     const faqItems = faqRows.map((row) => ({ q: row.question, a: row.answer }));
 
+    const bannerOffers = homepageOffers(await getActiveOffers().catch(() => []));
+
     return (
         <>
             <Hero
@@ -80,6 +85,7 @@ export default async function ArtisanDollsLanding({
                 rentEnabled={settings.rent_enabled}
                 buyEnabled={settings.buy_enabled}
             />
+            <OfferBanner offers={bannerOffers} locale={locale} />
             <CompanionCollection
                 dolls={cardDolls}
                 currency={settings.currency}

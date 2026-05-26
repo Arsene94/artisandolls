@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import {
     IconAdjustments,
     IconBuildingStore,
+    IconGift,
     IconHanger,
     IconLayoutDashboard,
     IconLayersIntersect,
@@ -70,10 +71,16 @@ const menuItems = [
         icon: IconLayersIntersect,
     },
     {
-        label: "Shop · Coduri",
+        label: "Coduri reducere",
         href: "/admin/shop/coupons",
-        description: "Reduceri & coduri promoționale",
+        description: "Coduri promoționale shop + păpuși",
         icon: IconReceiptOff,
+    },
+    {
+        label: "Oferte",
+        href: "/admin/offers",
+        description: "Promoții automate shop + păpuși",
+        icon: IconGift,
     },
     {
         label: "Shop · Comenzi",

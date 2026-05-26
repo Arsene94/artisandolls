@@ -15,6 +15,7 @@ export const CACHE_KEYS = {
     dollBySlug: (slug: string) => cacheKey("dolls", "slug", slug, "v2"),
     blogPosts: cacheKey("blog", "public", "v1"),
     faqItems: cacheKey("faq", "public", "v1"),
+    offers: cacheKey("offers", "active", "v1"),
     blogPostBySlug: (slug: string) => cacheKey("blog", "slug", slug, "v1"),
     reviewsByTarget: (type: "doll" | "shop_product", id: string) =>
         cacheKey("reviews", type, id, "v1"),
@@ -91,6 +92,10 @@ export async function invalidateBlog(): Promise<void> {
 
 export async function invalidateFaq(): Promise<void> {
     await invalidateKeys(CACHE_KEYS.faqItems);
+}
+
+export async function invalidateOffers(): Promise<void> {
+    await invalidateKeys(CACHE_KEYS.offers);
 }
 
 export async function invalidateReviews(

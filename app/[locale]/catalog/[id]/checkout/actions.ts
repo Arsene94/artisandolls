@@ -8,6 +8,14 @@ import { rememberRecentOrder } from "@/lib/orders/recent-cookie";
 import { getInitialOrderStatus, type OrderRow } from "@/lib/orders/shared";
 import { notifyAdminsAboutOrder } from "@/lib/whatsapp";
 import type { CatalogMode } from "@/lib/dolls";
+import { redeemDollCoupon, validateDollCoupon } from "@/lib/dolls/coupons";
+import type { DollCouponValidation } from "@/lib/shop/shared";
+import { getActiveOffers } from "@/lib/offers/queries";
+import {
+    evaluateDollOffer,
+    offerBadgeLabel,
+    type OfferRow,
+} from "@/lib/offers/shared";
 import {
     computeRentalEnd,
     isRentalUnit,
@@ -126,7 +134,7 @@ export async function createOrderAction(formData: FormData) {
     const { data: doll, error: dollError } = await supabase
         .from("dolls")
         .select(
-            "id, slug, name, available_for_rent, available_for_buy, buy_price",
+            "id, slug, name, available_for_rent, available_for_buy, buy_price, collection_id",
         )
         .eq("slug", dollSlug)
         .single();
@@ -286,7 +294,57 @@ export async function createOrderAction(formData: FormData) {
         mode === "rent"
             ? Number(matchedTier?.price ?? 0)
             : Number(doll.buy_price ?? 0);
-    const totalAmount = Math.max(0, baseTotal + outfitTotal + customizationsTotal);
+    const extrasTotal = outfitTotal + customizationsTotal;
+    const grossTotal = Math.max(0, baseTotal + extrasTotal);
+
+    // Coupon: re-validated here against server-trusted prices. The preview the
+    // buyer saw is never trusted — we recompute the discount from scratch.
+    const couponCodeInput = getString(formData, "coupon_code");
+    let discountAmount = 0;
+    let couponId: string | null = null;
+    let appliedCouponCode: string | null = null;
+    let discountType: "none" | "fixed" | "percent" = "none";
+    let discountValue = 0;
+
+    if (couponCodeInput) {
+        const couponValidation = await validateDollCoupon(
+            couponCodeInput,
+            mode,
+            baseTotal,
+            extrasTotal,
+        );
+        if (couponValidation.ok && couponValidation.couponId) {
+            discountAmount = Math.min(grossTotal, couponValidation.discountAmount);
+            couponId = couponValidation.couponId;
+            appliedCouponCode = couponValidation.code;
+            discountType =
+                couponValidation.type === "percentage" ? "percent" : "fixed";
+            discountValue = couponValidation.value ?? 0;
+        }
+    }
+
+    // Automatic offers (no code). Competes with the coupon — the larger wins,
+    // no stacking. Evaluated server-side from trusted prices.
+    let offerId: string | null = null;
+    let offerLabel: string | null = null;
+    const offers = await getActiveOffers().catch(() => [] as OfferRow[]);
+    const offerEval = evaluateDollOffer(offers, {
+        mode,
+        base: baseTotal,
+        extras: extrasTotal,
+        collectionId: (doll.collection_id as string | null) ?? null,
+    });
+    if (offerEval.offer && offerEval.discountAmount > discountAmount) {
+        discountAmount = Math.min(grossTotal, offerEval.discountAmount);
+        discountType = offerEval.discountType ?? "none";
+        discountValue = offerEval.discountValue;
+        offerId = offerEval.offer.id;
+        offerLabel = offerBadgeLabel(offerEval.offer, locale) ?? offerEval.offer.name;
+        couponId = null;
+        appliedCouponCode = null;
+    }
+
+    const totalAmount = Math.max(0, grossTotal - discountAmount);
 
     const customerName = getString(formData, "full_name").slice(0, NAME_MAX);
     const customerPhone = getString(formData, "phone");
@@ -453,14 +511,18 @@ export async function createOrderAction(formData: FormData) {
         age_confirmed: ageConfirmed,
         privacy_accepted: privacyAccepted,
 
-        subtotal_amount: totalAmount,
+        subtotal_amount: grossTotal,
         custom_price_amount: null,
-        discount_type: "none",
-        discount_value: 0,
-        discount_amount: 0,
+        discount_type: discountType,
+        discount_value: discountValue,
+        discount_amount: discountAmount,
+        coupon_id: couponId,
+        coupon_code: appliedCouponCode,
+        offer_id: offerId,
+        offer_label: offerLabel,
         total_amount: totalAmount,
         total_label:
-            totalAmount > 0
+            grossTotal > 0
                 ? formatPrice(totalAmount, locale, settings.currency || "RON")
                 : tCheckout("pendingTotal"),
     };
@@ -482,6 +544,34 @@ export async function createOrderAction(formData: FormData) {
     // Marchează comanda ca aparținând browserului curent — gate-ul de pe
     // pagina /success refuză vizualizarea PII fără cookie-ul ăsta.
     await rememberRecentOrder(order.id);
+
+    // Commit the coupon. If the redemption RPC loses the race (cap just hit,
+    // code disabled), re-price the order to the un-discounted total so the
+    // downstream notify/realtime reflect what the customer actually owes.
+    if (couponId) {
+        const redeemed = await redeemDollCoupon(
+            couponId,
+            order.id,
+            discountAmount,
+            customerPhone || null,
+        );
+        if (!redeemed) {
+            const reverted = {
+                coupon_id: null,
+                coupon_code: null,
+                discount_type: "none" as const,
+                discount_value: 0,
+                discount_amount: 0,
+                total_amount: grossTotal,
+                total_label:
+                    grossTotal > 0
+                        ? formatPrice(grossTotal, locale, settings.currency || "RON")
+                        : tCheckout("pendingTotal"),
+            };
+            await supabase.from("orders").update(reverted).eq("id", order.id);
+            Object.assign(order, reverted);
+        }
+    }
 
     // Broadcast to live admin dashboards (best-effort).
     await emitNewOrder({
@@ -565,4 +655,36 @@ export async function createOrderAction(formData: FormData) {
         },
         locale,
     });
+}
+
+/**
+ * Preview-validate a coupon for the doll checkout summary. The discount shown
+ * here is advisory only — `createOrderAction` recomputes it from trusted prices
+ * before charging, so a tampered `base`/`extras` can only fool the buyer's own
+ * preview, never the final order.
+ */
+export async function validateDollCouponAction(input: {
+    code: string;
+    mode: CatalogMode;
+    base: number;
+    extras: number;
+}): Promise<DollCouponValidation> {
+    const code = String(input?.code ?? "").trim();
+    if (!code) {
+        return {
+            ok: false,
+            couponId: null,
+            code: "",
+            type: null,
+            value: null,
+            discountBase: null,
+            discountAmount: 0,
+            description: null,
+            error: "not_found",
+        };
+    }
+    const mode: CatalogMode = input?.mode === "buy" ? "buy" : "rent";
+    const base = Math.max(0, Math.round(Number(input?.base) || 0));
+    const extras = Math.max(0, Math.round(Number(input?.extras) || 0));
+    return validateDollCoupon(code, mode, base, extras);
 }

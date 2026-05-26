@@ -196,6 +196,10 @@ export type OrderRow = {
     discount_type: "none" | "fixed" | "percent";
     discount_value: number;
     discount_amount: number;
+    coupon_id: string | null;
+    coupon_code: string | null;
+    offer_id: string | null;
+    offer_label: string | null;
 
     total_amount: number;
     total_label: string;

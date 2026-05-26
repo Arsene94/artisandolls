@@ -8,6 +8,7 @@ import { formatMoney } from "@/lib/shop/format";
 import { onlinePaymentAvailable } from "@/lib/payments";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import ShopCheckoutForm from "@/components/shop/ShopCheckoutForm";
+import CartSummaryTotals from "@/components/shop/CartSummaryTotals";
 import { createShopOrderAction } from "@/app/[locale]/shop/checkout/actions";
 import type { Locale } from "@/i18n/routing";
 
@@ -106,54 +107,9 @@ export default async function ShopCheckoutPage({ params }: Props) {
                                 </li>
                             ))}
                         </ul>
-                        <dl className="mt-6 pt-6 border-t border-velvet-800 space-y-3 text-sm">
-                            <div className="flex justify-between text-silk/80">
-                                <dt>{t("cartSubtotal")}</dt>
-                                <dd className="font-medium">
-                                    {formatMoney(
-                                        summary.subtotal,
-                                        locale,
-                                        summary.currency,
-                                    )}
-                                </dd>
-                            </div>
-                            {summary.discountAmount > 0 ? (
-                                <div className="flex justify-between text-silk/85">
-                                    <dt>
-                                        {t("couponSavings")}
-                                        {summary.coupon?.code ? (
-                                            <span className="ml-2 font-mono text-[0.78rem] text-gold-light">
-                                                {summary.coupon.code}
-                                            </span>
-                                        ) : null}
-                                    </dt>
-                                    <dd className="font-medium text-gold">
-                                        −
-                                        {formatMoney(
-                                            summary.discountAmount,
-                                            locale,
-                                            summary.currency,
-                                        )}
-                                    </dd>
-                                </div>
-                            ) : null}
-                            <div className="flex justify-between text-silk/60">
-                                <dt>{t("cartShipping")}</dt>
-                                <dd>{t("cartShippingEstimate")}</dd>
-                            </div>
-                            <div className="flex justify-between items-baseline pt-3 border-t border-velvet-800/60">
-                                <dt className="text-[0.72rem] uppercase tracking-[0.18em] text-gold">
-                                    {t("cartTotal")}
-                                </dt>
-                                <dd className="font-display italic text-2xl text-silk">
-                                    {formatMoney(
-                                        summary.total,
-                                        locale,
-                                        summary.currency,
-                                    )}
-                                </dd>
-                            </div>
-                        </dl>
+                        <div className="mt-6 pt-6 border-t border-velvet-800">
+                            <CartSummaryTotals summary={summary} locale={locale} />
+                        </div>
                         <Link
                             href="/shop/cart"
                             className="mt-4 inline-flex w-full items-center justify-center text-[0.72rem] uppercase tracking-[0.18em] text-silk/65 hover:text-gold py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-md"

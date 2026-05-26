@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import DollsCatalog from "@/components/DollsCatalog";
 import Pagination from "@/components/Pagination";
 import { getCollections, getDolls, type CatalogMode } from "@/lib/dolls";
+import { getActiveOffers } from "@/lib/offers/queries";
 import PublicUnavailableNotice from "@/components/PublicUnavailableNotice";
 import {
     getPublicPlatformSettings,
@@ -113,9 +114,10 @@ export default async function CatalogPage({
         );
     }
 
-    const [allDolls, collections] = await Promise.all([
+    const [allDolls, collections, offers] = await Promise.all([
         getDolls(locale),
         getCollections(),
+        getActiveOffers().catch(() => []),
     ]);
 
     const totalPages = Math.max(1, Math.ceil(allDolls.length / PAGE_SIZE));
@@ -165,6 +167,7 @@ export default async function CatalogPage({
                 collections={collections}
                 initialMode={mode}
                 settings={settings}
+                offers={offers}
             />
             {totalPages > 1 ? (
                 <Pagination

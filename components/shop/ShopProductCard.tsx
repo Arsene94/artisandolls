@@ -5,6 +5,8 @@ import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import { formatMoney } from "@/lib/shop/format";
 import AddToCartButton from "@/components/shop/AddToCartButton";
 import type { ShopProduct } from "@/lib/shop/shared";
+import { getActiveOffers } from "@/lib/offers/queries";
+import { shopBadgeOffer, offerBadgeLabel } from "@/lib/offers/shared";
 
 type Props = {
     product: ShopProduct;
@@ -46,6 +48,10 @@ export default async function ShopProductCard({
 
     const compact = variant === "compact";
     const detailsHref = `/shop/p/${product.slug}`;
+
+    const offers = await getActiveOffers().catch(() => []);
+    const badgeOffer = shopBadgeOffer(offers, product.categoryId, locale);
+    const offerBadgeText = badgeOffer ? offerBadgeLabel(badgeOffer, locale) : null;
 
     return (
         // `isolate` creates a new stacking context so the title link's
@@ -99,6 +105,18 @@ export default async function ShopProductCard({
                             (1 - product.price / (product.compareAtPrice ?? 1)) * 100,
                         )}
                         %
+                    </span>
+                ) : null}
+                {offerBadgeText ? (
+                    <span
+                        style={
+                            badgeOffer?.accent
+                                ? { backgroundColor: badgeOffer.accent }
+                                : undefined
+                        }
+                        className="absolute bottom-3 left-3 inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-[0.18em] bg-gold/90 text-velvet-950"
+                    >
+                        {offerBadgeText}
                     </span>
                 ) : null}
             </div>

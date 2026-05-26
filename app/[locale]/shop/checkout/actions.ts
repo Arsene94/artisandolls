@@ -22,6 +22,8 @@ import {
     reservedTotals,
 } from "@/lib/shop/reservations";
 import { redeemCoupon, validateCoupon } from "@/lib/shop/coupons";
+import { getProductsByIds } from "@/lib/shop/products";
+import { offerBadgeLabel } from "@/lib/offers/shared";
 import { getActivePaymentProvider } from "@/lib/payments";
 import type {
     PaymentMethod,
@@ -279,7 +281,7 @@ export async function createShopOrderAction(formData: FormData) {
                 .filter((id): id is string => Boolean(id)),
         ),
     );
-    let discountAmount = 0;
+    let couponDiscount = 0;
     let couponId: string | null = null;
     let couponCode: string | null = null;
     if (summary.coupon?.code) {
@@ -289,10 +291,32 @@ export async function createShopOrderAction(formData: FormData) {
             categoryIds,
         );
         if (validation.ok) {
-            discountAmount = Math.min(summary.subtotal, validation.discountAmount);
+            couponDiscount = Math.min(summary.subtotal, validation.discountAmount);
             couponId = validation.couponId;
             couponCode = validation.code;
         }
+    }
+
+    // Offers were evaluated server-side inside getCartSummary(); trust those.
+    // No stacking with the coupon — the larger discount wins.
+    const offerDiscount = summary.offerDiscountAmount;
+    const discountOffer = summary.discountOffer;
+    const giftOffer = summary.giftOffer;
+
+    let discountAmount = couponDiscount;
+    let offerId: string | null = null;
+    let offerLabel: string | null = null;
+    if (offerDiscount > couponDiscount && discountOffer) {
+        discountAmount = offerDiscount;
+        couponId = null;
+        couponCode = null;
+        offerId = discountOffer.id;
+        offerLabel = offerBadgeLabel(discountOffer, locale) ?? discountOffer.name;
+    }
+    // A gift offer applies independently of which discount won.
+    if (!offerId && giftOffer) {
+        offerId = giftOffer.id;
+        offerLabel = offerBadgeLabel(giftOffer, locale) ?? giftOffer.name;
     }
 
     const totalAmount = Math.max(0, summary.subtotal - discountAmount);
@@ -323,6 +347,8 @@ export async function createShopOrderAction(formData: FormData) {
             privacy_accepted: privacyAccepted,
             coupon_id: couponId,
             coupon_code: couponCode,
+            offer_id: offerId,
+            offer_label: offerLabel,
             payment_method: paymentMethod,
             payment_status: paymentMethod === "card_online" ? "pending" : "not_required",
             payment_provider: provider?.id ?? null,
@@ -362,6 +388,33 @@ export async function createShopOrderAction(formData: FormData) {
 
     if (itemsError) {
         console.error("[shop/checkout] line items insert failed", itemsError);
+    }
+
+    // Free-gift offer: append the gift as a zero-priced line so it shows on the
+    // order and the operator knows to pack it.
+    if (giftOffer?.gift_product_id) {
+        const [gift] = await getProductsByIds([giftOffer.gift_product_id]).catch(
+            () => [],
+        );
+        if (gift) {
+            const { error: giftError } = await supabase
+                .from("shop_order_items")
+                .insert({
+                    order_id: orderId,
+                    product_id: gift.id,
+                    product_slug: gift.slug,
+                    product_sku: gift.sku,
+                    product_name: gift.name,
+                    product_image_path: gift.image,
+                    unit_price: 0,
+                    quantity: 1,
+                    line_total: 0,
+                    currency: gift.currency,
+                });
+            if (giftError) {
+                console.error("[shop/checkout] gift line insert failed", giftError);
+            }
+        }
     }
 
     // Final coupon commit. If the race-conditioned redemption RPC refuses

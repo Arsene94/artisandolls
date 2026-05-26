@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import OrderCheckout from "@/components/OrderCheckout";
 import { getDollBySlug, type CatalogMode } from "@/lib/dolls";
-import { createOrderAction } from "./actions";
+import { getActiveOffers } from "@/lib/offers/queries";
+import { createOrderAction, validateDollCouponAction } from "./actions";
 import PublicUnavailableNotice from "@/components/PublicUnavailableNotice";
 import {
     getPublicPlatformSettings,
@@ -44,9 +45,10 @@ export default async function CheckoutPage({ params, searchParams }: CheckoutPag
     const resolvedSearchParams = await searchParams;
     const tNotice = await getTranslations({ locale, namespace: "notice" });
 
-    const [doll, settings] = await Promise.all([
+    const [doll, settings, offers] = await Promise.all([
         getDollBySlug(id),
         getPublicPlatformSettings(),
+        getActiveOffers().catch(() => []),
     ]);
 
     if (!doll) {
@@ -85,6 +87,8 @@ export default async function CheckoutPage({ params, searchParams }: CheckoutPag
             options={getSearchParamValue(resolvedSearchParams?.options)}
             total={getSearchParamValue(resolvedSearchParams?.total)}
             action={createOrderAction}
+            validateCouponAction={validateDollCouponAction}
+            offers={offers}
             settings={settings}
         />
     );

@@ -174,6 +174,15 @@ export function localizedCategoryDescription(
 
 export type ShopCouponType = "percentage" | "fixed" | "free_shipping";
 
+/** Which product surface a coupon may be redeemed on. */
+export type CouponScope = "shop" | "dolls" | "both";
+
+/** Doll order mode a coupon is limited to. Empty array == all modes. */
+export type CouponDollMode = "rent" | "buy";
+
+/** What part of a doll order the discount applies to. */
+export type CouponDiscountBase = "total" | "base" | "extras";
+
 export type ShopCouponRow = {
     id: string;
     code: string;
@@ -188,6 +197,9 @@ export type ShopCouponRow = {
     max_redemptions: number | null;
     redemptions_count: number;
     applies_to_categories: string[];
+    applies_to: CouponScope;
+    doll_modes: CouponDollMode[];
+    doll_discount_base: CouponDiscountBase;
     is_active: boolean;
     created_at: string;
     updated_at: string;
@@ -210,6 +222,22 @@ export type CouponValidation = {
     discountAmount: number;
     description: string | null;
     error: CouponError | null;
+};
+
+/** Doll coupons add a mode restriction on top of the shop error set. */
+export type DollCouponError = CouponError | "mode_mismatch";
+
+export type DollCouponValidation = {
+    ok: boolean;
+    couponId: string | null;
+    code: string;
+    type: ShopCouponType | null;
+    /** Raw coupon value: the percent (0–100) or the fixed amount. */
+    value: number | null;
+    discountBase: CouponDiscountBase | null;
+    discountAmount: number;
+    description: string | null;
+    error: DollCouponError | null;
 };
 
 export const SHOP_ORDER_STATUS_OPTIONS: Array<{

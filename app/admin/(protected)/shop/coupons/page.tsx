@@ -13,6 +13,21 @@ function formatType(type: ShopCouponRow["type"]): string {
     return "Livrare gratuită";
 }
 
+function formatScope(coupon: ShopCouponRow): string {
+    const base =
+        coupon.applies_to === "dolls"
+            ? "Păpuși"
+            : coupon.applies_to === "both"
+              ? "Shop + Păpuși"
+              : "Shop";
+    if (coupon.applies_to === "shop") return base;
+    const modes = coupon.doll_modes ?? [];
+    if (modes.length === 1) {
+        return `${base} · ${modes[0] === "rent" ? "închiriere" : "cumpărare"}`;
+    }
+    return base;
+}
+
 function formatValue(coupon: ShopCouponRow): string {
     if (coupon.type === "percentage") return `${coupon.value}%`;
     if (coupon.type === "fixed") {
@@ -55,9 +70,10 @@ export default async function AdminShopCouponsPage() {
                         Coduri promoționale
                     </h1>
                     <p className="text-silk/75 mt-1 max-w-2xl">
-                        Coduri reducere pentru magazin: procentaj, sumă fixă sau
-                        livrare gratuită. Setează termen și limite atent — nu pot
-                        fi anulate retroactiv pe comenzile deja confirmate.
+                        Coduri reducere pentru magazin și păpuși: procentaj, sumă
+                        fixă sau livrare gratuită. Fiecare cod poate fi limitat la
+                        shop, la păpuși sau ambele. Setează termen și limite atent
+                        — nu pot fi anulate retroactiv pe comenzile deja confirmate.
                     </p>
                 </div>
                 <Link
@@ -78,6 +94,7 @@ export default async function AdminShopCouponsPage() {
                         <thead className="bg-velvet-900/60 text-silk/65 uppercase text-[0.7rem] tracking-[0.16em]">
                             <tr>
                                 <th className="px-4 py-3 text-left">Cod</th>
+                                <th className="px-4 py-3 text-left">Aplicare</th>
                                 <th className="px-4 py-3 text-left">Tip</th>
                                 <th className="px-4 py-3 text-right">Valoare</th>
                                 <th className="px-4 py-3 text-right">Utilizări</th>
@@ -104,6 +121,11 @@ export default async function AdminShopCouponsPage() {
                                                 {coupon.description}
                                             </p>
                                         ) : null}
+                                    </td>
+                                    <td className="px-4 py-3 text-silk/80">
+                                        <span className="inline-flex items-center rounded-full border border-velvet-700 bg-velvet-900/60 px-2.5 py-1 text-[0.7rem] text-silk/85">
+                                            {formatScope(coupon)}
+                                        </span>
                                     </td>
                                     <td className="px-4 py-3 text-silk/80">
                                         {formatType(coupon.type)}

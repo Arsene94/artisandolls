@@ -322,8 +322,43 @@ function getTimestamp(formData: FormData, key: string): string | null {
     return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
 }
 
+const COUPON_SCOPES = ["shop", "dolls", "both"] as const;
+type CouponScope = (typeof COUPON_SCOPES)[number];
+
+function getCouponScope(formData: FormData): CouponScope {
+    const raw = getString(formData, "applies_to");
+    return (COUPON_SCOPES as readonly string[]).includes(raw)
+        ? (raw as CouponScope)
+        : "shop";
+}
+
+const DISCOUNT_BASES = ["total", "base", "extras"] as const;
+type DiscountBase = (typeof DISCOUNT_BASES)[number];
+
+function getDiscountBase(formData: FormData): DiscountBase {
+    const raw = getString(formData, "doll_discount_base");
+    return (DISCOUNT_BASES as readonly string[]).includes(raw)
+        ? (raw as DiscountBase)
+        : "total";
+}
+
+/** All checked values of a same-named checkbox group (getAll, not get). */
+function getCheckboxValues(formData: FormData, key: string): string[] {
+    return formData
+        .getAll(key)
+        .map((value) => String(value).trim())
+        .filter(Boolean);
+}
+
+function getDollModes(formData: FormData): string[] {
+    return getCheckboxValues(formData, "doll_modes").filter(
+        (mode) => mode === "rent" || mode === "buy",
+    );
+}
+
 function couponPayload(formData: FormData) {
     const rawCode = getString(formData, "code");
+    const scope = getCouponScope(formData);
     return {
         code: rawCode.toUpperCase(),
         type: getCouponType(formData),
@@ -335,7 +370,10 @@ function couponPayload(formData: FormData) {
         starts_at: getTimestamp(formData, "starts_at"),
         expires_at: getTimestamp(formData, "expires_at"),
         max_redemptions: getNullableNumber(formData, "max_redemptions"),
-        applies_to_categories: getStringArray(formData, "applies_to_categories"),
+        applies_to_categories: getCheckboxValues(formData, "applies_to_categories"),
+        applies_to: scope,
+        doll_modes: scope === "shop" ? [] : getDollModes(formData),
+        doll_discount_base: getDiscountBase(formData),
         is_active: getBoolean(formData, "is_active"),
     };
 }

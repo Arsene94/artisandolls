@@ -354,6 +354,20 @@ export default async function AdminOrderPage({ params }: AdminOrderPageProps) {
                                     <small>Discount aplicat</small>
                                     <strong>{getAppliedDiscountLabel(order)}</strong>
                                 </div>
+
+                                {order.coupon_code ? (
+                                    <div>
+                                        <small>Cod promoțional</small>
+                                        <strong>{order.coupon_code}</strong>
+                                    </div>
+                                ) : null}
+
+                                {order.offer_label ? (
+                                    <div>
+                                        <small>Ofertă aplicată</small>
+                                        <strong>{order.offer_label}</strong>
+                                    </div>
+                                ) : null}
                             </div>
 
                             <div className={`${styles.orderSummaryRow} ${styles.orderSummaryTotal}`}>

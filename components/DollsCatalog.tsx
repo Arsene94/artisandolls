@@ -10,6 +10,11 @@ import { getSupabaseImageUrl } from "@/lib/supabase/images";
 import { formatPrice } from "@/i18n/format";
 import type { PublicPlatformSettings } from "@/lib/settings/shared";
 import { searchCatalogSemantic } from "@/app/[locale]/catalog/search-actions";
+import {
+    dollBadgeOffer,
+    offerBadgeLabel,
+    type OfferRow,
+} from "@/lib/offers/shared";
 import styles from "./DollsCatalog.module.css";
 
 type DollsCatalogProps = {
@@ -17,7 +22,30 @@ type DollsCatalogProps = {
     collections: string[];
     initialMode: CatalogMode;
     settings: PublicPlatformSettings;
+    offers?: OfferRow[];
 };
+
+function DollOfferBadge({
+    offers,
+    doll,
+    locale,
+}: {
+    offers: OfferRow[];
+    doll: Doll;
+    locale: string;
+}) {
+    const offer = dollBadgeOffer(offers, doll.collectionId, locale);
+    const text = offer ? offerBadgeLabel(offer, locale) : null;
+    if (!text) return null;
+    return (
+        <span
+            style={offer?.accent ? { backgroundColor: offer.accent } : undefined}
+            className="absolute bottom-3 left-3 z-10 inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-[0.18em] bg-gold/90 text-velvet-950"
+        >
+            {text}
+        </span>
+    );
+}
 
 type AvailabilityFilter = "all" | "available" | "rent" | "buy" | "custom" | "sold_out";
 type SortValue = "featured" | "name" | "price_asc" | "price_desc";
@@ -65,6 +93,7 @@ export default function DollsCatalog({
     collections,
     initialMode,
     settings,
+    offers = [],
 }: DollsCatalogProps) {
     const t = useTranslations("catalog");
     const tCommon = useTranslations("common");
@@ -83,17 +112,26 @@ export default function DollsCatalog({
     const [availability, setAvailability] = useState<AvailabilityFilter>("all");
     const [sort, setSort] = useState<SortValue>("featured");
     const [semanticOrder, setSemanticOrder] = useState<string[] | null>(null);
+    const [filtersOpen, setFiltersOpen] = useState(false);
+
+    // Count of the filters tucked behind the "Filtre" button (mode + search
+    // stay always-visible, so they're excluded from the badge).
+    const advancedCount =
+        (collection !== "all" ? 1 : 0) +
+        (availability !== "all" ? 1 : 0) +
+        (sort !== "featured" ? 1 : 0);
 
     const currentModeLabel = mode === "rent" ? rentLabel : buyLabel;
 
     useEffect(() => {
         const trimmed = search.trim();
-        if (trimmed.length < 2) {
-            setSemanticOrder(null);
-            return;
-        }
         let cancelled = false;
         const handle = window.setTimeout(() => {
+            if (cancelled) return;
+            if (trimmed.length < 2) {
+                setSemanticOrder(null);
+                return;
+            }
             searchCatalogSemantic(trimmed, locale)
                 .then((res) => {
                     if (cancelled) return;
@@ -300,7 +338,7 @@ export default function DollsCatalog({
                             </div>
                         </div>
 
-                        <div className={styles.advancedFilters}>
+                        <div className={styles.controlsRow}>
                             <div className={styles.filterControl}>
                                 <span className={styles.controlLabel}>{t("selectedMode")}</span>
                                 <div className={styles.modeToggle} role="group" aria-label={t("selectedMode")}>
@@ -327,55 +365,89 @@ export default function DollsCatalog({
                                 </div>
                             </div>
 
-                            <label className={styles.field}>
-                                <span>{t("collection")}</span>
-                                <select
-                                    value={collection}
-                                    onChange={(event) => setCollection(event.target.value)}
+                            <button
+                                type="button"
+                                className={`${styles.filtersButton}${
+                                    filtersOpen ? ` ${styles.filtersButtonActive}` : ""
+                                }`}
+                                onClick={() => setFiltersOpen((open) => !open)}
+                                aria-expanded={filtersOpen}
+                                aria-controls="catalog-advanced-filters"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                    focusable="false"
+                                    className={styles.filtersButtonIcon}
                                 >
-                                    <option value="all">{t("allCollections")}</option>
-                                    {collections.map((collectionName) => (
-                                        <option key={collectionName} value={collectionName}>
-                                            {collectionName}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-
-                            <label className={styles.field}>
-                                <span>{t("availability")}</span>
-                                <select
-                                    value={availability}
-                                    onChange={(event) =>
-                                        setAvailability(event.target.value as AvailabilityFilter)
-                                    }
-                                >
-                                    <option value="all">{t("availabilityAll")}</option>
-                                    <option value="available">{t("availabilityNow")}</option>
-                                    {settings.rent_enabled && (
-                                        <option value="rent">{t("availabilityRent")}</option>
-                                    )}
-                                    {settings.buy_enabled && (
-                                        <option value="buy">{t("availabilityBuy")}</option>
-                                    )}
-                                    <option value="custom">{t("availabilityCustom")}</option>
-                                    <option value="sold_out">{t("availabilitySoldOut")}</option>
-                                </select>
-                            </label>
-
-                            <label className={styles.field}>
-                                <span>{t("sort")}</span>
-                                <select
-                                    value={sort}
-                                    onChange={(event) => setSort(event.target.value as SortValue)}
-                                >
-                                    <option value="featured">{t("sortFeatured")}</option>
-                                    <option value="name">{t("sortName")}</option>
-                                    <option value="price_asc">{t("sortPriceAsc")}</option>
-                                    <option value="price_desc">{t("sortPriceDesc")}</option>
-                                </select>
-                            </label>
+                                    <line x1="4" y1="6" x2="20" y2="6" />
+                                    <line x1="7" y1="12" x2="17" y2="12" />
+                                    <line x1="10" y1="18" x2="14" y2="18" />
+                                </svg>
+                                <span>{t("filtersButton")}</span>
+                                {advancedCount > 0 ? (
+                                    <span className={styles.filtersBadge}>{advancedCount}</span>
+                                ) : null}
+                            </button>
                         </div>
+
+                        {filtersOpen ? (
+                            <div id="catalog-advanced-filters" className={styles.advancedPanel}>
+                                <label className={styles.field}>
+                                    <span>{t("collection")}</span>
+                                    <select
+                                        value={collection}
+                                        onChange={(event) => setCollection(event.target.value)}
+                                    >
+                                        <option value="all">{t("allCollections")}</option>
+                                        {collections.map((collectionName) => (
+                                            <option key={collectionName} value={collectionName}>
+                                                {collectionName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
+
+                                <label className={styles.field}>
+                                    <span>{t("availability")}</span>
+                                    <select
+                                        value={availability}
+                                        onChange={(event) =>
+                                            setAvailability(event.target.value as AvailabilityFilter)
+                                        }
+                                    >
+                                        <option value="all">{t("availabilityAll")}</option>
+                                        <option value="available">{t("availabilityNow")}</option>
+                                        {settings.rent_enabled && (
+                                            <option value="rent">{t("availabilityRent")}</option>
+                                        )}
+                                        {settings.buy_enabled && (
+                                            <option value="buy">{t("availabilityBuy")}</option>
+                                        )}
+                                        <option value="custom">{t("availabilityCustom")}</option>
+                                        <option value="sold_out">{t("availabilitySoldOut")}</option>
+                                    </select>
+                                </label>
+
+                                <label className={styles.field}>
+                                    <span>{t("sort")}</span>
+                                    <select
+                                        value={sort}
+                                        onChange={(event) => setSort(event.target.value as SortValue)}
+                                    >
+                                        <option value="featured">{t("sortFeatured")}</option>
+                                        <option value="name">{t("sortName")}</option>
+                                        <option value="price_asc">{t("sortPriceAsc")}</option>
+                                        <option value="price_desc">{t("sortPriceDesc")}</option>
+                                    </select>
+                                </label>
+                            </div>
+                        ) : null}
 
                         {activeFilters.length > 0 && (
                             <div className={styles.activeFilters} aria-live="polite">
@@ -484,6 +556,11 @@ export default function DollsCatalog({
                                                     sizes="(max-width: 760px) 100vw, (max-width: 1100px) 50vw, 33vw"
                                                 />
                                                 <span className={styles.badge}>{doll.badge}</span>
+                                                <DollOfferBadge
+                                                    offers={offers}
+                                                    doll={doll}
+                                                    locale={locale}
+                                                />
                                             </div>
 
                                             <div className={styles.cardBody}>

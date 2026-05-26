@@ -2,12 +2,14 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redis } from "@/lib/upstash/redis";
 import { validateCoupon } from "@/lib/shop/coupons";
-import { getProductsBySlugs } from "@/lib/shop/products";
+import { getProductsBySlugs, getProductsByIds } from "@/lib/shop/products";
 import {
     refreshReservation,
     releaseReservation,
 } from "@/lib/shop/reservations";
 import type { CouponValidation, ShopProduct } from "@/lib/shop/shared";
+import { getActiveOffers } from "@/lib/offers/queries";
+import { evaluateCartOffers, type OfferRow } from "@/lib/offers/shared";
 
 const CART_COOKIE = "ad_cart_id";
 const CART_COUNT_COOKIE = "ad_cart_count";
@@ -45,17 +47,39 @@ export type CartCouponSnapshot = {
     ok: boolean;
 };
 
+export type CartGiftProduct = {
+    slug: string;
+    name: string;
+    image: string | null;
+};
+
+export type CartOfferProgress = {
+    remaining: number;
+    offer: OfferRow;
+};
+
 export type CartSummary = {
     id: string;
     lines: CartLine[];
     missingSlugs: string[];
     subtotal: number;
+    /** Effective discount applied to the total (max of coupon vs offer). */
     discountAmount: number;
+    /** Which source produced `discountAmount`. */
+    discountSource: "coupon" | "offer" | null;
     total: number;
     currency: string;
     itemCount: number;
     distinctCount: number;
     coupon: CartCouponSnapshot | null;
+    /** Auto-discount offer that currently applies (if it won over the coupon). */
+    discountOffer: OfferRow | null;
+    offerDiscountAmount: number;
+    /** Free-gift offer whose threshold is met. */
+    giftOffer: OfferRow | null;
+    giftProduct: CartGiftProduct | null;
+    /** Nearest unmet threshold, for the "spend X more to get Y" hint. */
+    offerProgress: CartOfferProgress | null;
 };
 
 const EMPTY_CART_SUMMARY: CartSummary = {
@@ -64,11 +88,17 @@ const EMPTY_CART_SUMMARY: CartSummary = {
     missingSlugs: [],
     subtotal: 0,
     discountAmount: 0,
+    discountSource: null,
     total: 0,
     currency: "RON",
     itemCount: 0,
     distinctCount: 0,
     coupon: null,
+    discountOffer: null,
+    offerDiscountAmount: 0,
+    giftOffer: null,
+    giftProduct: null,
+    offerProgress: null,
 };
 
 function cartKey(id: string): string {
@@ -210,19 +240,65 @@ export async function getCartSummary(): Promise<CartSummary> {
         }
     }
 
-    const total = Math.max(0, subtotal - discountAmount);
+    // Automatic offers. Evaluated against the same lines; the discount-bearing
+    // offer competes with the coupon (no stacking — the larger discount wins).
+    const offers = await getActiveOffers().catch(() => [] as OfferRow[]);
+    const evalLines = lines.map((line) => ({
+        categoryId: line.product.categoryId,
+        unitPrice: line.product.price,
+        qty: line.qty,
+    }));
+    const offerResult = evaluateCartOffers(offers, evalLines, subtotal);
+    const offerDiscountAmount = Math.min(subtotal, offerResult.discountAmount);
+
+    let giftProduct: CartGiftProduct | null = null;
+    if (offerResult.giftProductId) {
+        const [gift] = await getProductsByIds([offerResult.giftProductId]).catch(
+            () => [] as ShopProduct[],
+        );
+        if (gift) {
+            giftProduct = { slug: gift.slug, name: gift.name, image: gift.image };
+        }
+    }
+
+    const couponDiscount = discountAmount;
+    let discountSource: "coupon" | "offer" | null = null;
+    let effectiveDiscount = 0;
+    if (couponDiscount >= offerDiscountAmount && couponDiscount > 0) {
+        discountSource = "coupon";
+        effectiveDiscount = couponDiscount;
+    } else if (offerDiscountAmount > 0) {
+        discountSource = "offer";
+        effectiveDiscount = offerDiscountAmount;
+    }
+
+    const total = Math.max(0, subtotal - effectiveDiscount);
 
     return {
         id: state.id,
         lines,
         missingSlugs,
         subtotal,
-        discountAmount,
+        discountAmount: effectiveDiscount,
+        discountSource,
         total,
         currency,
         itemCount: lines.reduce((sum, line) => sum + line.qty, 0),
         distinctCount: lines.length,
         coupon,
+        discountOffer: discountSource === "offer" ? offerResult.discountOffer : null,
+        offerDiscountAmount,
+        giftOffer: offerResult.giftOffer,
+        giftProduct,
+        offerProgress: offerResult.progress
+            ? {
+                  remaining: offerResult.progress.remaining,
+                  offer:
+                      offers.find((o) => o.id === offerResult.progress!.offerId) ??
+                      offerResult.discountOffer ??
+                      offerResult.giftOffer!,
+              }
+            : null,
     };
 }
 

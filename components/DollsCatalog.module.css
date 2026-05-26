@@ -255,20 +255,86 @@
     font-weight: 700;
 }
 
-.advancedFilters {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+/* Always-visible control row: mode toggle on the left, "Filtre" trigger on
+   the right. The rest of the filters live in `.advancedPanel`, toggled open. */
+.controlsRow {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
     gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filtersButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 3rem;
+    padding: 0 1.25rem;
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 0.75rem;
+    background: #0F0406;
+    color: #D4AF37;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    text-transform: uppercase;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.filtersButton:hover,
+.filtersButtonActive {
+    border-color: #D4AF37;
+    background: rgba(212, 175, 55, 0.12);
+    color: #ffffff;
+}
+
+.filtersButton:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+}
+
+.filtersButtonIcon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.filtersBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: #D4AF37;
+    color: #0F0406;
+    font-size: 0.7rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.advancedPanel {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(86, 18, 30, 0.5);
 }
 
 .modeToggle {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
 }
 
 .modeToggle button {
     min-height: 3rem;
+    padding: 0 1.5rem;
     border: 1px solid rgba(252, 250, 247, 0.1);
     border-radius: 0.75rem;
     background: #0F0406;
@@ -750,7 +816,7 @@
 }
 
 @media (max-width: 1100px) {
-    .advancedFilters {
+    .advancedPanel {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -789,10 +855,19 @@
         align-self: flex-end;
     }
 
-    .advancedFilters,
+    .advancedPanel,
     .results,
     .specGrid {
         grid-template-columns: 1fr;
+    }
+
+    .controlsRow {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .filtersButton {
+        justify-content: center;
     }
 
     .imageWrap {
