@@ -1083,24 +1083,44 @@ export default function DollDetails({
                                                     className="w-24 bg-velvet-950 border border-velvet-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-gold focus-visible:ring-2 focus-visible:ring-gold text-sm"
                                                 />
                                             </label>
-                                            <label className="flex flex-col gap-1.5">
+                                            <div className="flex flex-col gap-1.5">
                                                 <span className="text-[11px] uppercase tracking-wider text-silk/80">
                                                     {t("unitLabel")}
                                                 </span>
-                                                <select
-                                                    value={durationUnit}
-                                                    onChange={(event) =>
-                                                        setDurationUnit(
-                                                            event.target.value as RentalUnit,
-                                                        )
-                                                    }
+                                                <div
+                                                    role="radiogroup"
                                                     aria-label={t("unitLabel")}
-                                                    className="bg-velvet-950 border border-velvet-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-gold focus-visible:ring-2 focus-visible:ring-gold text-sm cursor-pointer"
+                                                    className="inline-grid grid-cols-2 gap-1 p-1 rounded-full bg-velvet-950 border border-velvet-700"
                                                 >
-                                                    <option value="hour">{tCommon("hours")}</option>
-                                                    <option value="day">{tCommon("days_unit")}</option>
-                                                </select>
-                                            </label>
+                                                    {(
+                                                        [
+                                                            { value: "hour", label: tCommon("hours") },
+                                                            { value: "day", label: tCommon("days_unit") },
+                                                        ] as const
+                                                    ).map((opt) => {
+                                                        const active = durationUnit === opt.value;
+                                                        return (
+                                                            <button
+                                                                key={opt.value}
+                                                                type="button"
+                                                                role="radio"
+                                                                aria-checked={active}
+                                                                onClick={() =>
+                                                                    setDurationUnit(opt.value)
+                                                                }
+                                                                className={[
+                                                                    "min-h-[2.625rem] px-5 rounded-full text-xs font-semibold uppercase tracking-[0.16em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold motion-reduce:transition-none",
+                                                                    active
+                                                                        ? "bg-gold text-velvet-950"
+                                                                        : "text-silk/85 hover:text-silk",
+                                                                ].join(" ")}
+                                                            >
+                                                                {opt.label}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
                                         </div>
 
                                         {!matchedTier && hasValidQty ? (
@@ -1145,12 +1165,14 @@ export default function DollDetails({
                                         </div>
 
                                         {endAt && (
-                                            <p className="mt-4 text-xs text-silk/85">
-                                                {t("estimatedEnd")}:{" "}
-                                                <strong className="text-white font-semibold">
+                                            <div className="mt-5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 rounded-xl border border-gold/30 bg-gold/10 px-4 py-3">
+                                                <span className="text-[11px] uppercase tracking-wider text-silk/80">
+                                                    {t("estimatedEnd")}
+                                                </span>
+                                                <strong className="text-lg sm:text-xl font-bold text-gold">
                                                     {formatDateTime(endAt, locale)}
                                                 </strong>
-                                            </p>
+                                            </div>
                                         )}
                                     </>
                                 )}
