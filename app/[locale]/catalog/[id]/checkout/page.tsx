@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import OrderCheckout from "@/components/OrderCheckout";
 import { getDollBySlug, type CatalogMode } from "@/lib/dolls";
-import { getActiveOffers } from "@/lib/offers/queries";
+import { getLocalizedOffers } from "@/lib/offers/queries";
 import { createOrderAction, validateDollCouponAction } from "./actions";
 import PublicUnavailableNotice from "@/components/PublicUnavailableNotice";
 import {
@@ -48,7 +48,7 @@ export default async function CheckoutPage({ params, searchParams }: CheckoutPag
     const [doll, settings, offers] = await Promise.all([
         getDollBySlug(id),
         getPublicPlatformSettings(),
-        getActiveOffers().catch(() => []),
+        getLocalizedOffers(locale).catch(() => []),
     ]);
 
     if (!doll) {

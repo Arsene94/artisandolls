@@ -20,7 +20,8 @@ export type TranslatableEntity =
     | "doll_collection"
     | "doll_outfit"
     | "doll_customization_group"
-    | "doll_customization_option";
+    | "doll_customization_option"
+    | "site_offer";
 
 /** Localele non-RO către care traducem. RO e sursa și nu apare aici. */
 export const TARGET_LOCALES: ReadonlyArray<Exclude<Locale, "ro">> = ["en", "nl"];

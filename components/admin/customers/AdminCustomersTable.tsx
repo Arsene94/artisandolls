@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { IconBrandWhatsapp, IconEye, IconPhone } from "@tabler/icons-react";
 import type { CustomerRow } from "@/lib/customers/shared";
 import {
     formatCustomerStatus,
@@ -64,18 +65,30 @@ export default function AdminCustomersTable({ customers }: Props) {
                         <span>{formatCustomerStatus(customer)}</span>
 
                         <div className={styles.rowActions}>
-                            <Link href={`/admin/customers/${customer.id}`}>
-                                Vezi
+                            <Link
+                                href={`/admin/customers/${customer.id}`}
+                                aria-label="Vezi"
+                                title="Vezi"
+                            >
+                                <IconEye size={18} />
                             </Link>
 
-                            <a href={`tel:${customer.phone}`}>Sună</a>
+                            <a
+                                href={`tel:${customer.phone}`}
+                                aria-label="Sună"
+                                title="Sună"
+                            >
+                                <IconPhone size={18} />
+                            </a>
 
                             <a
                                 href={`https://wa.me/${customer.phone.replace(/[^\d]/g, "")}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                aria-label="WhatsApp"
+                                title="WhatsApp"
                             >
-                                WhatsApp
+                                <IconBrandWhatsapp size={18} />
                             </a>
                         </div>
                     </div>

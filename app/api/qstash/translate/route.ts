@@ -24,6 +24,7 @@ const VALID_ENTITIES: ReadonlySet<TranslatableEntity> = new Set<TranslatableEnti
     "doll_outfit",
     "doll_customization_group",
     "doll_customization_option",
+    "site_offer",
 ]);
 
 const TARGET_LOCALES_SET = new Set<string>(TARGET_LOCALES);

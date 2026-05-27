@@ -2,7 +2,9 @@ import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { deleteOfferAction } from "@/app/admin/(protected)/offers/actions";
 import DeleteButton from "@/components/admin/shop/DeleteButton";
+import { IconPencil } from "@tabler/icons-react";
 import type { OfferRow, OfferType } from "@/lib/offers/shared";
+import styles from "@/components/admin/shared/AdminTable.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -55,107 +57,105 @@ export default async function AdminOffersPage() {
 
     return (
         <main className="px-6 sm:px-10 py-10 max-w-6xl">
-            <header className="mb-8 flex items-end justify-between flex-wrap gap-4">
-                <div>
-                    <p className="text-[0.72rem] uppercase tracking-[0.22em] text-gold">
-                        Marketing
-                    </p>
-                    <h1 className="font-display italic text-3xl text-silk mt-2">
-                        Oferte
-                    </h1>
-                    <p className="text-silk/75 mt-1 max-w-2xl">
-                        Promoții automate (fără cod) afișate pe site: banner pe
-                        homepage, badge pe carduri și progres în checkout. Se aplică
-                        automat la îndeplinirea condiției; nu se cumulează cu un cod —
-                        reducerea mai mare câștigă.
-                    </p>
+            <section className={styles.panel}>
+                <div className={styles.toolbar}>
+                    <div>
+                        <span>Marketing</span>
+                        <h2>Oferte</h2>
+                        <p>
+                            Promoții automate (fără cod) afișate pe site: banner pe
+                            homepage, badge pe carduri și progres în checkout. Se aplică
+                            automat la îndeplinirea condiției; nu se cumulează cu un cod —
+                            reducerea mai mare câștigă.
+                        </p>
+                    </div>
+                    <Link href="/admin/offers/new" className={styles.primaryLink}>
+                        Adaugă ofertă
+                    </Link>
                 </div>
-                <Link
-                    href="/admin/offers/new"
-                    className="inline-flex items-center bg-gold hover:bg-gold-light text-velvet-950 font-semibold px-5 py-2.5 rounded-full text-[0.72rem] uppercase tracking-[0.16em] transition-colors motion-reduce:transition-none"
-                >
-                    + Adaugă ofertă
-                </Link>
-            </header>
 
-            {offers.length === 0 ? (
-                <div className="border border-velvet-800 rounded-2xl p-12 text-center text-silk/70">
-                    Nu există oferte.
-                </div>
-            ) : (
-                <div className="overflow-x-auto rounded-2xl border border-velvet-800/60">
-                    <table className="w-full text-sm">
-                        <thead className="bg-velvet-900/60 text-silk/65 uppercase text-[0.7rem] tracking-[0.16em]">
-                            <tr>
-                                <th className="px-4 py-3 text-left">Nume</th>
-                                <th className="px-4 py-3 text-left">Tip</th>
-                                <th className="px-4 py-3 text-left">Aplicare</th>
-                                <th className="px-4 py-3 text-right">Prioritate</th>
-                                <th className="px-4 py-3 text-left">Perioadă</th>
-                                <th className="px-4 py-3 text-center">Activă</th>
-                                <th className="px-4 py-3 text-right">Acțiuni</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-velvet-800/40">
-                            {offers.map((offer) => (
-                                <tr key={offer.id} className="hover:bg-velvet-900/30">
-                                    <td className="px-4 py-3 text-silk">
-                                        <Link
-                                            href={`/admin/offers/${offer.id}/edit`}
-                                            className="hover:text-gold"
-                                        >
-                                            {offer.name}
-                                        </Link>
-                                        {offer.badge_label ? (
-                                            <span className="ml-2 inline-flex items-center rounded-full bg-gold/15 text-gold-light px-2 py-0.5 text-[0.66rem]">
-                                                {offer.badge_label}
-                                            </span>
-                                        ) : null}
-                                    </td>
-                                    <td className="px-4 py-3 text-silk/80">
-                                        {TYPE_LABELS[offer.type]}
-                                    </td>
-                                    <td className="px-4 py-3 text-silk/80">
-                                        <span className="inline-flex items-center rounded-full border border-velvet-700 bg-velvet-900/60 px-2.5 py-1 text-[0.7rem] text-silk/85">
-                                            {formatScope(offer)}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3 text-right text-silk/85">
-                                        {offer.priority}
-                                    </td>
-                                    <td className="px-4 py-3 text-silk/65 text-[0.82rem]">
-                                        {formatSchedule(offer)}
-                                    </td>
-                                    <td className="px-4 py-3 text-center">
-                                        {offer.is_active ? (
-                                            <span className="inline-flex w-2 h-2 rounded-full bg-success" />
-                                        ) : (
-                                            <span className="inline-flex w-2 h-2 rounded-full bg-silk/30" />
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3 text-right">
-                                        <div className="flex justify-end gap-2">
+                {offers.length === 0 ? (
+                    <div className={styles.emptyState}>Nu există oferte.</div>
+                ) : (
+                    <div className={styles.tableWrap}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Nume</th>
+                                    <th>Tip</th>
+                                    <th>Aplicare</th>
+                                    <th className={styles.right}>Prioritate</th>
+                                    <th>Perioadă</th>
+                                    <th className={styles.center}>Status</th>
+                                    <th className={styles.right}>Acțiuni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {offers.map((offer) => (
+                                    <tr key={offer.id}>
+                                        <td>
                                             <Link
                                                 href={`/admin/offers/${offer.id}/edit`}
-                                                className="text-[0.72rem] uppercase tracking-[0.16em] text-gold hover:text-gold-light px-3 py-1.5 rounded-full"
+                                                className={styles.nameLink}
                                             >
-                                                Edit
+                                                {offer.name}
                                             </Link>
-                                            <DeleteButton
-                                                confirmMessage={`Ștergi oferta „${offer.name}"?`}
-                                                onDelete={async () => {
-                                                    "use server";
-                                                    await deleteOfferAction(offer.id);
-                                                }}
-                                            />
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                                            {offer.badge_label ? (
+                                                <small className={styles.sub}>
+                                                    Badge: {offer.badge_label}
+                                                </small>
+                                            ) : null}
+                                        </td>
+                                        <td>{TYPE_LABELS[offer.type]}</td>
+                                        <td>
+                                            <span className={styles.badge}>
+                                                {formatScope(offer)}
+                                            </span>
+                                        </td>
+                                        <td className={styles.right}>
+                                            {offer.priority}
+                                        </td>
+                                        <td>{formatSchedule(offer)}</td>
+                                        <td className={styles.center}>
+                                            <span className={styles.status}>
+                                                <span
+                                                    className={`${styles.dot} ${offer.is_active ? styles.dotOn : styles.dotOff}`}
+                                                />
+                                                {offer.is_active
+                                                    ? "Activ"
+                                                    : "Inactiv"}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className={styles.rowActions}>
+                                                <Link
+                                                    href={`/admin/offers/${offer.id}/edit`}
+                                                    aria-label="Editează"
+                                                    title="Editează"
+                                                    className={styles.actionBtn}
+                                                >
+                                                    <IconPencil size={18} />
+                                                </Link>
+                                                <DeleteButton
+                                                    icon
+                                                    className={styles.actionBtnDanger}
+                                                    confirmMessage={`Ștergi oferta „${offer.name}"?`}
+                                                    onDelete={async () => {
+                                                        "use server";
+                                                        await deleteOfferAction(
+                                                            offer.id,
+                                                        );
+                                                    }}
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </section>
         </main>
     );
 }

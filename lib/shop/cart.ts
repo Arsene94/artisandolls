@@ -8,7 +8,8 @@ import {
     releaseReservation,
 } from "@/lib/shop/reservations";
 import type { CouponValidation, ShopProduct } from "@/lib/shop/shared";
-import { getActiveOffers } from "@/lib/offers/queries";
+import { getLocale } from "next-intl/server";
+import { getActiveOffers, localizeOffers } from "@/lib/offers/queries";
 import { evaluateCartOffers, type OfferRow } from "@/lib/offers/shared";
 
 const CART_COOKIE = "ad_cart_id";
@@ -242,7 +243,12 @@ export async function getCartSummary(): Promise<CartSummary> {
 
     // Automatic offers. Evaluated against the same lines; the discount-bearing
     // offer competes with the coupon (no stacking — the larger discount wins).
-    const offers = await getActiveOffers().catch(() => [] as OfferRow[]);
+    const rawOffers = await getActiveOffers().catch(() => [] as OfferRow[]);
+    // Overlay localized badge/title copy so the offer label surfaced in the
+    // cart summary matches the shopper's locale. getLocale() is request-scoped;
+    // every getCartSummary caller runs under the [locale] segment.
+    const locale = await getLocale().catch(() => "ro");
+    const offers = await localizeOffers(rawOffers, locale).catch(() => rawOffers);
     const evalLines = lines.map((line) => ({
         categoryId: line.product.categoryId,
         unitPrice: line.product.price,

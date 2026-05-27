@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/i18n/format";
 import { SHOP_ORDER_STATUS_OPTIONS } from "@/lib/shop/shared";
+import styles from "@/components/admin/shared/AdminTable.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -35,73 +36,64 @@ export default async function AdminShopOrdersPage() {
 
     return (
         <main className="px-6 sm:px-10 py-10 max-w-7xl">
-            <header className="mb-8">
-                <p className="text-[0.72rem] uppercase tracking-[0.22em] text-gold">
-                    Shop
-                </p>
-                <h1 className="font-display italic text-3xl text-silk mt-2">
-                    Comenzi magazin
-                </h1>
-                <p className="text-silk/75 mt-1">
-                    Cele mai recente 200 de comenzi.
-                </p>
-            </header>
+            <section className={styles.panel}>
+                <div className={styles.toolbar}>
+                    <div>
+                        <span>Shop</span>
+                        <h2>Comenzi magazin</h2>
+                        <p>Cele mai recente 200 de comenzi.</p>
+                    </div>
+                </div>
 
-            {orders.length === 0 ? (
-                <div className="border border-velvet-800 rounded-2xl p-12 text-center text-silk/70">
-                    Nu există comenzi încă.
-                </div>
-            ) : (
-                <div className="overflow-x-auto rounded-2xl border border-velvet-800/60">
-                    <table className="w-full text-sm">
-                        <thead className="bg-velvet-900/60 text-silk/65 uppercase text-[0.7rem] tracking-[0.16em]">
-                            <tr>
-                                <th className="px-4 py-3 text-left">Comandă</th>
-                                <th className="px-4 py-3 text-left">Client</th>
-                                <th className="px-4 py-3 text-left">Status</th>
-                                <th className="px-4 py-3 text-right">Total</th>
-                                <th className="px-4 py-3 text-left">Creată</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-velvet-800/40">
-                            {orders.map((order) => (
-                                <tr
-                                    key={order.id}
-                                    className="hover:bg-velvet-900/30"
-                                >
-                                    <td className="px-4 py-3">
-                                        <Link
-                                            href={`/admin/shop/orders/${order.id}`}
-                                            className="text-gold hover:text-gold-light font-mono text-[0.85rem]"
-                                        >
-                                            {order.order_number}
-                                        </Link>
-                                    </td>
-                                    <td className="px-4 py-3 text-silk">
-                                        {order.customer_name}
-                                        <p className="text-[0.72rem] text-silk/55">
-                                            {order.customer_phone}
-                                        </p>
-                                    </td>
-                                    <td className="px-4 py-3 text-silk/85">
-                                        {statusLabel(order.status)}
-                                    </td>
-                                    <td className="px-4 py-3 text-right text-silk">
-                                        {formatPrice(
-                                            order.total_amount,
-                                            "ro",
-                                            order.currency ?? "RON",
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3 text-silk/65 text-[0.82rem]">
-                                        {formatDateTime(order.created_at)}
-                                    </td>
+                {orders.length === 0 ? (
+                    <div className={styles.emptyState}>Nu există comenzi încă.</div>
+                ) : (
+                    <div className={styles.tableWrap}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Comandă</th>
+                                    <th>Client</th>
+                                    <th>Status</th>
+                                    <th className={styles.right}>Total</th>
+                                    <th>Creată</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                            </thead>
+                            <tbody>
+                                {orders.map((order) => (
+                                    <tr key={order.id}>
+                                        <td>
+                                            <Link
+                                                href={`/admin/shop/orders/${order.id}`}
+                                                className={`${styles.nameLink} ${styles.mono}`}
+                                            >
+                                                {order.order_number}
+                                            </Link>
+                                        </td>
+                                        <td>
+                                            <strong>{order.customer_name}</strong>
+                                            <small className={styles.sub}>
+                                                {order.customer_phone}
+                                            </small>
+                                        </td>
+                                        <td>{statusLabel(order.status)}</td>
+                                        <td className={styles.right}>
+                                            <strong>
+                                                {formatPrice(
+                                                    order.total_amount,
+                                                    "ro",
+                                                    order.currency ?? "RON",
+                                                )}
+                                            </strong>
+                                        </td>
+                                        <td>{formatDateTime(order.created_at)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </section>
         </main>
     );
 }

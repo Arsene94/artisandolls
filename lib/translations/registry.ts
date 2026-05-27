@@ -90,6 +90,13 @@ export const TRANSLATION_REGISTRY: readonly EntityRegistration[] = [
         fields: ["label", "description"],
         activeColumn: "is_active",
     },
+    {
+        entity: "site_offer",
+        table: "site_offers",
+        label: "Oferte",
+        fields: ["badge_label", "title", "subtitle"],
+        activeColumn: "is_active",
+    },
 ];
 
 export function findRegistration(

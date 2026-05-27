@@ -10,6 +10,93 @@
     "successTitle": "Bestelling verzonden – Velvet Companions",
     "successDescription": "Bevestiging van uw Velvet Companions aanvraag."
   },
+  "offers": {
+    "dismiss": "Aanbieding sluiten",
+    "presets": {
+      "threshold_percent": {
+        "seasonal": {
+          "badge": "KORTING",
+          "title": "Seizoenskorting",
+          "subtitle": "{hasThreshold, select, yes {Een speciaal percentage bij bestellingen boven {threshold}.} other {Een speciaal percentage bij bestellingen boven de drempel.}}"
+        },
+        "more_you_buy": {
+          "badge": "BONUS",
+          "title": "Meer kopen, meer besparen",
+          "subtitle": "{hasThreshold, select, yes {Automatische korting bij bestellingen boven {threshold}.} other {Automatische korting zodra je de drempel bereikt.}}"
+        }
+      },
+      "threshold_fixed": {
+        "instant_off": {
+          "badge": "KORTING",
+          "title": "Directe korting",
+          "subtitle": "{hasThreshold, select, yes {Een vast bedrag korting bij bestellingen boven {threshold}.} other {Een vast bedrag korting bij bestellingen boven de drempel.}}"
+        },
+        "welcome_off": {
+          "badge": "BONUS",
+          "title": "Bonus op grotere bestellingen",
+          "subtitle": "{hasThreshold, select, yes {Een vaste korting bij bestellingen boven {threshold}.} other {Een vaste korting boven de getoonde drempel.}}"
+        }
+      },
+      "threshold_gift": {
+        "free_gift": {
+          "badge": "CADEAU",
+          "title": "Een cadeau bij je bestelling",
+          "subtitle": "{hasThreshold, select, yes {Ontvang een gratis product bij bestellingen boven {threshold}.} other {Ontvang een gratis product boven de getoonde drempel.}}"
+        },
+        "surprise_gift": {
+          "badge": "VERRASSING",
+          "title": "Verrassing inbegrepen",
+          "subtitle": "{hasThreshold, select, yes {Een speciaal cadeau wacht bij bestellingen boven {threshold}.} other {Een speciaal cadeau wacht op je bij het afrekenen.}}"
+        }
+      },
+      "buy_x_get_y": {
+        "bogo": {
+          "badge": "1+1",
+          "title": "Koop er één, krijg de tweede met korting",
+          "subtitle": "Korting op in aanmerking komende artikelen in je winkelmand."
+        },
+        "bundle": {
+          "badge": "BUNDEL",
+          "title": "Meer voor minder",
+          "subtitle": "Bespaar wanneer je als bundel koopt."
+        }
+      },
+      "collection_percent": {
+        "collection_sale": {
+          "badge": "COLLECTIE",
+          "title": "Collectie-uitverkoop",
+          "subtitle": "Een speciaal percentage op de geselecteerde collectie."
+        },
+        "category_deal": {
+          "badge": "DEAL",
+          "title": "Categorie-aanbieding",
+          "subtitle": "Verlaagde prijzen op een selectie producten."
+        }
+      },
+      "promo": {
+        "new_arrivals": {
+          "badge": "NIEUW",
+          "title": "Nieuw binnen",
+          "subtitle": "Ontdek onze nieuwste toevoegingen, net binnen."
+        },
+        "limited_time": {
+          "badge": "TIJDELIJK",
+          "title": "Tijdelijke aanbieding",
+          "subtitle": "Wees er snel bij — slechts enkele dagen beschikbaar."
+        },
+        "free_shipping": {
+          "badge": "GRATIS",
+          "title": "Gratis verzending",
+          "subtitle": "Gratis levering bij bestellingen boven de getoonde drempel."
+        },
+        "weekend": {
+          "badge": "WEEKEND",
+          "title": "Weekenddeal",
+          "subtitle": "Alleen dit weekend — speciale prijzen."
+        }
+      }
+    }
+  },
   "nav": {
     "home": "Home",
     "catalog": "Catalogus",
@@ -754,16 +841,10 @@
   "ageGate": {
     "eyebrow": "18+ verificatie",
     "title": "Inhoud voor volwassenen",
-    "description": "Deze site biedt premium companion-diensten uitsluitend voor volwassenen. Bevestig uw geboortedatum om door te gaan.",
-    "dayLabel": "Dag",
-    "monthLabel": "Maand",
-    "yearLabel": "Jaar",
-    "confirm": "Ik bevestig dat ik 18+ ben",
-    "leave": "Site verlaten",
-    "errorUnder18": "Volgens de wet is toegang alleen toegestaan voor personen van 18 jaar en ouder.",
-    "errorInvalid": "Voer een geldige datum in.",
+    "description": "Deze site biedt premium companion-diensten uitsluitend voor volwassenen. Bevestig dat u 18 jaar of ouder bent om door te gaan.",
+    "confirm": "Ik ben 18 jaar of ouder",
+    "leave": "Ik ben geen 18 jaar of ouder",
     "errorRate": "Te veel pogingen. Probeer het over een paar minuten opnieuw.",
-    "rememberHint": "We bewaren uw keuze 30 dagen. De site verzamelt geen geboortedatum — de controle vindt lokaal plaats.",
     "termsHint": "Door verder te gaan, gaat u akkoord met de <terms>voorwaarden</terms> en het <privacy>privacybeleid</privacy>."
   },
   "errors": {

@@ -50,6 +50,7 @@ export type OfferRow = {
     subtitle_en: string | null;
     subtitle_nl: string | null;
     accent: string | null;
+    preset_key: string | null;
     show_on_homepage: boolean;
     show_badge: boolean;
 

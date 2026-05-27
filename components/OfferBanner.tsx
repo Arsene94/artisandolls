@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import { useTranslations } from "next-intl";
 import {
     offerBadgeLabel,
     offerSubtitle,
@@ -20,19 +21,23 @@ function dismissKey(id: string) {
 }
 
 /**
- * Homepage promo strip for the highest-priority live offer flagged
- * show_on_homepage. Dismissible per-offer (remembered in localStorage). The
- * dismissed flag is read via useSyncExternalStore so it stays hydration-safe.
+ * Site-wide promotional strip for the highest-priority live offer flagged for
+ * the banner. A thin, full-width bar pinned directly beneath the fixed navbar
+ * (z-40, below the navbar's z-50). Dismissible per-offer for the current visit
+ * only — the dismissed flag lives in sessionStorage, so closing it hides the
+ * strip while the visitor browses but it reappears on their next visit. The
+ * flag is read via useSyncExternalStore so it stays hydration-safe. Copy
+ * resolves from preset/auto-translation upstream in `localizeOffers`, so the
+ * shared label pickers already hold the localized text.
  */
 export default function OfferBanner({ offers, locale }: Props) {
+    const t = useTranslations("offers");
     const offer = offers[0] ?? null;
 
     const subscribe = useCallback((onChange: () => void) => {
         window.addEventListener(DISMISS_EVENT, onChange);
-        window.addEventListener("storage", onChange);
         return () => {
             window.removeEventListener(DISMISS_EVENT, onChange);
-            window.removeEventListener("storage", onChange);
         };
     }, []);
 
@@ -40,7 +45,7 @@ export default function OfferBanner({ offers, locale }: Props) {
         subscribe,
         () =>
             offer
-                ? window.localStorage.getItem(dismissKey(offer.id)) === "1"
+                ? window.sessionStorage.getItem(dismissKey(offer.id)) === "1"
                 : true,
         () => true, // server / pre-hydration: render nothing
     );
@@ -53,47 +58,51 @@ export default function OfferBanner({ offers, locale }: Props) {
     if (!title && !badge) return null;
 
     const dismiss = () => {
-        window.localStorage.setItem(dismissKey(offer.id), "1");
+        window.sessionStorage.setItem(dismissKey(offer.id), "1");
         window.dispatchEvent(new Event(DISMISS_EVENT));
     };
 
-    const accentStyle = offer.accent
-        ? { borderColor: offer.accent, boxShadow: `0 0 40px -28px ${offer.accent}` }
-        : undefined;
+    const accentStyle = offer.accent ? { backgroundColor: offer.accent } : undefined;
 
     return (
-        <section
-            aria-label={title ?? badge ?? "Ofertă"}
-            className="bg-velvet-950 px-4 sm:px-6 lg:px-8"
+        <div
+            className="fixed inset-x-0 top-16 sm:top-20 lg:top-24 z-40"
+            role="region"
+            aria-label={title ?? badge ?? undefined}
         >
             <div
                 style={accentStyle}
-                className="max-w-7xl mx-auto -mt-px relative overflow-hidden rounded-2xl border border-gold/40 bg-gradient-to-r from-velvet-900 via-velvet-900/80 to-velvet-950 px-5 py-4 sm:px-8 sm:py-5 flex items-center gap-4 flex-wrap"
+                className="w-full bg-gradient-to-r from-gold via-gold-light to-gold text-velvet-950 shadow-md shadow-velvet-950/30"
             >
-                {badge ? (
-                    <span className="inline-flex items-center rounded-full bg-gold text-velvet-950 px-3 py-1.5 text-[0.7rem] font-bold uppercase tracking-[0.18em] shrink-0">
-                        {badge}
-                    </span>
-                ) : null}
-                <div className="flex-1 min-w-[12rem]">
-                    {title ? (
-                        <p className="font-display italic text-lg sm:text-xl text-silk leading-tight">
-                            {title}
+                <div className="max-w-7xl mx-auto h-8 px-4 sm:px-6 lg:px-8 flex items-center gap-2.5">
+                    {badge ? (
+                        <span className="inline-flex items-center rounded-full bg-velvet-950 text-gold px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-[0.16em] shrink-0">
+                            {badge}
+                        </span>
+                    ) : null}
+                    {title || subtitle ? (
+                        <p className="flex-1 min-w-0 truncate text-[0.72rem] sm:text-xs leading-none">
+                            {title ? (
+                                <span className="font-semibold">{title}</span>
+                            ) : null}
+                            {subtitle ? (
+                                <span className="hidden sm:inline opacity-80">
+                                    {title ? " — " : ""}
+                                    {subtitle}
+                                </span>
+                            ) : null}
                         </p>
                     ) : null}
-                    {subtitle ? (
-                        <p className="mt-0.5 text-[0.85rem] text-silk/70">{subtitle}</p>
-                    ) : null}
+                    <button
+                        type="button"
+                        onClick={dismiss}
+                        aria-label={t("dismiss")}
+                        className="shrink-0 -mr-1 text-velvet-950/70 hover:text-velvet-950 text-base leading-none px-1.5 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-velvet-950"
+                    >
+                        ×
+                    </button>
                 </div>
-                <button
-                    type="button"
-                    onClick={dismiss}
-                    aria-label="Închide oferta"
-                    className="shrink-0 text-silk/55 hover:text-silk text-xl leading-none px-2 py-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                >
-                    ×
-                </button>
             </div>
-        </section>
+        </div>
     );
 }

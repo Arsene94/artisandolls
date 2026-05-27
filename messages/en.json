@@ -10,6 +10,93 @@
     "successTitle": "Order sent – Velvet Companions",
     "successDescription": "Confirmation for your Velvet Companions request."
   },
+  "offers": {
+    "dismiss": "Dismiss offer",
+    "presets": {
+      "threshold_percent": {
+        "seasonal": {
+          "badge": "SALE",
+          "title": "Seasonal Discount",
+          "subtitle": "{hasThreshold, select, yes {A special percentage on orders above {threshold}.} other {A special percentage on orders above the shown threshold.}}"
+        },
+        "more_you_buy": {
+          "badge": "BONUS",
+          "title": "Buy More, Save More",
+          "subtitle": "{hasThreshold, select, yes {Automatic discount on orders above {threshold}.} other {Automatic discount once you reach the threshold.}}"
+        }
+      },
+      "threshold_fixed": {
+        "instant_off": {
+          "badge": "OFF",
+          "title": "Instant Discount",
+          "subtitle": "{hasThreshold, select, yes {A fixed amount off orders above {threshold}.} other {A fixed amount off orders above the threshold.}}"
+        },
+        "welcome_off": {
+          "badge": "BONUS",
+          "title": "Bonus on Larger Orders",
+          "subtitle": "{hasThreshold, select, yes {A fixed discount on orders above {threshold}.} other {A fixed discount above the shown threshold.}}"
+        }
+      },
+      "threshold_gift": {
+        "free_gift": {
+          "badge": "GIFT",
+          "title": "A Gift With Your Order",
+          "subtitle": "{hasThreshold, select, yes {Receive a free product on orders above {threshold}.} other {Receive a free product above the shown threshold.}}"
+        },
+        "surprise_gift": {
+          "badge": "SURPRISE",
+          "title": "Surprise Included",
+          "subtitle": "{hasThreshold, select, yes {A special gift awaits on orders above {threshold}.} other {A special gift awaits you at checkout.}}"
+        }
+      },
+      "buy_x_get_y": {
+        "bogo": {
+          "badge": "1+1",
+          "title": "Buy One, Get the Second for Less",
+          "subtitle": "A discount on eligible items in your cart."
+        },
+        "bundle": {
+          "badge": "BUNDLE",
+          "title": "More for Less",
+          "subtitle": "Save when you buy as a bundle."
+        }
+      },
+      "collection_percent": {
+        "collection_sale": {
+          "badge": "COLLECTION",
+          "title": "Collection Sale",
+          "subtitle": "A special percentage on the selected collection."
+        },
+        "category_deal": {
+          "badge": "DEAL",
+          "title": "Category Deal",
+          "subtitle": "Reduced prices on a selection of products."
+        }
+      },
+      "promo": {
+        "new_arrivals": {
+          "badge": "NEW",
+          "title": "New Arrivals",
+          "subtitle": "Discover our latest additions, just in."
+        },
+        "limited_time": {
+          "badge": "LIMITED",
+          "title": "Limited-Time Offer",
+          "subtitle": "Hurry — available for a few days only."
+        },
+        "free_shipping": {
+          "badge": "FREE",
+          "title": "Free Shipping",
+          "subtitle": "Free delivery on orders above the shown threshold."
+        },
+        "weekend": {
+          "badge": "WEEKEND",
+          "title": "Weekend Deal",
+          "subtitle": "This weekend only — special prices."
+        }
+      }
+    }
+  },
   "nav": {
     "home": "Home",
     "catalog": "Catalog",
@@ -754,16 +841,10 @@
   "ageGate": {
     "eyebrow": "18+ verification",
     "title": "Content for adults",
-    "description": "This site offers premium companion services strictly for adults. Please confirm your date of birth to continue.",
-    "dayLabel": "Day",
-    "monthLabel": "Month",
-    "yearLabel": "Year",
-    "confirm": "I confirm I am over 18",
-    "leave": "Leave the site",
-    "errorUnder18": "By law, access is permitted only to people aged 18 and over.",
-    "errorInvalid": "Please enter a valid date.",
+    "description": "This site offers premium companion services strictly for adults. Confirm that you are over 18 to continue.",
+    "confirm": "I am over 18",
+    "leave": "I am not over 18",
     "errorRate": "Too many attempts. Please come back in a few minutes.",
-    "rememberHint": "We remember your choice for 30 days. The site does not collect your date of birth — the check happens locally.",
     "termsHint": "By continuing, you agree to the <terms>terms</terms> and the <privacy>privacy policy</privacy>."
   },
   "errors": {

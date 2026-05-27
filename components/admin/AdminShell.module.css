@@ -43,8 +43,18 @@
 }
 
 .nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
     display: grid;
+    grid-auto-rows: max-content;
+    align-content: start;
     gap: 8px;
+    scrollbar-width: thin;
+    /* room so the hover translate and scrollbar don't clip against the edge */
+    margin-right: -10px;
+    padding-right: 6px;
 }
 
 .navItem {
@@ -93,6 +103,81 @@
     line-height: 1.4;
 }
 
+.navItemActive {
+    border-color: rgba(255, 155, 208, 0.32);
+    background: rgba(255, 79, 163, 0.16);
+    color: var(--color-white);
+}
+
+.navItemActive .navIcon {
+    color: var(--color-white);
+    opacity: 1;
+}
+
+.group {
+    display: grid;
+    gap: 4px;
+}
+
+.groupHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.82);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.groupHeader:hover {
+    border-color: rgba(255, 155, 208, 0.22);
+    background: rgba(255, 79, 163, 0.08);
+    color: var(--color-white);
+}
+
+.groupHeaderActive {
+    color: var(--color-white);
+}
+
+.groupHeaderActive .navIcon {
+    color: var(--color-white);
+    opacity: 1;
+}
+
+.groupChevron {
+    flex: 0 0 auto;
+    color: rgba(255, 255, 255, 0.4);
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.groupChevronOpen {
+    transform: rotate(90deg);
+    color: var(--color-gold-light);
+}
+
+.groupItems {
+    display: grid;
+    gap: 6px;
+    margin-left: 9px;
+    padding-left: 13px;
+    border-left: 1px solid rgba(255, 79, 163, 0.16);
+}
+
+.subItem {
+    padding: 10px 12px;
+}
+
+.subItem .navLabel {
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
 .userBox {
     margin-top: auto;
     display: grid;
@@ -117,6 +202,14 @@
 
 .main {
     min-width: 0;
+    /*
+     * Admin sits on a dark charcoal shell, but the global `body` colour is the
+     * dark `silk-800` (meant for light public surfaces). Native elements with
+     * the unlayered `color: inherit` base rule (input, select, textarea, h1–h6)
+     * would otherwise inherit that dark colour and become invisible on the dark
+     * fields/cards. Establish a light base colour for the whole admin content.
+     */
+    color: var(--color-silk);
 }
 
 .topbar {
@@ -157,19 +250,11 @@
         position: relative;
         height: auto;
     }
-
-    .nav {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
 }
 
 @media (max-width: 640px) {
     .sidebar,
     .topbar {
         padding-inline: 24px;
-    }
-
-    .nav {
-        grid-template-columns: 1fr;
     }
 }

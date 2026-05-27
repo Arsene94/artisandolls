@@ -14,6 +14,7 @@ import {
     bulkDeleteOutfitsAction,
     deleteOutfitAction,
 } from "@/app/admin/(protected)/outfits/actions";
+import { IconPencil, IconTrash } from "@tabler/icons-react";
 import styles from "./AdminOutfits.module.css";
 
 type Props = {
@@ -133,16 +134,22 @@ export default function AdminOutfitsTable({ outfits }: Props) {
                             <span>{outfit.is_active ? "Activă" : "Inactivă"}</span>
 
                             <div className={styles.rowActions}>
-                                <Link href={`/admin/outfits/${outfit.slug}/edit`}>
-                                    Editează
+                                <Link
+                                    href={`/admin/outfits/${outfit.slug}/edit`}
+                                    aria-label="Editează"
+                                    title="Editează"
+                                >
+                                    <IconPencil size={18} />
                                 </Link>
 
                                 <button
                                     type="button"
                                     disabled={isPending}
                                     onClick={() => deleteOne(outfit.id)}
+                                    aria-label="Șterge"
+                                    title="Șterge"
                                 >
-                                    Șterge
+                                    <IconTrash size={18} />
                                 </button>
                             </div>
                         </div>

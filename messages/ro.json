@@ -10,6 +10,93 @@
     "successTitle": "Comandă trimisă – Velvet Companions",
     "successDescription": "Confirmarea cererii tale Velvet Companions."
   },
+  "offers": {
+    "dismiss": "Închide oferta",
+    "presets": {
+      "threshold_percent": {
+        "seasonal": {
+          "badge": "REDUCERE",
+          "title": "Reduceri de sezon",
+          "subtitle": "{hasThreshold, select, yes {Procent special la comenzile peste {threshold}.} other {Procent special la comenzile peste pragul afișat.}}"
+        },
+        "more_you_buy": {
+          "badge": "BONUS",
+          "title": "Cumperi mai mult, economisești mai mult",
+          "subtitle": "{hasThreshold, select, yes {Reducere automată la comenzile peste {threshold}.} other {Reducere automată când atingi pragul.}}"
+        }
+      },
+      "threshold_fixed": {
+        "instant_off": {
+          "badge": "MINUS",
+          "title": "Reducere instant",
+          "subtitle": "{hasThreshold, select, yes {O sumă fixă reducere la comenzile peste {threshold}.} other {O sumă fixă reducere la comenzile peste prag.}}"
+        },
+        "welcome_off": {
+          "badge": "BONUS",
+          "title": "Bonus la comenzile mari",
+          "subtitle": "{hasThreshold, select, yes {Reducere fixă la comenzile peste {threshold}.} other {Reducere fixă peste pragul afișat.}}"
+        }
+      },
+      "threshold_gift": {
+        "free_gift": {
+          "badge": "CADOU",
+          "title": "Cadou la comanda ta",
+          "subtitle": "{hasThreshold, select, yes {Primești un produs cadou la comenzile peste {threshold}.} other {Primești un produs cadou peste pragul afișat.}}"
+        },
+        "surprise_gift": {
+          "badge": "SURPRIZĂ",
+          "title": "Surpriză inclusă",
+          "subtitle": "{hasThreshold, select, yes {Un cadou special te așteaptă la comenzile peste {threshold}.} other {Un cadou special te așteaptă la finalizarea comenzii.}}"
+        }
+      },
+      "buy_x_get_y": {
+        "bogo": {
+          "badge": "1+1",
+          "title": "Cumperi unul, primești al doilea redus",
+          "subtitle": "Reducere pe produsele eligibile din coș."
+        },
+        "bundle": {
+          "badge": "PACHET",
+          "title": "Mai multe, mai ieftin",
+          "subtitle": "Economisești când cumperi la pachet."
+        }
+      },
+      "collection_percent": {
+        "collection_sale": {
+          "badge": "COLECȚIE",
+          "title": "Reduceri pe colecție",
+          "subtitle": "Procent special la colecția selectată."
+        },
+        "category_deal": {
+          "badge": "OFERTĂ",
+          "title": "Ofertă pe categorie",
+          "subtitle": "Prețuri reduse la o selecție de produse."
+        }
+      },
+      "promo": {
+        "new_arrivals": {
+          "badge": "NOU",
+          "title": "Noutăți în colecție",
+          "subtitle": "Descoperă cele mai noi apariții, abia sosite."
+        },
+        "limited_time": {
+          "badge": "LIMITAT",
+          "title": "Ofertă pe timp limitat",
+          "subtitle": "Grăbește-te — disponibilă doar câteva zile."
+        },
+        "free_shipping": {
+          "badge": "GRATUIT",
+          "title": "Transport gratuit",
+          "subtitle": "Livrare gratuită la comenzile peste pragul afișat."
+        },
+        "weekend": {
+          "badge": "WEEKEND",
+          "title": "Ofertă de weekend",
+          "subtitle": "Doar în acest weekend — prețuri speciale."
+        }
+      }
+    }
+  },
   "nav": {
     "home": "Acasă",
     "catalog": "Catalog",
@@ -754,16 +841,10 @@
   "ageGate": {
     "eyebrow": "Verificare 18+",
     "title": "Conținut destinat adulților",
-    "description": "Acest site oferă servicii de companion premium destinate exclusiv adulților. Vă rugăm să confirmați data nașterii pentru a continua.",
-    "dayLabel": "Ziua",
-    "monthLabel": "Luna",
-    "yearLabel": "Anul",
-    "confirm": "Confirm că am peste 18 ani",
-    "leave": "Părăsesc site-ul",
-    "errorUnder18": "Conform legii, accesul este permis doar persoanelor de peste 18 ani.",
-    "errorInvalid": "Vă rugăm să introduceți o dată validă.",
+    "description": "Acest site oferă servicii de companion premium destinate exclusiv adulților. Confirmați că aveți peste 18 ani pentru a continua.",
+    "confirm": "Am peste 18 ani",
+    "leave": "Nu am peste 18 ani",
     "errorRate": "Prea multe încercări. Reveniți peste câteva minute.",
-    "rememberHint": "Reținem alegerea pentru 30 de zile. Site-ul nu colectează data nașterii — verificarea este locală.",
     "termsHint": "Continuând, sunteți de acord cu <terms>termenii</terms> și <privacy>politica de confidențialitate</privacy>."
   },
   "errors": {

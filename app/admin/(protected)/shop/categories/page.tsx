@@ -2,7 +2,9 @@ import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { deleteCategoryAction } from "@/app/admin/(protected)/shop/actions";
 import DeleteButton from "@/components/admin/shop/DeleteButton";
+import { IconPencil } from "@tabler/icons-react";
 import type { ShopCategoryRow } from "@/lib/shop/shared";
+import styles from "@/components/admin/shared/AdminTable.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -18,72 +20,101 @@ export default async function AdminShopCategoriesPage() {
 
     return (
         <main className="px-6 sm:px-10 py-10 max-w-6xl">
-            <header className="mb-8 flex items-end justify-between flex-wrap gap-4">
-                <div>
-                    <p className="text-[0.72rem] uppercase tracking-[0.22em] text-gold">
-                        Shop
-                    </p>
-                    <h1 className="font-display italic text-3xl text-silk mt-2">
-                        Categorii magazin
-                    </h1>
+            <section className={styles.panel}>
+                <div className={styles.toolbar}>
+                    <div>
+                        <span>Shop</span>
+                        <h2>Categorii magazin</h2>
+                        <p>Organizarea produselor din magazin.</p>
+                    </div>
+                    <Link
+                        href="/admin/shop/categories/new"
+                        className={styles.primaryLink}
+                    >
+                        Adaugă categorie
+                    </Link>
                 </div>
-                <Link
-                    href="/admin/shop/categories/new"
-                    className="inline-flex items-center bg-gold hover:bg-gold-light text-velvet-950 font-semibold px-5 py-2.5 rounded-full text-[0.72rem] uppercase tracking-[0.16em] transition-colors motion-reduce:transition-none"
-                >
-                    + Adaugă categorie
-                </Link>
-            </header>
 
-            {categories.length === 0 ? (
-                <div className="border border-velvet-800 rounded-2xl p-12 text-center text-silk/70">
-                    Nu există categorii. Creează una pentru a începe.
-                </div>
-            ) : (
-                <ul className="grid sm:grid-cols-2 gap-4 list-none p-0">
-                    {categories.map((c) => (
-                        <li
-                            key={c.id}
-                            className="bg-velvet-900/40 border border-velvet-800/60 rounded-2xl p-5"
-                        >
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                    <p className="text-[0.7rem] uppercase tracking-[0.16em] text-silk/55">
-                                        /{c.slug}
-                                    </p>
-                                    <h2 className="font-display italic text-xl text-silk mt-1">
-                                        {c.name}
-                                    </h2>
-                                    {c.description ? (
-                                        <p className="mt-2 text-sm text-silk/70 line-clamp-2">
-                                            {c.description}
-                                        </p>
-                                    ) : null}
-                                </div>
-                                <div className="flex flex-col items-end gap-2 shrink-0">
-                                    <span
-                                        className={`inline-flex w-2 h-2 rounded-full ${c.is_active ? "bg-success" : "bg-silk/30"}`}
-                                        title={c.is_active ? "Activă" : "Inactivă"}
-                                    />
-                                    <Link
-                                        href={`/admin/shop/categories/${c.id}/edit`}
-                                        className="text-[0.72rem] uppercase tracking-[0.16em] text-gold hover:text-gold-light"
-                                    >
-                                        Edit
-                                    </Link>
-                                    <DeleteButton
-                                        confirmMessage={`Ștergi categoria „${c.name}"?`}
-                                        onDelete={async () => {
-                                            "use server";
-                                            await deleteCategoryAction(c.id);
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            )}
+                {categories.length === 0 ? (
+                    <div className={styles.emptyState}>
+                        Nu există categorii. Creează una pentru a începe.
+                    </div>
+                ) : (
+                    <div className={styles.tableWrap}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Categorie</th>
+                                    <th>Descriere</th>
+                                    <th className={styles.right}>Ordine</th>
+                                    <th className={styles.center}>Status</th>
+                                    <th className={styles.right}>Acțiuni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {categories.map((c) => (
+                                    <tr key={c.id}>
+                                        <td>
+                                            <Link
+                                                href={`/admin/shop/categories/${c.id}/edit`}
+                                                className={styles.nameLink}
+                                            >
+                                                {c.name}
+                                            </Link>
+                                            <small className={styles.sub}>
+                                                /{c.slug}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {c.description ? (
+                                                <span className={styles.clamp}>
+                                                    {c.description}
+                                                </span>
+                                            ) : (
+                                                "—"
+                                            )}
+                                        </td>
+                                        <td className={styles.right}>
+                                            {c.display_order}
+                                        </td>
+                                        <td className={styles.center}>
+                                            <span className={styles.status}>
+                                                <span
+                                                    className={`${styles.dot} ${c.is_active ? styles.dotOn : styles.dotOff}`}
+                                                />
+                                                {c.is_active ? "Activ" : "Inactiv"}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className={styles.rowActions}>
+                                                <Link
+                                                    href={`/admin/shop/categories/${c.id}/edit`}
+                                                    aria-label="Editează"
+                                                    title="Editează"
+                                                    className={styles.actionBtn}
+                                                >
+                                                    <IconPencil size={18} />
+                                                </Link>
+                                                <DeleteButton
+                                                    icon
+                                                    className={styles.actionBtnDanger}
+                                                    confirmMessage={`Ștergi categoria „${c.name}"?`}
+                                                    onDelete={async () => {
+                                                        "use server";
+                                                        await deleteCategoryAction(
+                                                            c.id,
+                                                        );
+                                                    }}
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </section>
         </main>
     );
 }

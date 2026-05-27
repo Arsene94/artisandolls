@@ -10,7 +10,7 @@ import { notifyAdminsAboutOrder } from "@/lib/whatsapp";
 import type { CatalogMode } from "@/lib/dolls";
 import { redeemDollCoupon, validateDollCoupon } from "@/lib/dolls/coupons";
 import type { DollCouponValidation } from "@/lib/shop/shared";
-import { getActiveOffers } from "@/lib/offers/queries";
+import { getLocalizedOffers } from "@/lib/offers/queries";
 import {
     evaluateDollOffer,
     offerBadgeLabel,
@@ -327,7 +327,7 @@ export async function createOrderAction(formData: FormData) {
     // no stacking. Evaluated server-side from trusted prices.
     let offerId: string | null = null;
     let offerLabel: string | null = null;
-    const offers = await getActiveOffers().catch(() => [] as OfferRow[]);
+    const offers = await getLocalizedOffers(locale).catch(() => [] as OfferRow[]);
     const offerEval = evaluateDollOffer(offers, {
         mode,
         base: baseTotal,

@@ -7,6 +7,7 @@ import type { RentFromPrice } from "@/lib/dolls/tiers";
 import { bulkDeleteDollsAction, deleteDollAction } from "@/app/admin/(protected)/dolls/actions";
 import Image from "next/image";
 import { getSupabaseImageUrl } from "@/lib/supabase/images";
+import { IconExternalLink, IconPencil, IconTrash } from "@tabler/icons-react";
 import styles from "./AdminDolls.module.css";
 
 type AdminDoll = DollRow & { rentFrom: RentFromPrice | null };
@@ -146,14 +147,29 @@ export default function AdminDollsCatalog({ dolls }: AdminDollsCatalogProps) {
                         </div>
 
                         <div className={styles.rowActions}>
-                            <Link href={`/catalog/${doll.slug}`} target="_blank">
-                                Vezi
+                            <Link
+                                href={`/catalog/${doll.slug}`}
+                                target="_blank"
+                                aria-label="Vezi în site"
+                                title="Vezi în site"
+                            >
+                                <IconExternalLink size={18} />
                             </Link>
-                            <Link href={`/admin/dolls/${doll.slug}/edit`}>
-                                Editează
+                            <Link
+                                href={`/admin/dolls/${doll.slug}/edit`}
+                                aria-label="Editează"
+                                title="Editează"
+                            >
+                                <IconPencil size={18} />
                             </Link>
-                            <button type="button" onClick={() => deleteOne(doll.id)} disabled={isPending}>
-                                Șterge
+                            <button
+                                type="button"
+                                onClick={() => deleteOne(doll.id)}
+                                disabled={isPending}
+                                aria-label="Șterge"
+                                title="Șterge"
+                            >
+                                <IconTrash size={18} />
                             </button>
                         </div>
                     </div>

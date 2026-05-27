@@ -10,6 +10,7 @@ import {
     bulkDeleteCollectionsAction,
     deleteCollectionAction,
 } from "@/app/admin/(protected)/collections/actions";
+import { IconPencil, IconTrash } from "@tabler/icons-react";
 import styles from "./AdminCollections.module.css";
 
 type AdminCollectionsTableProps = {
@@ -121,16 +122,22 @@ export default function AdminCollectionsTable({
                         <span>{collection.display_order}</span>
 
                         <div className={styles.rowActions}>
-                            <Link href={`/admin/collections/${collection.slug}/edit`}>
-                                Editează
+                            <Link
+                                href={`/admin/collections/${collection.slug}/edit`}
+                                aria-label="Editează"
+                                title="Editează"
+                            >
+                                <IconPencil size={18} />
                             </Link>
 
                             <button
                                 type="button"
                                 disabled={isPending}
                                 onClick={() => deleteOne(collection.id)}
+                                aria-label="Șterge"
+                                title="Șterge"
                             >
-                                Șterge
+                                <IconTrash size={18} />
                             </button>
                         </div>
                     </div>

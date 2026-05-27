@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient, isAdminUser } from "@/lib/supabase/server";
 import { invalidateOffers } from "@/lib/upstash/cache";
 import { OFFER_TYPES, type OfferType } from "@/lib/offers/shared";
+import { isValidPresetForType } from "@/lib/offers/presets";
+import { enqueueEntityTranslations } from "@/lib/translations/queue";
 
 async function requireAdmin() {
     const supabase = await createSupabaseServerClient();
@@ -70,9 +72,10 @@ function getDollModes(formData: FormData): string[] {
 
 function offerPayload(formData: FormData) {
     const scope = getScope(formData);
+    const type = getType(formData);
     return {
         name: getString(formData, "name"),
-        type: getType(formData),
+        type,
         is_active: getBoolean(formData, "is_active"),
         priority: getNumber(formData, "priority", 0),
 
@@ -96,16 +99,17 @@ function offerPayload(formData: FormData) {
         applies_to_categories: getCheckboxValues(formData, "applies_to_categories"),
         applies_to_collections: getCheckboxValues(formData, "applies_to_collections"),
 
+        // RO is the only authored copy. EN/NL land in content_translations via
+        // the auto-translation pipeline (see offerTranslatableFields below), so
+        // we deliberately don't touch the legacy _en/_nl columns on save.
         badge_label: getNullableString(formData, "badge_label"),
-        badge_label_en: getNullableString(formData, "badge_label_en"),
-        badge_label_nl: getNullableString(formData, "badge_label_nl"),
         title: getNullableString(formData, "title"),
-        title_en: getNullableString(formData, "title_en"),
-        title_nl: getNullableString(formData, "title_nl"),
         subtitle: getNullableString(formData, "subtitle"),
-        subtitle_en: getNullableString(formData, "subtitle_en"),
-        subtitle_nl: getNullableString(formData, "subtitle_nl"),
         accent: getNullableString(formData, "accent"),
+        preset_key: (() => {
+            const raw = getNullableString(formData, "preset_key");
+            return isValidPresetForType(type, raw) ? raw : null;
+        })(),
         show_on_homepage: getBoolean(formData, "show_on_homepage"),
         show_badge: getBoolean(formData, "show_badge"),
 
@@ -113,13 +117,32 @@ function offerPayload(formData: FormData) {
     };
 }
 
+function offerTranslatableFields(payload: ReturnType<typeof offerPayload>) {
+    return [
+        { key: "badge_label", value: payload.badge_label },
+        { key: "title", value: payload.title },
+        { key: "subtitle", value: payload.subtitle },
+    ];
+}
+
 export async function createOfferAction(formData: FormData) {
     const supabase = await requireAdmin();
     const payload = offerPayload(formData);
     if (!payload.name) throw new Error("Numele ofertei este obligatoriu.");
-    const { error } = await supabase.from("site_offers").insert(payload);
+    const { data: inserted, error } = await supabase
+        .from("site_offers")
+        .insert(payload)
+        .select("id")
+        .single();
     if (error) throw new Error(error.message);
     await invalidateOffers();
+    if (inserted?.id) {
+        await enqueueEntityTranslations({
+            entity: "site_offer",
+            entityId: inserted.id as string,
+            fields: offerTranslatableFields(payload),
+        });
+    }
     revalidatePath("/admin/offers");
     redirect("/admin/offers");
 }
@@ -134,6 +157,11 @@ export async function updateOfferAction(id: string, formData: FormData) {
         .eq("id", id);
     if (error) throw new Error(error.message);
     await invalidateOffers();
+    await enqueueEntityTranslations({
+        entity: "site_offer",
+        entityId: id,
+        fields: offerTranslatableFields(payload),
+    });
     revalidatePath("/admin/offers");
     redirect("/admin/offers");
 }

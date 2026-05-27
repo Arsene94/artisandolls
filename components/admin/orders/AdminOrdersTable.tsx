@@ -136,8 +136,8 @@ export default function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                         <strong>{order.total_label}</strong>
 
                         <div className={styles.actions}>
-                            <Link href={`/admin/orders/${order.id}`} className={styles.viewButton}><IconEye /></Link>
-                            <a href={`tel:${getCleanPhone(order.customer_phone)}`} className={styles.callButton}><IconPhone /></a>
+                            <Link href={`/admin/orders/${order.id}`} className={styles.viewButton} aria-label="Vezi" title="Vezi"><IconEye size={18} /></Link>
+                            <a href={`tel:${getCleanPhone(order.customer_phone)}`} className={styles.callButton} aria-label="Sună" title="Sună"><IconPhone size={18} /></a>
                             <a
                                 href={getWhatsappHref(
                                     order.customer_phone,
@@ -147,8 +147,10 @@ export default function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={styles.whatsappButton}
+                                aria-label="WhatsApp"
+                                title="WhatsApp"
                             >
-                                <IconBrandWhatsapp />
+                                <IconBrandWhatsapp size={18} />
                             </a>
                         </div>
                     </div>

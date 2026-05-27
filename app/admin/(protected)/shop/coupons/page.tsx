@@ -3,7 +3,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/i18n/format";
 import { deleteCouponAction } from "@/app/admin/(protected)/shop/actions";
 import DeleteButton from "@/components/admin/shop/DeleteButton";
+import { IconPencil } from "@tabler/icons-react";
 import type { ShopCouponRow } from "@/lib/shop/shared";
+import styles from "@/components/admin/shared/AdminTable.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -61,117 +63,114 @@ export default async function AdminShopCouponsPage() {
 
     return (
         <main className="px-6 sm:px-10 py-10 max-w-6xl">
-            <header className="mb-8 flex items-end justify-between flex-wrap gap-4">
-                <div>
-                    <p className="text-[0.72rem] uppercase tracking-[0.22em] text-gold">
-                        Shop
-                    </p>
-                    <h1 className="font-display italic text-3xl text-silk mt-2">
-                        Coduri promoționale
-                    </h1>
-                    <p className="text-silk/75 mt-1 max-w-2xl">
-                        Coduri reducere pentru magazin și păpuși: procentaj, sumă
-                        fixă sau livrare gratuită. Fiecare cod poate fi limitat la
-                        shop, la păpuși sau ambele. Setează termen și limite atent
-                        — nu pot fi anulate retroactiv pe comenzile deja confirmate.
-                    </p>
+            <section className={styles.panel}>
+                <div className={styles.toolbar}>
+                    <div>
+                        <span>Shop</span>
+                        <h2>Coduri promoționale</h2>
+                        <p>
+                            Coduri reducere pentru magazin și păpuși: procentaj, sumă
+                            fixă sau livrare gratuită. Fiecare cod poate fi limitat la
+                            shop, la păpuși sau ambele. Setează termen și limite atent —
+                            nu pot fi anulate retroactiv pe comenzile deja confirmate.
+                        </p>
+                    </div>
+                    <Link href="/admin/shop/coupons/new" className={styles.primaryLink}>
+                        Adaugă cod
+                    </Link>
                 </div>
-                <Link
-                    href="/admin/shop/coupons/new"
-                    className="inline-flex items-center bg-gold hover:bg-gold-light text-velvet-950 font-semibold px-5 py-2.5 rounded-full text-[0.72rem] uppercase tracking-[0.16em] transition-colors motion-reduce:transition-none"
-                >
-                    + Adaugă cod
-                </Link>
-            </header>
 
-            {coupons.length === 0 ? (
-                <div className="border border-velvet-800 rounded-2xl p-12 text-center text-silk/70">
-                    Nu există coduri promoționale.
-                </div>
-            ) : (
-                <div className="overflow-x-auto rounded-2xl border border-velvet-800/60">
-                    <table className="w-full text-sm">
-                        <thead className="bg-velvet-900/60 text-silk/65 uppercase text-[0.7rem] tracking-[0.16em]">
-                            <tr>
-                                <th className="px-4 py-3 text-left">Cod</th>
-                                <th className="px-4 py-3 text-left">Aplicare</th>
-                                <th className="px-4 py-3 text-left">Tip</th>
-                                <th className="px-4 py-3 text-right">Valoare</th>
-                                <th className="px-4 py-3 text-right">Utilizări</th>
-                                <th className="px-4 py-3 text-left">Expiră</th>
-                                <th className="px-4 py-3 text-center">Activ</th>
-                                <th className="px-4 py-3 text-right">Acțiuni</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-velvet-800/40">
-                            {coupons.map((coupon) => (
-                                <tr
-                                    key={coupon.id}
-                                    className="hover:bg-velvet-900/30"
-                                >
-                                    <td className="px-4 py-3 font-mono text-gold">
-                                        <Link
-                                            href={`/admin/shop/coupons/${coupon.id}/edit`}
-                                            className="hover:text-gold-light"
-                                        >
-                                            {coupon.code}
-                                        </Link>
-                                        {coupon.description ? (
-                                            <p className="mt-0.5 text-[0.72rem] text-silk/55 font-sans">
-                                                {coupon.description}
-                                            </p>
-                                        ) : null}
-                                    </td>
-                                    <td className="px-4 py-3 text-silk/80">
-                                        <span className="inline-flex items-center rounded-full border border-velvet-700 bg-velvet-900/60 px-2.5 py-1 text-[0.7rem] text-silk/85">
-                                            {formatScope(coupon)}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3 text-silk/80">
-                                        {formatType(coupon.type)}
-                                    </td>
-                                    <td className="px-4 py-3 text-right text-silk">
-                                        {formatValue(coupon)}
-                                    </td>
-                                    <td className="px-4 py-3 text-right text-silk/85">
-                                        {coupon.redemptions_count}
-                                        {coupon.max_redemptions !== null
-                                            ? ` / ${coupon.max_redemptions}`
-                                            : ""}
-                                    </td>
-                                    <td className="px-4 py-3 text-silk/65 text-[0.82rem]">
-                                        {formatExpiry(coupon)}
-                                    </td>
-                                    <td className="px-4 py-3 text-center">
-                                        {coupon.is_active ? (
-                                            <span className="inline-flex w-2 h-2 rounded-full bg-success" />
-                                        ) : (
-                                            <span className="inline-flex w-2 h-2 rounded-full bg-silk/30" />
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3 text-right">
-                                        <div className="flex justify-end gap-2">
+                {coupons.length === 0 ? (
+                    <div className={styles.emptyState}>
+                        Nu există coduri promoționale.
+                    </div>
+                ) : (
+                    <div className={styles.tableWrap}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Cod</th>
+                                    <th>Aplicare</th>
+                                    <th>Tip</th>
+                                    <th className={styles.right}>Valoare</th>
+                                    <th className={styles.right}>Utilizări</th>
+                                    <th>Expiră</th>
+                                    <th className={styles.center}>Status</th>
+                                    <th className={styles.right}>Acțiuni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {coupons.map((coupon) => (
+                                    <tr key={coupon.id}>
+                                        <td>
                                             <Link
                                                 href={`/admin/shop/coupons/${coupon.id}/edit`}
-                                                className="text-[0.72rem] uppercase tracking-[0.16em] text-gold hover:text-gold-light px-3 py-1.5 rounded-full"
+                                                className={`${styles.nameLink} ${styles.mono}`}
                                             >
-                                                Edit
+                                                {coupon.code}
                                             </Link>
-                                            <DeleteButton
-                                                confirmMessage={`Ștergi codul „${coupon.code}"?`}
-                                                onDelete={async () => {
-                                                    "use server";
-                                                    await deleteCouponAction(coupon.id);
-                                                }}
-                                            />
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                                            {coupon.description ? (
+                                                <small className={styles.sub}>
+                                                    {coupon.description}
+                                                </small>
+                                            ) : null}
+                                        </td>
+                                        <td>
+                                            <span className={styles.badge}>
+                                                {formatScope(coupon)}
+                                            </span>
+                                        </td>
+                                        <td>{formatType(coupon.type)}</td>
+                                        <td className={styles.right}>
+                                            <strong>{formatValue(coupon)}</strong>
+                                        </td>
+                                        <td className={styles.right}>
+                                            {coupon.redemptions_count}
+                                            {coupon.max_redemptions !== null
+                                                ? ` / ${coupon.max_redemptions}`
+                                                : ""}
+                                        </td>
+                                        <td>{formatExpiry(coupon)}</td>
+                                        <td className={styles.center}>
+                                            <span className={styles.status}>
+                                                <span
+                                                    className={`${styles.dot} ${coupon.is_active ? styles.dotOn : styles.dotOff}`}
+                                                />
+                                                {coupon.is_active
+                                                    ? "Activ"
+                                                    : "Inactiv"}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className={styles.rowActions}>
+                                                <Link
+                                                    href={`/admin/shop/coupons/${coupon.id}/edit`}
+                                                    aria-label="Editează"
+                                                    title="Editează"
+                                                    className={styles.actionBtn}
+                                                >
+                                                    <IconPencil size={18} />
+                                                </Link>
+                                                <DeleteButton
+                                                    icon
+                                                    className={styles.actionBtnDanger}
+                                                    confirmMessage={`Ștergi codul „${coupon.code}"?`}
+                                                    onDelete={async () => {
+                                                        "use server";
+                                                        await deleteCouponAction(
+                                                            coupon.id,
+                                                        );
+                                                    }}
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </section>
         </main>
     );
 }
