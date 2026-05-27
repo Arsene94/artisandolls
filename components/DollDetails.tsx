@@ -1066,8 +1066,8 @@ export default function DollDetails({
                                     </p>
                                 ) : (
                                     <>
-                                        <div className="flex flex-wrap items-end gap-3">
-                                            <label className="flex flex-col gap-1.5">
+                                        <div className="flex items-end gap-3">
+                                            <label className="flex flex-1 flex-col gap-1.5">
                                                 <span className="text-[11px] uppercase tracking-wider text-silk/80">
                                                     {t("durationLabel")}
                                                 </span>
@@ -1080,17 +1080,17 @@ export default function DollDetails({
                                                         setDurationQty(event.target.value)
                                                     }
                                                     aria-label={t("durationLabel")}
-                                                    className="w-24 bg-velvet-950 border border-velvet-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-gold focus-visible:ring-2 focus-visible:ring-gold text-sm"
+                                                    className="w-full h-11 bg-velvet-950 border border-velvet-700 rounded-xl px-3 text-white focus:outline-none focus:border-gold focus-visible:ring-2 focus-visible:ring-gold text-sm"
                                                 />
                                             </label>
-                                            <div className="flex flex-col gap-1.5">
+                                            <div className="flex flex-1 flex-col gap-1.5">
                                                 <span className="text-[11px] uppercase tracking-wider text-silk/80">
                                                     {t("unitLabel")}
                                                 </span>
                                                 <div
                                                     role="radiogroup"
                                                     aria-label={t("unitLabel")}
-                                                    className="inline-grid grid-cols-2 gap-1 p-1 rounded-full bg-velvet-950 border border-velvet-700"
+                                                    className="grid grid-cols-2 gap-1 p-1 h-11 w-full rounded-full bg-velvet-950 border border-velvet-700"
                                                 >
                                                     {(
                                                         [
@@ -1109,7 +1109,7 @@ export default function DollDetails({
                                                                     setDurationUnit(opt.value)
                                                                 }
                                                                 className={[
-                                                                    "min-h-[2.625rem] px-5 rounded-full text-xs font-semibold uppercase tracking-[0.16em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold motion-reduce:transition-none",
+                                                                    "h-full px-2 rounded-full text-xs font-semibold uppercase tracking-[0.16em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold motion-reduce:transition-none",
                                                                     active
                                                                         ? "bg-gold text-velvet-950"
                                                                         : "text-silk/85 hover:text-silk",
