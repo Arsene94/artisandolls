@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             url: canonical,
             title: t("indexTitle"),
             description: t("indexDescription"),
-            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : "en_GB",
+            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : locale === "de" ? "de_DE" : "en_GB",
         },
         robots: { index: true, follow: true },
     };
@@ -75,7 +75,7 @@ export default async function GlossaryIndexPage({ params }: Props) {
         "@id": `${localeUrl(siteUrl, locale, "/glosar")}#set`,
         name: t("indexTitle"),
         description: t("indexDescription"),
-        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : "en-GB",
+        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : locale === "de" ? "de-DE" : "en-GB",
         hasDefinedTerm: GLOSSARY_TERMS.map((term) => ({
             "@type": "DefinedTerm",
             "@id": `${localeUrl(siteUrl, locale, `/glosar/${term.slug}`)}#term`,

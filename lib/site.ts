@@ -68,7 +68,13 @@ export function localeAlternates(siteUrl: string, path: string): Record<string, 
 export function formatLastUpdated(locale: Locale): string {
     const d = new Date(LEGAL_LAST_UPDATED);
     return d.toLocaleDateString(
-        locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : "en-GB",
+        locale === "ro"
+            ? "ro-RO"
+            : locale === "nl"
+              ? "nl-NL"
+              : locale === "de"
+                ? "de-DE"
+                : "en-GB",
         { day: "numeric", month: "long", year: "numeric" },
     );
 }

@@ -11,7 +11,7 @@ export const contentType = "image/png";
 export default async function Image({
     params,
 }: {
-    params: Promise<{ slug: string; locale: "ro" | "en" | "nl" }>;
+    params: Promise<{ slug: string; locale: "ro" | "en" | "nl" | "de" }>;
 }) {
     const { slug, locale } = await params;
     const product = await getShopProductBySlug(slug).catch(() => null);

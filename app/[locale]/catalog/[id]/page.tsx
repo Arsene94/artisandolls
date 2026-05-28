@@ -74,7 +74,7 @@ export async function generateMetadata({ params }: DollPageProps): Promise<Metad
             images: imageUrl
                 ? [{ url: imageUrl, alt: `${doll.name} — ${businessName}` }]
                 : undefined,
-            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : "en_GB",
+            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : locale === "de" ? "de_DE" : "en_GB",
         },
         twitter: {
             card: "summary_large_image",

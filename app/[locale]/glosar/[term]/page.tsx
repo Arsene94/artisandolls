@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             url: canonical,
             title: term.name[locale],
             description: term.short[locale],
-            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : "en_GB",
+            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : locale === "de" ? "de_DE" : "en_GB",
         },
         robots: { index: true, follow: true },
     };
@@ -81,7 +81,7 @@ export default async function GlossaryTermPage({ params }: Props) {
             "@id": `${localeUrl(siteUrl, locale, "/glosar")}#set`,
             url: localeUrl(siteUrl, locale, "/glosar"),
         },
-        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : "en-GB",
+        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : locale === "de" ? "de-DE" : "en-GB",
     };
 
     const breadcrumbLd = {

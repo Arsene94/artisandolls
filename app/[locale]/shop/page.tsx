@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             url: canonical,
             title: t("title"),
             description: t("subtitle"),
-            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : "en_GB",
+            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : locale === "de" ? "de_DE" : "en_GB",
         },
         robots: { index: true, follow: true },
     };
@@ -84,7 +84,7 @@ export default async function ShopLandingPage({ params }: Props) {
         name: t("title"),
         description: t("subtitle"),
         url: localeUrl(siteUrl, locale, "/shop"),
-        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : "en-GB",
+        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : locale === "de" ? "de-DE" : "en-GB",
         isPartOf: { "@id": `${siteUrl}/#website` },
         hasPart: featured.slice(0, 20).map((product) => ({
             "@type": "Product",

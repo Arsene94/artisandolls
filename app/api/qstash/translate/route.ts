@@ -54,10 +54,10 @@ async function handler(request: Request) {
     const entity = job.entity;
     const entityId = job.entityId;
     const locale = job.locale as Exclude<"ro", "ro"> extends never
-        ? "en" | "nl"
+        ? "en" | "nl" | "de"
         : never;
     // Cast e safe — TARGET_LOCALES_SET filtrează deja non-RO.
-    const targetLocale = job.locale as "en" | "nl";
+    const targetLocale = job.locale as "en" | "nl" | "de";
     const fields = Array.from(new Set(job.fields)).filter(
         (f) => typeof f === "string" && f.length > 0,
     );

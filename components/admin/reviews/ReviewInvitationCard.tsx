@@ -23,7 +23,7 @@ type Props = {
     /** URL absolut al site-ului (cu schemă https) — folosit pentru a construi link-ul de review. */
     siteUrl: string;
     /** Locale-ul clientului pentru mesajul pre-completat WhatsApp. */
-    customerLocale: "ro" | "en" | "nl";
+    customerLocale: "ro" | "en" | "nl" | "de";
     /** Token existent (dacă invitația a fost deja creată) — afișăm direct fără să mai apăsăm. */
     existingToken?: string | null;
     /** Path-ul de revalidat după generare (admin order detail). */

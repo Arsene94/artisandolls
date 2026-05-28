@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
             url: canonical,
             title: t("homeTitle"),
             description: t("homeDescription"),
-            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : "en_GB",
+            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : locale === "de" ? "de_DE" : "en_GB",
         },
     };
 }

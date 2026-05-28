@@ -101,6 +101,29 @@ export default async function CookiesPage({ params }: PageProps) {
                 },
             ],
         },
+        de: {
+            eyebrow: "Cookie-Richtlinie",
+            updated: "Zuletzt aktualisiert: 25. Mai 2026",
+            intro: "Wir verwenden eine minimale Anzahl an Cookies, um die Website zu betreiben, sowie optional anonyme Analyse-Cookies. Vollständige Details finden Sie unten.",
+            sections: [
+                {
+                    heading: "Streng notwendige Cookies",
+                    body: "Essenziell für den Betrieb der Website (Admin-Anmeldung, Sprachwahl, Checkout-Präferenzen). Diese können nicht deaktiviert werden.",
+                },
+                {
+                    heading: "Analyse-Cookies (optional)",
+                    body: "Nur eingesetzt, wenn Sie ausdrücklich zustimmen — zur aggregierten Verkehrsmessung und Verbesserung der Website. Die Daten sind anonymisiert, ohne individuelle Identifizierung.",
+                },
+                {
+                    heading: "Einstellungen verwalten",
+                    body: "Sie können Analyse-Cookies über das beim ersten Besuch angezeigte Banner akzeptieren oder ablehnen. Die Einstellung wird im Browser gespeichert und kann jederzeit über den Link „Cookies verwalten“ im Footer geändert werden.",
+                },
+                {
+                    heading: "Cookies Dritter",
+                    body: "Wir verwenden keine Werbe- oder Profiling-Cookies. Wir übermitteln keine Informationen über Ihre Besuche an Werbenetzwerke.",
+                },
+            ],
+        },
     } as const;
 
     const content = dict[locale] ?? dict.en;

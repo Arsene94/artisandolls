@@ -24,7 +24,11 @@ export type TranslatableEntity =
     | "site_offer";
 
 /** Localele non-RO către care traducem. RO e sursa și nu apare aici. */
-export const TARGET_LOCALES: ReadonlyArray<Exclude<Locale, "ro">> = ["en", "nl"];
+export const TARGET_LOCALES: ReadonlyArray<Exclude<Locale, "ro">> = [
+    "en",
+    "nl",
+    "de",
+];
 
 /**
  * Numele afișabil al locale-ului în engleză — folosit ca instrucțiune
@@ -34,6 +38,7 @@ export const TARGET_LOCALES: ReadonlyArray<Exclude<Locale, "ro">> = ["en", "nl"]
 export const LOCALE_LANGUAGE_NAME: Record<Exclude<Locale, "ro">, string> = {
     en: "English",
     nl: "Dutch (Nederlands)",
+    de: "German (Deutsch)",
 };
 
 export interface TranslatableField {

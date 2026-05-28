@@ -101,6 +101,29 @@ export default async function AgePolicyPage({ params }: PageProps) {
                 },
             ],
         },
+        de: {
+            eyebrow: "18+-Richtlinie",
+            updated: "Zuletzt aktualisiert: 25. Mai 2026",
+            intro: "Der Zugang zu den Inhalten und Diensten dieser Website ist ausschließlich Volljährigen (über 18 Jahren) gestattet.",
+            sections: [
+                {
+                    heading: "Zugang und Verantwortung",
+                    body: "Mit der Nutzung der Plattform erklären Sie eigenverantwortlich, über 18 Jahre alt zu sein. Bei jeder Anfrage ist eine ausdrückliche Bestätigung erforderlich.",
+                },
+                {
+                    heading: "Inhalte für Erwachsene",
+                    body: "Die Website präsentiert Produkte und Dienstleistungen, die ausschließlich für ein erwachsenes Publikum bestimmt sind. Bilder, Beschreibungen und Personalisierungsoptionen können für Minderjährige ungeeignete Elemente enthalten.",
+                },
+                {
+                    heading: "Schutz Minderjähriger",
+                    body: "Wir empfehlen Eltern und Erziehungsberechtigten, Kindersicherungslösungen zu nutzen und sicherzustellen, dass Minderjährige in ihrer Obhut diese Website nicht aufrufen.",
+                },
+                {
+                    heading: "Konsequenzen",
+                    body: "Jeder Versuch, durch falsche Altersangaben Zugang oder Dienstleistungen zu erwerben, führt zur Annullierung der Anfrage und gegebenenfalls zur Meldung an die zuständigen Behörden.",
+                },
+            ],
+        },
     } as const;
 
     const content = dict[locale] ?? dict.en;

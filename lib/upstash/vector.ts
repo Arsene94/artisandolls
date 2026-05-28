@@ -59,6 +59,7 @@ export const VECTOR_NAMESPACES = {
     ro: "ro",
     en: "en",
     nl: "nl",
+    de: "de",
 } as const;
 
 export type VectorLocale = keyof typeof VECTOR_NAMESPACES;
@@ -67,4 +68,5 @@ export const SHOP_VECTOR_NAMESPACES = {
     ro: "shop:ro",
     en: "shop:en",
     nl: "shop:nl",
+    de: "shop:de",
 } as const;

@@ -187,6 +187,77 @@ function buildDict(locale: Locale, business: string, contactEmail: string): Dict
         };
     }
 
+    if (locale === "de") {
+        return {
+            eyebrow: "Rechtsdokument",
+            toc: "Auf dieser Seite",
+            intro: `Diese Bedingungen regeln die Nutzung der von ${business} angebotenen Dienste. Bitte lesen Sie sie vollständig, bevor Sie die Plattform verwenden.`,
+            sections: [
+                {
+                    heading: "1. Identität des Betreibers",
+                    body: [
+                        `Name: ${business} (juristischer Name ${LEGAL_OPERATOR_NAME}).`,
+                        `USt-IdNr.: ${cui}. Handelsregister: ${reg}.`,
+                        `Sitz: ${address}.`,
+                        `Kontakt: ${contactEmail}. Datenschutzbeauftragter: ${dpo}.`,
+                    ],
+                },
+                {
+                    heading: "2. Berechtigung (18+)",
+                    body: "Die Dienste sind ausschließlich für Personen ab 18 Jahren bestimmt. Der Zugriff auf die Inhalte ist an eine Altersverifikation beim Betreten der Website sowie an eine erneute Bestätigung bei der Bestellung gebunden.",
+                },
+                {
+                    heading: "3. Bestellvorgang",
+                    body: [
+                        "Alle über die Website übermittelten Bestellungen sind Anfragen und keine automatischen Annahmen. Ein Berater nimmt mit Ihnen Kontakt auf, um Verfügbarkeit, Endpreis, Lieferung und Zahlungsmethode zu bestätigen.",
+                        "Die Bestellung wird erst nach ausdrücklicher Bestätigung durch den Betreiber über den gewählten Kontaktweg verbindlich.",
+                    ],
+                },
+                {
+                    heading: "4. Zahlungen und Preise",
+                    body: [
+                        "Zum Zeitpunkt der Anfrage werden keine Online-Zahlungen vorgenommen. Die Zahlung erfolgt mit dem Berater per Barzahlung oder Karte über ein mobiles Terminal bei der Lieferung.",
+                        "Die angegebenen Preise sind Richtwerte für die Standardkonfiguration und können je nach Anpassungen, Zeitraum und Lieferoptionen variieren. Auf dem Kontoauszug erscheint „Velvet Studio SRL“.",
+                    ],
+                },
+                {
+                    heading: "5. Rückgabe und Widerrufsrecht",
+                    body: [
+                        "Gemäß Art. 16(e) der EU-Richtlinie 2011/83 sind entsiegelte Intimprodukte, die aus Gründen des Gesundheitsschutzes oder der Hygiene nicht zurückgegeben werden können, vom 14-tägigen Widerrufsrecht ausgeschlossen.",
+                        "Bei einem innerhalb von 24 Stunden nach Erhalt festgestellten Fabrikationsfehler kontaktieren Sie uns für Reparatur oder Austausch im Rahmen der Garantiebedingungen.",
+                        "Bei Vermietungen werden eventuelle Schäden individuell bewertet und können ganz oder teilweise von der Kaution einbehalten werden.",
+                    ],
+                },
+                {
+                    heading: "6. Garantie und Support",
+                    body: [
+                        "Für gekaufte Stücke bieten wir 12 Monate technischen Support für das Skelett und die elektronischen Module.",
+                        "Die äußere Haut ist 6 Monate gegen Fabrikationsfehler garantiert, bei normalem Gebrauch und Einhaltung der Pflegehinweise.",
+                    ],
+                },
+                {
+                    heading: "7. Haftungsbeschränkung",
+                    body: "Der Betreiber haftet nicht für unsachgemäßen Gebrauch, Nichteinhaltung der Hygieneprotokolle oder Pflegehinweise oder vom Nutzer verursachte Schäden. Die vertragliche Haftung ist auf den Bestellwert begrenzt.",
+                },
+                {
+                    heading: "8. Streitbeilegung",
+                    body: [
+                        "Für Beschwerden können Sie uns direkt über die angegebenen Kanäle kontaktieren. Wird keine gütliche Einigung erzielt, können Sie sich an die rumänische Verbraucherschutzbehörde (ANPC) oder das SAL-Verfahren wenden.",
+                        "Für grenzüberschreitende Streitigkeiten können Sie die EU-ODR-Plattform unter ec.europa.eu/consumers/odr nutzen.",
+                    ],
+                },
+                {
+                    heading: "9. Änderung der Bedingungen",
+                    body: "Wir behalten uns das Recht vor, diese Bedingungen zu aktualisieren. Maßgeblich ist die zum Bestellzeitpunkt veröffentlichte Fassung. Wesentliche Änderungen werden mit angemessener Vorankündigung kommuniziert.",
+                },
+                {
+                    heading: "10. Kontakt",
+                    body: `Bei Fragen zu diesen Bedingungen erreichen Sie uns unter ${contactEmail} (operativ) oder ${dpo} (Datenschutz).`,
+                },
+            ],
+        };
+    }
+
     return {
         eyebrow: "Legal document",
         toc: "On this page",
@@ -275,7 +346,9 @@ export default async function TermsPage({ params }: PageProps) {
             ? `Ultima actualizare: ${lastUpdated}`
             : locale === "nl"
               ? `Laatst bijgewerkt: ${lastUpdated}`
-              : `Last updated: ${lastUpdated}`;
+              : locale === "de"
+                ? `Zuletzt aktualisiert: ${lastUpdated}`
+                : `Last updated: ${lastUpdated}`;
 
     return (
         <LegalPage

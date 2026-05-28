@@ -6,12 +6,29 @@ const LOCALE_MAP: Record<Locale, string> = {
     ro: "ro-RO",
     en: "en-GB",
     nl: "nl-NL",
+    de: "de-DE",
+};
+
+const OG_LOCALE_MAP: Record<Locale, string> = {
+    ro: "ro_RO",
+    en: "en_GB",
+    nl: "nl_NL",
+    de: "de_DE",
 };
 
 export function getIntlLocale(locale: string) {
     if (locale === "en") return LOCALE_MAP.en;
     if (locale === "nl") return LOCALE_MAP.nl;
+    if (locale === "de") return LOCALE_MAP.de;
     return LOCALE_MAP.ro;
+}
+
+/** BCP47 cu underscore — formatul cerut de Open Graph (e.g. `de_DE`). */
+export function getOgLocale(locale: string) {
+    if (locale === "en") return OG_LOCALE_MAP.en;
+    if (locale === "nl") return OG_LOCALE_MAP.nl;
+    if (locale === "de") return OG_LOCALE_MAP.de;
+    return OG_LOCALE_MAP.ro;
 }
 
 export function formatPrice(
@@ -40,7 +57,12 @@ export function formatLei(value: number, locale: string) {
 }
 
 export function isSupportedLocale(locale: string): locale is Locale {
-    return locale === "ro" || locale === "en" || locale === "nl";
+    return (
+        locale === "ro" ||
+        locale === "en" ||
+        locale === "nl" ||
+        locale === "de"
+    );
 }
 
 export function localizePath(pathname: string, locale: string) {

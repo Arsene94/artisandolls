@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             url: canonical,
             title: t("indexTitle"),
             description: t("indexDescription"),
-            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : "en_GB",
+            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : locale === "de" ? "de_DE" : "en_GB",
         },
         robots: { index: true, follow: true },
     };
@@ -78,7 +78,7 @@ export default async function FaqIndexPage({ params }: Props) {
         "@type": "FAQPage",
         "@id": `${localeUrl(siteUrl, locale, "/faq")}#faq`,
         url: localeUrl(siteUrl, locale, "/faq"),
-        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : "en-GB",
+        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : locale === "de" ? "de-DE" : "en-GB",
         mainEntity: items.map((item) => ({
             "@type": "Question",
             name: item.question,

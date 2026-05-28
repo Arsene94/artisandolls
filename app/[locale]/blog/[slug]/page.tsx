@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title: post.title,
             description: post.excerpt,
             images: imageUrl ? [{ url: imageUrl, alt: post.title }] : undefined,
-            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : "en_GB",
+            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : locale === "de" ? "de_DE" : "en_GB",
             publishedTime: post.publishAt,
             authors: [post.authorName],
             tags: post.tags,
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 function formatDate(iso: string, locale: Locale): string {
     return new Date(iso).toLocaleDateString(
-        locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : "en-GB",
+        locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : locale === "de" ? "de-DE" : "en-GB",
         { day: "numeric", month: "long", year: "numeric" },
     );
 }
@@ -109,7 +109,7 @@ export default async function BlogPostPage({ params }: Props) {
         publisher: { "@id": `${siteUrl}/#org` },
         articleSection: post.category,
         keywords: post.tags.join(", ") || undefined,
-        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : "en-GB",
+        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : locale === "de" ? "de-DE" : "en-GB",
         wordCount: post.body.split(/\s+/).filter(Boolean).length,
     };
 

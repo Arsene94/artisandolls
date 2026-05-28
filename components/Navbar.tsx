@@ -46,12 +46,25 @@ const LANG_FLAGS: Record<Locale, React.ReactElement> = {
             <rect y="4" width="9" height="2" fill="#21468B" />
         </svg>
     ),
+    de: (
+        <svg
+            className="w-5 h-3.5 shadow-sm rounded-sm shrink-0"
+            viewBox="0 0 5 3"
+            aria-hidden="true"
+            focusable="false"
+        >
+            <rect width="5" height="1" fill="#000" />
+            <rect y="1" width="5" height="1" fill="#DD0000" />
+            <rect y="2" width="5" height="1" fill="#FFCE00" />
+        </svg>
+    ),
 };
 
 const LANG_LABEL: Record<Locale, string> = {
     ro: "Română",
     en: "English",
     nl: "Nederlands",
+    de: "Deutsch",
 };
 
 const STALE_QUERY_KEYS = new Set(["lang", "locale", "language"]);

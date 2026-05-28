@@ -39,7 +39,7 @@ export type StartPaymentInput = {
     description: string;
     items: PaymentLineItem[];
     billing: PaymentBilling;
-    locale: "ro" | "en" | "nl";
+    locale: "ro" | "en" | "nl" | "de";
     successUrl: string;
     cancelUrl: string;
     notifyUrl: string;

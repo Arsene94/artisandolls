@@ -14,7 +14,7 @@ export type ReviewRow = {
     body: string | null;
     customer_name: string | null;
     customer_initials: string | null;
-    locale: "ro" | "en" | "nl" | null;
+    locale: "ro" | "en" | "nl" | "de" | null;
     status: ReviewStatus;
     admin_note: string | null;
     invited_at: string;
@@ -33,7 +33,7 @@ export type Review = {
     title: string | null;
     body: string;
     customerLabel: string;
-    locale: "ro" | "en" | "nl" | null;
+    locale: "ro" | "en" | "nl" | "de" | null;
     submittedAt: string;
 };
 

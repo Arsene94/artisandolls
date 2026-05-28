@@ -8,18 +8,26 @@ type Props = {
     aggregate: ReviewAggregate | null;
 };
 
+function intlLocale(locale: Locale): string {
+    if (locale === "ro") return "ro-RO";
+    if (locale === "nl") return "nl-NL";
+    if (locale === "de") return "de-DE";
+    return "en-GB";
+}
+
 function formatRating(value: number, locale: Locale): string {
-    return value.toLocaleString(
-        locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : "en-GB",
-        { minimumFractionDigits: 1, maximumFractionDigits: 1 },
-    );
+    return value.toLocaleString(intlLocale(locale), {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+    });
 }
 
 function formatDate(iso: string, locale: Locale): string {
-    return new Date(iso).toLocaleDateString(
-        locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : "en-GB",
-        { day: "numeric", month: "long", year: "numeric" },
-    );
+    return new Date(iso).toLocaleDateString(intlLocale(locale), {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    });
 }
 
 function Stars({ value }: { value: number }) {

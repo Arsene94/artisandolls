@@ -4,18 +4,23 @@
  * dintr-o componentă client fără să tragă în bundle clientul Supabase service.
  */
 
-const REVIEW_PROMPTS: Record<"ro" | "en" | "nl", (productLabel: string) => string> = {
+const REVIEW_PROMPTS: Record<
+    "ro" | "en" | "nl" | "de",
+    (productLabel: string) => string
+> = {
     ro: (label) =>
         `Bună! Am livrat ${label} și speram să ne lași câteva impresii — orice ne ajută la modelele viitoare. E un formular scurt, anonim dacă vrei. Mulțumim 🌹`,
     en: (label) =>
         `Hello! We have delivered ${label} and would love a few impressions — anything helps us refine the next models. The form is short and can stay anonymous. Thank you 🌹`,
     nl: (label) =>
         `Hallo! We hebben ${label} bezorgd en zouden graag een paar indrukken willen — alle feedback helpt ons betere modellen te kiezen. Het formulier is kort en kan anoniem blijven. Dank 🌹`,
+    de: (label) =>
+        `Hallo! Wir haben ${label} geliefert und würden uns über ein paar Eindrücke freuen — jedes Feedback hilft uns, die nächsten Modelle besser zu gestalten. Das Formular ist kurz und kann anonym bleiben. Danke 🌹`,
 };
 
 /** Construiește textul mesajului WhatsApp pe care îl prefixăm în wa.me link. */
 export function composeReviewMessage(
-    locale: "ro" | "en" | "nl",
+    locale: "ro" | "en" | "nl" | "de",
     productLabel: string,
     reviewUrl: string,
 ): string {

@@ -474,7 +474,14 @@ export async function createShopOrderAction(formData: FormData) {
                 county: deliveryCounty,
                 countryCode: 642,
             },
-            locale: locale === "nl" ? "nl" : locale === "en" ? "en" : "ro",
+            locale:
+                locale === "nl"
+                    ? "nl"
+                    : locale === "en"
+                      ? "en"
+                      : locale === "de"
+                        ? "de"
+                        : "ro",
             successUrl,
             cancelUrl,
             notifyUrl,

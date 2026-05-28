@@ -6,7 +6,7 @@ import {
 } from "@/lib/upstash/vector";
 import { mapProductRow, type ShopProduct, type ShopProductRow } from "@/lib/shop/shared";
 
-const LOCALES: VectorLocale[] = ["ro", "en", "nl"];
+const LOCALES: VectorLocale[] = ["ro", "en", "nl", "de"];
 
 function searchableText(product: ShopProduct): string {
     return [

@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             url: canonical,
             title: t("indexTitle"),
             description: t("indexDescription"),
-            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : "en_GB",
+            locale: locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : locale === "de" ? "de_DE" : "en_GB",
         },
         robots: { index: true, follow: true },
     };
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 function formatDate(iso: string, locale: Locale): string {
     return new Date(iso).toLocaleDateString(
-        locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : "en-GB",
+        locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : locale === "de" ? "de-DE" : "en-GB",
         { day: "numeric", month: "long", year: "numeric" },
     );
 }
@@ -85,7 +85,7 @@ export default async function BlogIndexPage({ params }: Props) {
         url: baseUrl,
         name: t("indexTitle"),
         description: t("indexDescription"),
-        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : "en-GB",
+        inLanguage: locale === "ro" ? "ro-RO" : locale === "nl" ? "nl-NL" : locale === "de" ? "de-DE" : "en-GB",
         publisher: { "@id": `${siteUrl}/#org` },
         blogPost: posts.slice(0, 30).map((p) => ({
             "@type": "BlogPosting",

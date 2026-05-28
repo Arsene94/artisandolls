@@ -12,7 +12,7 @@ export type ReviewInvitationInput = {
     orderType: ReviewOrderType;
     orderId: string;
     customerName?: string | null;
-    locale?: "ro" | "en" | "nl" | null;
+    locale?: "ro" | "en" | "nl" | "de" | null;
 };
 
 export type ReviewInvitation = {

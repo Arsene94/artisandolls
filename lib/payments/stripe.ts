@@ -115,7 +115,14 @@ export const stripeProvider: PaymentProvider = {
         const session = await stripe.checkout.sessions.create(
             {
                 mode: "payment",
-                locale: input.locale === "nl" ? "nl" : input.locale === "en" ? "en" : "ro",
+                locale:
+                    input.locale === "nl"
+                        ? "nl"
+                        : input.locale === "en"
+                          ? "en"
+                          : input.locale === "de"
+                            ? "de"
+                            : "ro",
                 customer_email: input.billing.email ?? undefined,
                 client_reference_id: input.orderId,
                 line_items: input.items.map((line) => ({

@@ -6,7 +6,7 @@ import { routing } from "@/i18n/routing";
 const handleI18nRouting = createMiddleware(routing);
 
 const AGE_COOKIE = "ad_age_verified";
-const LOCALE_SEGMENT = /^\/(ro|en|nl)(?=\/|$)/;
+const LOCALE_SEGMENT = /^\/(ro|en|nl|de)(?=\/|$)/;
 const AGE_GATE_EXEMPT = [
     /^\/age-gate(\/.*)?$/,
     /^\/(terms|privacy|cookies|age-policy)(\/.*)?$/,

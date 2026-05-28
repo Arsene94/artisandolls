@@ -32,7 +32,7 @@ export async function createReviewInvitationAction(input: {
     orderType: ReviewOrderType;
     orderId: string;
     customerName?: string | null;
-    locale?: "ro" | "en" | "nl" | null;
+    locale?: "ro" | "en" | "nl" | "de" | null;
 }): Promise<{ token: string; reviewId: string }> {
     const { supabase } = await requireAdmin();
 

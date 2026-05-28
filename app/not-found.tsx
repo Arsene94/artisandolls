@@ -35,6 +35,14 @@ const COPY: Record<Locale, Dict> = {
         backHome: "Terug naar home",
         catalog: "Bekijk de catalogus",
     },
+    de: {
+        eyebrow: "404 · Seite nicht verfügbar",
+        title: "Seite nicht gefunden",
+        description:
+            "Die gesuchte Seite existiert nicht mehr oder wurde verschoben. Kehren Sie zur Startseite zurück oder erkunden Sie den Katalog.",
+        backHome: "Zur Startseite",
+        catalog: "Katalog ansehen",
+    },
 };
 
 function pickLocale(acceptLanguage: string | null): Locale {

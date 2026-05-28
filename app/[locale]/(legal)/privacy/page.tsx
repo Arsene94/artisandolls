@@ -46,6 +46,7 @@ function subprocessorLines(locale: Locale) {
         const region = sp.region;
         if (locale === "ro") return `${sp.name} — ${purpose}. Regiune: ${region}.`;
         if (locale === "nl") return `${sp.name} — ${purpose}. Regio: ${region}.`;
+        if (locale === "de") return `${sp.name} — ${purpose}. Region: ${region}.`;
         return `${sp.name} — ${purpose}. Region: ${region}.`;
     });
 }
@@ -205,6 +206,82 @@ function buildDict(locale: Locale, business: string, contactEmail: string): Dict
         };
     }
 
+    if (locale === "de") {
+        return {
+            eyebrow: "Datenschutzerklärung",
+            toc: "Auf dieser Seite",
+            intro: `${business} verarbeitet Ihre personenbezogenen Daten ausschließlich, um die Logistik zu organisieren und Sie zu Ihren Anfragen zu kontaktieren. Diese Richtlinie erklärt, welche Daten wir erheben, warum und wie lange.`,
+            sections: [
+                {
+                    heading: "1. Verantwortlicher",
+                    body: `Verantwortlicher für die Verarbeitung personenbezogener Daten ist ${business} (${LEGAL_OPERATOR_NAME}). Operativer Kontakt: ${contactEmail}. Datenschutzbeauftragter (DSB): ${dpo}.`,
+                },
+                {
+                    heading: "2. Welche Daten wir erheben",
+                    body: [
+                        {
+                            type: "list",
+                            items: [
+                                "Identifikationsdaten: Name oder Pseudonym, Telefon, optional E-Mail.",
+                                "Logistikdaten: Kreis, Stadt, Lieferadresse, bevorzugtes Zeitfenster.",
+                                "Bestelldaten: gewählte Stücke, Anpassungen, Mietzeitraum.",
+                                "Minimale technische Daten: Browsertyp, Sprache, Datum/Uhrzeit.",
+                                "Altersverifikation: die Antwort „18+“, 30 Tage in einem lokalen Cookie gespeichert (wir erheben kein Geburtsdatum).",
+                            ],
+                        },
+                    ],
+                },
+                {
+                    heading: "3. Rechtsgrundlage und Zweck",
+                    body: "Wir verarbeiten Daten auf Grundlage Ihrer ausdrücklichen Einwilligung bei Absenden des Formulars (Art. 6 Abs. 1 lit. a DSGVO) und zur Vertragserfüllung (Art. 6 Abs. 1 lit. b). Wir nutzen Daten nicht zu Marketingzwecken.",
+                },
+                {
+                    heading: "4. Speicherdauer",
+                    body: "Bestelldaten: 30 Tage nach Lieferung oder Abholung. Rechnungsdaten: 5 Jahre gemäß Steuerrecht. Nicht-essenzielle Cookies (Analyse): 13 Monate oder unmittelbar nach Widerruf der Einwilligung.",
+                },
+                {
+                    heading: "5. Auftragsverarbeiter (Art. 28 DSGVO)",
+                    body: [
+                        "Für den Betrieb des Dienstes arbeiten wir mit folgenden Auftragsverarbeitern unter konformen Verarbeitungsverträgen zusammen:",
+                        { type: "list", items: subprocessorLines("de") },
+                        "Für interne Benachrichtigungen an Berater nutzen wir die WhatsApp Business API (Meta Ireland Ltd.). Telefonnummer und Bestellzusammenfassung werden über diese Plattform übermittelt.",
+                    ],
+                },
+                {
+                    heading: "6. Internationale Datenübermittlungen",
+                    body: "Auftragsverarbeiter können außerhalb des EWR tätig sein. In diesen Fällen stützen wir uns auf EU-Standardvertragsklauseln und zusätzliche technische Maßnahmen (Verschlüsselung in der Übertragung, Datenminimierung).",
+                },
+                {
+                    heading: "7. Ihre Rechte",
+                    body: [
+                        "Sie haben das Recht auf:",
+                        {
+                            type: "list",
+                            items: [
+                                "Auskunft über Ihre Daten;",
+                                "Berichtigung;",
+                                "Löschung („Recht auf Vergessenwerden“);",
+                                "Einschränkung der Verarbeitung;",
+                                "Datenübertragbarkeit;",
+                                "Widerspruch und Widerruf der Einwilligung;",
+                                "Beschwerde bei der rumänischen Datenschutzbehörde (ANSPDCP) oder Ihrer zuständigen Aufsichtsbehörde.",
+                            ],
+                        },
+                        `Wenden Sie sich zur Ausübung dieser Rechte an ${dpo}.`,
+                    ],
+                },
+                {
+                    heading: "8. Sicherheit",
+                    body: "Wir verwenden TLS 1.2+ für alle Verbindungen, Verschlüsselung at-rest für die Datenbank, strikte 2FA-Authentifizierung für internes Personal und das Prinzip der Datenminimierung. IP-Adressen werden nicht operativ protokolliert.",
+                },
+                {
+                    heading: "9. Änderungen",
+                    body: "Diese Richtlinie kann aktualisiert werden. Maßgeblich ist die auf dieser Seite veröffentlichte Fassung. Wesentliche Änderungen werden über die verfügbaren Kontaktkanäle bekannt gegeben.",
+                },
+            ],
+        };
+    }
+
     return {
         eyebrow: "Privacy policy",
         toc: "On this page",
@@ -298,7 +375,9 @@ export default async function PrivacyPage({ params }: PageProps) {
             ? `Ultima actualizare: ${lastUpdated}`
             : locale === "nl"
               ? `Laatst bijgewerkt: ${lastUpdated}`
-              : `Last updated: ${lastUpdated}`;
+              : locale === "de"
+                ? `Zuletzt aktualisiert: ${lastUpdated}`
+                : `Last updated: ${lastUpdated}`;
 
     return (
         <LegalPage

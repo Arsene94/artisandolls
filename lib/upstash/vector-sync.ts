@@ -3,7 +3,7 @@ import { vectorIndex, VECTOR_NAMESPACES, type VectorLocale } from "@/lib/upstash
 import type { Doll, DollRow } from "@/lib/dolls";
 import { mapDollRowToDoll } from "@/lib/dolls";
 
-const LOCALES: VectorLocale[] = ["ro", "en", "nl"];
+const LOCALES: VectorLocale[] = ["ro", "en", "nl", "de"];
 
 function heightFromTags(tags: string[]): number | null {
     for (const tag of tags ?? []) {

@@ -41,8 +41,12 @@ const cormorant = Cormorant_Garamond({
 const SUPABASE_STORAGE_HOST =
     process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "") ?? null;
 
-const ogLocaleFor = (locale: Locale): string =>
-    locale === "ro" ? "ro_RO" : locale === "nl" ? "nl_NL" : "en_GB";
+const ogLocaleFor = (locale: Locale): string => {
+    if (locale === "ro") return "ro_RO";
+    if (locale === "nl") return "nl_NL";
+    if (locale === "de") return "de_DE";
+    return "en_GB";
+};
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = (await getLocale()) as Locale;
@@ -206,7 +210,7 @@ export default async function RootLayout({
         "@id": `${siteUrl}/#website`,
         url: siteUrl,
         name: businessName,
-        inLanguage: ["ro-RO", "en-GB", "nl-NL"],
+        inLanguage: ["ro-RO", "en-GB", "nl-NL", "de-DE"],
         publisher: { "@id": `${siteUrl}/#org` },
         potentialAction: {
             "@type": "SearchAction",
