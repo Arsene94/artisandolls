@@ -6,8 +6,8 @@ const CARDS: CardKey[] = ["packaging", "data", "billing", "control"];
 
 function Icon({ name }: { name: CardKey }) {
     const common = {
-        width: 26,
-        height: 26,
+        width: 48,
+        height: 48,
         viewBox: "0 0 28 28",
         fill: "none",
         stroke: "currentColor",
@@ -59,18 +59,18 @@ export default async function PrivacySection() {
             data-surface="dark"
             className="velvet-privacy relative bg-velvet-950 text-silk"
         >
-            <div className="mx-auto w-full max-w-[1440px] px-6 py-24 sm:px-10 lg:px-16">
+            <div className="mx-auto w-full max-w-[1440px] px-4 py-24 sm:px-10 lg:px-16">
                 <div className="mx-auto max-w-3xl text-center">
                     <h2
                         id="privacy-title"
-                        className="font-display text-[clamp(2.25rem,4.5vw,4rem)] leading-[1.05] tracking-tight text-silk"
+                        className="font-display text-[28px] lg:text-[clamp(2.25rem,4.5vw,4rem)] leading-[1.35] lg:leading-[1.05] tracking-tight text-silk"
                     >
                         {t("titleLine1")}{" "}
-                        <span className="italic text-gold-light">
+                        <span className="italic text-gold">
                             {t("titleEmphasis")}
                         </span>
                     </h2>
-                    <p className="mt-8 text-sm leading-relaxed text-silk/70">
+                    <p className="mt-8 text-[12px] lg:text-[18px] leading-relaxed text-[#b9b2aa]">
                         {t("description")}
                     </p>
                 </div>
@@ -79,15 +79,15 @@ export default async function PrivacySection() {
                     {CARDS.map((key) => (
                         <li
                             key={key}
-                            className="rounded-[20px] border border-velvet-800/60 bg-gradient-to-b from-velvet-900/30 to-velvet-950/60 p-7 transition-colors hover:border-gold/40"
+                            className="flex flex-col items-center rounded-[10px] border border-gold/50 bg-transparent p-7 text-center"
                         >
-                            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 text-gold">
+                            <span className="inline-flex items-center justify-center text-gold">
                                 <Icon name={key} />
                             </span>
-                            <h3 className="mt-5 font-heading text-base font-semibold tracking-tight text-silk">
+                            <h3 className="mt-5 font-display text-[20px] lg:text-[24px] font-semibold tracking-tight text-ivory">
                                 {t(`cards.${key}.title`)}
                             </h3>
-                            <p className="mt-3 text-[0.82rem] leading-relaxed text-silk/65">
+                            <p className="mt-3 text-[12px] lg:text-sm leading-relaxed text-[#b9b2aa]">
                                 {t(`cards.${key}.body`)}
                             </p>
                         </li>

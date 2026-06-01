@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { getPublicPlatformSettings } from "@/lib/settings";
 import {
@@ -63,58 +64,37 @@ export default async function Footer({
             className="site-footer relative bg-velvet-950 text-silk/85"
         >
             <div className="mx-auto w-full max-w-[1440px] px-6 pt-20 pb-8 sm:px-10 lg:px-16">
-                <div className="grid grid-cols-1 gap-12 pb-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+                <div className="grid grid-cols-1 gap-12 pb-12 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
                     <div>
                         <Link
                             href="/"
-                            className="inline-flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:rounded-sm"
+                            className="inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:rounded-sm sm:justify-start"
                             aria-label={`${display} — ${t("tagline")}`}
                         >
-                            <svg
-                                width="34"
-                                height="34"
-                                viewBox="0 0 34 34"
-                                fill="none"
-                                aria-hidden="true"
-                                className="text-gold"
-                            >
-                                <path
-                                    d="M17 4 L29 16 L17 28 L5 16 Z"
-                                    stroke="currentColor"
-                                    strokeWidth="1.4"
-                                    strokeLinejoin="round"
-                                />
-                                <path
-                                    d="M17 4 L17 28 M5 16 L29 16"
-                                    stroke="currentColor"
-                                    strokeWidth="1"
-                                    opacity="0.6"
-                                />
-                            </svg>
-                            <span className="font-display text-xl tracking-[0.18em] text-silk">
-                                <span className="text-gold">{display.charAt(0)}</span>
-                                {display.slice(1).toUpperCase()}
-                                <span className="ml-2 font-heading text-[0.65rem] tracking-[0.32em] text-gold/70">
-                                    DOLLS
-                                </span>
-                            </span>
+                            <Image
+                                src="/logo-artisan-dolls.png"
+                                alt={display}
+                                width={137}
+                                height={137}
+                                className="h-20 w-auto select-none lg:h-24"
+                            />
                         </Link>
-                        <p className="mt-6 max-w-xs text-sm leading-relaxed text-silk/65">
+                        <p className="mt-6 mx-auto max-w-xs text-sm leading-relaxed text-silk/65 sm:mx-0">
                             {t("tagline")}
                         </p>
                     </div>
 
                     {COLUMNS.map((col) => (
-                        <nav key={col.titleKey} aria-label={t(col.titleKey)}>
-                            <h2 className="font-heading text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-gold">
+                        <nav key={col.titleKey} aria-label={t(col.titleKey)} className="text-center sm:text-left">
+                            <h2 className="font-sans text-sm font-bold uppercase tracking-[0.06em] text-gold lg:text-[16px]">
                                 {t(col.titleKey)}
                             </h2>
-                            <ul className="mt-6 flex flex-col gap-4 text-sm">
+                            <ul className="mt-6 flex flex-col items-center gap-4 text-sm sm:items-start">
                                 {col.links.map((link) => (
                                     <li key={link.href}>
                                         <Link
                                             href={link.href}
-                                            className="text-silk/75 transition-colors hover:text-gold focus-visible:outline-none focus-visible:text-gold"
+                                            className="font-sans text-sm font-light leading-[22px] text-silk/75 transition-colors hover:text-gold focus-visible:outline-none focus-visible:text-gold"
                                         >
                                             {t(link.labelKey)}
                                         </Link>
@@ -125,7 +105,7 @@ export default async function Footer({
                     ))}
                 </div>
 
-                <div className="border-t border-velvet-800/60 pt-8 grid grid-cols-1 gap-x-8 gap-y-4 text-[0.72rem] leading-relaxed text-silk/55 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="border-t border-velvet-800/60 pt-8 grid grid-cols-1 gap-x-8 gap-y-4 text-center text-[0.72rem] leading-relaxed text-silk/55 sm:grid-cols-2 sm:text-left lg:grid-cols-4">
                     <div>
                         <p className="text-silk/85">{operator}</p>
                         <p>
@@ -164,7 +144,7 @@ export default async function Footer({
                             </a>
                         </p>
                     </div>
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col items-center gap-1 sm:items-start">
                         <a
                             href="https://anpc.ro/"
                             target="_blank"
@@ -192,7 +172,7 @@ export default async function Footer({
                     </div>
                     <ul
                         aria-label={t("paymentsTitle")}
-                        className="flex flex-wrap items-start gap-2"
+                        className="flex flex-wrap items-start justify-center gap-2 sm:justify-start"
                     >
                         {[
                             { label: "Visa", letters: "VISA" },
@@ -210,7 +190,7 @@ export default async function Footer({
                     </ul>
                 </div>
 
-                <div className="mt-8 flex flex-col gap-3 border-t border-velvet-800/60 pt-6 text-[0.72rem] uppercase tracking-[0.18em] text-silk/55 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mt-8 flex flex-col items-center gap-3 border-t border-velvet-800/60 pt-6 text-center text-[0.72rem] uppercase tracking-[0.18em] text-silk/55 sm:flex-row sm:items-center sm:justify-between sm:text-left">
                     <p>{t("copyright", { year, brand: display.toUpperCase() })}</p>
                     <p>{t("ageNotice")}</p>
                 </div>

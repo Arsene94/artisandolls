@@ -12,13 +12,14 @@
     --color-velvet-700: #5A1A30;
     --color-velvet-800: #3F1424;
     --color-velvet-900: #1A0710;
-    --color-velvet-950: #0F0406;
+    --color-velvet-950: #12070B;
 
     /* ───── NEUTRALS — silk ───── */
     --color-silk:        #FCFAF7;
     --color-silk-100:    #F7F1E8;
     --color-silk-200:    #F3ECE3;
     --color-silk-300:    #E5DBCC;
+    --color-ivory:       #F3EEE7;   /* Figma warm-ivory — landing headings/card titles */
     --color-silk-400:    #C9C0B5;
     --color-silk-600:    #6B5F52;
     --color-silk-800:    #2E251D;
@@ -27,7 +28,7 @@
     --color-silk-dark:   #F3ECE3;
 
     /* ───── ACCENT — champagne gold ───── */
-    --color-gold:        #C9A24A;
+    --color-gold:        #C9A15A;
     --color-gold-light:  #ECD9A8;
     --color-gold-dark:   #8C6D2A;
 

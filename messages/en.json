@@ -163,7 +163,7 @@
   "home": {
     "hero": {
       "titleLine1": "Fantasy becomes",
-      "titleEmphasis": "reality.",
+      "titleEmphasis": "reality",
       "taglinePremium": "Exceptional realism. <accent>Premium</accent> materials.<break></break>Absolute confidentiality.",
       "description": "Discreet private experiences and bespoke premium acquisitions, delivered with the highest level of confidentiality.",
       "cta": "Discover the collection",
@@ -293,10 +293,10 @@
         "cleaning": "Professional cleaning",
         "disinfection": "Medical-grade disinfection",
         "sterilization": "UV-C sterilization",
-        "inspection": "Full unit inspection",
+        "inspection": "Full moisture removal",
         "sealed": "Delivery in sealed packaging"
       },
-      "cta": "See the full process",
+      "cta": "See the full protocol",
       "imageAlt": "Premium companion professionally prepared for delivery"
     },
     "contact": {
@@ -458,7 +458,7 @@
       "stats": {
         "criteria": {
           "value": "14",
-          "label": "Evaluation criteria"
+          "label": "Inspection criteria"
         },
         "steps": {
           "value": "5",
@@ -537,7 +537,7 @@
       }
     },
     "finalCta": {
-      "eyebrow": "ONLINE ATELIER",
+      "eyebrow": "Artisan Dolls",
       "titleLine1": "Discover",
       "titleEmphasis": "the collection.",
       "description": "More than a product. An experience built around discretion, comfort, and attention to every detail.",

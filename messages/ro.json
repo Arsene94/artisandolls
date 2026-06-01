@@ -163,7 +163,7 @@
   "home": {
     "hero": {
       "titleLine1": "Fantezia devine",
-      "titleEmphasis": "realitate.",
+      "titleEmphasis": "realitate",
       "taglinePremium": "Realism excepțional. Materiale <accent>premium</accent>.<break></break>Confidențialitate absolută.",
       "description": "Experiențe private discrete și achiziții personalizate premium, livrate cu maximă confidențialitate.",
       "cta": "Descoperă colecția",
@@ -293,10 +293,10 @@
         "cleaning": "Curățare profesională",
         "disinfection": "Dezinfecție medicală",
         "sterilization": "Sterilizare UV-C",
-        "inspection": "Inspecție completă a unității",
+        "inspection": "Eliminarea completă a umidității",
         "sealed": "Livrare în ambalaj sigilat"
       },
-      "cta": "Vezi procesul complet",
+      "cta": "Vezi protocolul complet",
       "imageAlt": "Companion premium pregătit profesional pentru livrare"
     },
     "contact": {
@@ -458,7 +458,7 @@
       "stats": {
         "criteria": {
           "value": "14",
-          "label": "Criterii de evaluare"
+          "label": "Criterii de inspecție"
         },
         "steps": {
           "value": "5",
@@ -483,7 +483,7 @@
           "body": "Lucrăm discret, anonim și protejăm orice date — politici stricte privind protecția datelor clienților."
         }
       },
-      "cta": "Tot procesul complet",
+      "cta": "Vezi procesul complet",
       "imageAlt": "Companion premium în decor de atelier, lumină caldă, atmosferă intimă"
     },
     "privacy": {
@@ -537,11 +537,11 @@
       }
     },
     "finalCta": {
-      "eyebrow": "ATELIER ONLINE",
+      "eyebrow": "Artisan Dolls",
       "titleLine1": "Descoperă",
       "titleEmphasis": "colecția.",
       "description": "Mai mult decât un produs. O experiență construită în jurul discreției, confortului și atenției la fiecare detaliu.",
-      "ctaPrimary": "Explorează modele",
+      "ctaPrimary": "Explorează modelele",
       "ctaSecondary": "Solicită consultanță privată"
     }
   },

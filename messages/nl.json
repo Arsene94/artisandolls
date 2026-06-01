@@ -163,7 +163,7 @@
   "home": {
     "hero": {
       "titleLine1": "Fantasie wordt",
-      "titleEmphasis": "werkelijkheid.",
+      "titleEmphasis": "werkelijkheid",
       "taglinePremium": "Uitzonderlijk realisme. <accent>Premium</accent> materialen.<break></break>Absolute discretie.",
       "description": "Discrete privé-ervaringen en exclusieve maatwerkaankopen, geleverd met maximale vertrouwelijkheid.",
       "cta": "Ontdek de collectie",
@@ -293,10 +293,10 @@
         "cleaning": "Professionele reiniging",
         "disinfection": "Medische desinfectie",
         "sterilization": "UV-C-sterilisatie",
-        "inspection": "Volledige eenheidsinspectie",
+        "inspection": "Volledige vochtverwijdering",
         "sealed": "Levering in verzegelde verpakking"
       },
-      "cta": "Bekijk het volledige proces",
+      "cta": "Bekijk het volledige protocol",
       "imageAlt": "Premium companion professioneel voorbereid voor levering"
     },
     "contact": {
@@ -458,7 +458,7 @@
       "stats": {
         "criteria": {
           "value": "14",
-          "label": "Beoordelingscriteria"
+          "label": "Inspectiecriteria"
         },
         "steps": {
           "value": "5",
@@ -537,7 +537,7 @@
       }
     },
     "finalCta": {
-      "eyebrow": "ONLINE ATELIER",
+      "eyebrow": "Artisan Dolls",
       "titleLine1": "Ontdek",
       "titleEmphasis": "de collectie.",
       "description": "Meer dan een product. Een ervaring opgebouwd rond discretie, comfort en oog voor elk detail.",

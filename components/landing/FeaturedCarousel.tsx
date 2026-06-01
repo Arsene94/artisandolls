@@ -53,7 +53,7 @@ export default function FeaturedCarousel({
         <div className="mt-14">
             <div
                 ref={scrollerRef}
-                className="-mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-6 [scrollbar-width:none] sm:-mx-10 sm:px-10 lg:-mx-16 lg:px-16 lg:[&::-webkit-scrollbar]:hidden"
+                className="-mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-6 [scrollbar-width:none] sm:-mx-10 sm:px-10 lg:-mx-16 lg:px-16 lg:[&::-webkit-scrollbar]:hidden"
             >
                 {children}
             </div>

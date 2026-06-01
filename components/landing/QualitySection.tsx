@@ -62,18 +62,18 @@ export default async function QualitySection() {
             data-surface="dark"
             className="velvet-quality relative bg-velvet-950 text-silk"
         >
-            <div className="mx-auto w-full max-w-[1440px] px-6 py-24 sm:px-10 lg:px-16">
+            <div className="mx-auto w-full max-w-[1440px] px-4 py-24 sm:px-10 lg:px-16">
                 <div className="mx-auto max-w-3xl text-center">
                     <h2
                         id="quality-title"
-                        className="font-display text-[clamp(2.25rem,4.5vw,4rem)] leading-[1.05] tracking-tight text-silk"
+                        className="font-display text-[28px] lg:text-[clamp(2.25rem,4.5vw,4rem)] leading-[1.35] lg:leading-[1.05] tracking-tight text-silk"
                     >
                         {t("titleLine1")}{" "}
                         <span className="italic text-gold-light">
                             {t("titleEmphasis")}
                         </span>
                     </h2>
-                    <p className="mt-8 text-sm leading-relaxed text-silk/70">
+                    <p className="mt-8 text-[12px] lg:text-[18px] leading-relaxed text-[#b9b2aa]">
                         {t("description")}
                     </p>
                 </div>
@@ -82,20 +82,20 @@ export default async function QualitySection() {
                     {CARDS.map(({ key, num }) => (
                         <li
                             key={key}
-                            className="group relative flex flex-col rounded-[20px] border border-velvet-800/60 bg-gradient-to-b from-velvet-900/30 to-velvet-950/60 p-6 transition-colors hover:border-gold/40"
+                            className="group relative flex flex-col rounded-[10px] border border-velvet-800/60 bg-gradient-to-b from-velvet-900/30 to-velvet-950/60 p-6 transition-colors hover:border-gold/40"
                         >
                             <div className="flex items-start justify-between">
                                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 text-gold">
                                     <CardIcon name={key} />
                                 </span>
-                                <span className="font-display text-3xl italic leading-none text-gold/70">
+                                <span className="bg-gradient-to-b from-gold to-ivory bg-clip-text font-display text-[40px] font-light leading-none text-transparent">
                                     {num}
                                 </span>
                             </div>
-                            <h3 className="mt-6 font-heading text-base font-semibold tracking-tight text-silk">
+                            <h3 className="mt-6 font-nav text-[16px] lg:text-[18px] font-bold tracking-tight text-ivory">
                                 {t(`cards.${key}.title`)}
                             </h3>
-                            <p className="mt-4 text-[0.82rem] leading-relaxed text-silk/65">
+                            <p className="mt-4 text-[12px] lg:text-sm leading-relaxed text-[#b9b2aa]">
                                 {t(`cards.${key}.body`)}
                             </p>
                         </li>

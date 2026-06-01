@@ -163,7 +163,7 @@
   "home": {
     "hero": {
       "titleLine1": "Fantasie wird",
-      "titleEmphasis": "Wirklichkeit.",
+      "titleEmphasis": "Wirklichkeit",
       "taglinePremium": "Außergewöhnlicher Realismus. <accent>Premium-Materialien</accent>.<break></break>Absolute Diskretion.",
       "description": "Diskrete private Erlebnisse und maßgeschneiderte Premium-Käufe, geliefert mit höchster Vertraulichkeit.",
       "cta": "Kollektion entdecken",
@@ -293,10 +293,10 @@
         "cleaning": "Professionelle Reinigung",
         "disinfection": "Medizinische Desinfektion",
         "sterilization": "UV-C-Sterilisation",
-        "inspection": "Vollständige Inspektion der Einheit",
+        "inspection": "Vollständige Feuchtigkeitsentfernung",
         "sealed": "Lieferung in versiegelter Verpackung"
       },
-      "cta": "Den gesamten Prozess ansehen",
+      "cta": "Das gesamte Protokoll ansehen",
       "imageAlt": "Premium-Companion professionell für die Lieferung vorbereitet"
     },
     "contact": {
@@ -458,7 +458,7 @@
       "stats": {
         "criteria": {
           "value": "14",
-          "label": "Bewertungskriterien"
+          "label": "Inspektionskriterien"
         },
         "steps": {
           "value": "5",
@@ -537,7 +537,7 @@
       }
     },
     "finalCta": {
-      "eyebrow": "ONLINE-ATELIER",
+      "eyebrow": "Artisan Dolls",
       "titleLine1": "Entdecke",
       "titleEmphasis": "die Kollektion.",
       "description": "Mehr als ein Produkt. Ein Erlebnis, das auf Diskretion, Komfort und Liebe zum Detail aufgebaut ist.",

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
+import Eyebrow from "@/components/landing/Eyebrow";
+import PrimaryButton from "@/components/landing/PrimaryButton";
 
 type FinalCtaProps = {
     catalogEnabled: boolean;
@@ -14,84 +15,118 @@ export default async function FinalCta({ catalogEnabled }: FinalCtaProps) {
             id="final-cta"
             aria-labelledby="final-cta-title"
             data-surface="dark"
-            className="velvet-final-cta relative isolate overflow-hidden bg-velvet-950 text-silk"
+            className="velvet-final-cta relative isolate overflow-hidden bg-[#0c0001] text-silk"
         >
-            <div className="absolute inset-0 -z-10">
-                <Image
-                    src="/images/landing/final-cta.jpg"
-                    alt=""
-                    role="presentation"
-                    fill
-                    sizes="100vw"
-                    className="object-cover object-right"
-                />
-                <div
-                    aria-hidden="true"
-                    className="absolute inset-0 bg-gradient-to-r from-velvet-950 from-15% via-velvet-950/85 via-45% to-transparent to-65%"
-                />
+            {/* ───────────────── MOBILE (<lg) — Figma 360px composition ─────────────────
+                Centered eyebrow w/ side rules, heading, copy, primary CTA, then a framed
+                image card, then the secondary CTA (node 12859:7579). */}
+            <div className="flex flex-col items-center px-4 py-16 text-center lg:hidden">
+                <div className="flex items-center gap-3">
+                    <span aria-hidden="true" className="h-px w-[40px] bg-gold/60" />
+                    <Eyebrow>{t("eyebrow")}</Eyebrow>
+                    <span aria-hidden="true" className="h-px w-[40px] bg-gold/60" />
+                </div>
+                <h2 className="mt-6 font-display text-[28px] leading-[1.3] tracking-tight text-silk">
+                    {t("titleLine1")}{" "}
+                    <span className="italic text-gold">{t("titleEmphasis")}</span>
+                </h2>
+                <p className="mt-5 max-w-[300px] text-[12px] leading-relaxed text-[#b9b2aa]">
+                    {t("description")}
+                </p>
+
+                {catalogEnabled && (
+                    <PrimaryButton
+                        href="/catalog"
+                        variant="solid"
+                        className="mt-8 w-full max-w-[280px]"
+                    >
+                        {t("ctaPrimary")}
+                    </PrimaryButton>
+                )}
+
+                <div className="relative mt-10 aspect-[6/5] w-full overflow-hidden rounded-[24px] border border-velvet-800/60 shadow-2xl shadow-velvet-950/60">
+                    <Image
+                        src="/images/landing/final-cta.png"
+                        alt=""
+                        role="presentation"
+                        fill
+                        sizes="100vw"
+                        className="object-cover object-center"
+                    />
+                </div>
+
+                <PrimaryButton
+                    href="/contact"
+                    variant="outline"
+                    className="mt-8 w-full max-w-[280px]"
+                >
+                    {t("ctaSecondary")}
+                </PrimaryButton>
             </div>
 
-            <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 px-6 py-28 sm:px-10 lg:min-h-[640px] lg:grid-cols-2 lg:px-16 lg:py-32">
-                <div className="flex flex-col justify-center">
-                    <p className="font-heading text-[0.72rem] uppercase tracking-[0.22em] text-gold">
-                        {t("eyebrow")}
-                    </p>
-                    <h2
-                        id="final-cta-title"
-                        className="mt-5 font-display text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.05] tracking-tight text-silk"
-                    >
-                        {t("titleLine1")}{" "}
-                        <span className="italic text-gold-light">
-                            {t("titleEmphasis")}
-                        </span>
-                    </h2>
-                    <p className="mt-7 max-w-md text-sm leading-relaxed text-silk/75">
-                        {t("description")}
-                    </p>
+            {/* ───────────────── DESKTOP (lg+) — Figma node 12738:3083 (1441×704) ─────
+                Photo pinned to the right 61.2% (Figma "Frame 34708": left 557 / w 882
+                of 1441) and object-right to reproduce the exact crop — figure centre-
+                right, warm lamp at the edge. Content sits left, vertically centred. */}
+            <div className="relative hidden min-h-[704px] w-full lg:block">
+                <div className="absolute inset-y-0 right-0 w-[61.2%]">
+                    <Image
+                        src="/images/landing/final-cta-desktop.png"
+                        alt=""
+                        role="presentation"
+                        fill
+                        sizes="(min-width: 1024px) 62vw, 0px"
+                        className="object-cover object-right"
+                    />
+                    {/* Blend the photo's left edge into the #0c0001 field so the copy
+                        stays legible where it overlaps it (Figma leans on the photo's
+                        own shadow; this keeps it clean at every desktop width). */}
+                    <div
+                        aria-hidden="true"
+                        className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#0c0001] via-[#0c0001]/80 to-transparent"
+                    />
+                </div>
 
-                    <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-                        {catalogEnabled && (
-                            <Link
-                                href="/catalog"
-                                className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-gold to-gold-dark px-7 py-3.5 font-heading text-xs font-semibold uppercase tracking-[0.18em] text-velvet-950 shadow-xl shadow-gold/20 transition-all duration-300 hover:from-gold-light hover:to-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 motion-reduce:transition-none"
-                            >
-                                {t("ctaPrimary")}
+                <div className="relative mx-auto flex min-h-[704px] max-w-[1441px] flex-col justify-center px-[71px]">
+                    <div className="flex max-w-[700px] flex-col gap-20">
+                        <div className="flex flex-col gap-5">
+                            <div className="flex items-center gap-4">
                                 <span
                                     aria-hidden="true"
-                                    className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-velvet-950/40 transition-transform duration-300 group-hover:translate-x-0.5"
+                                    className="h-px w-[80px] bg-gold/30"
+                                />
+                                <Eyebrow>{t("eyebrow")}</Eyebrow>
+                                <span
+                                    aria-hidden="true"
+                                    className="h-px w-[80px] bg-gold/30"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-10">
+                                <h2
+                                    id="final-cta-title"
+                                    className="font-display text-[60px] leading-[1.5] tracking-[-0.01em] text-[#f3eee7]"
                                 >
-                                    <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
-                                        <path
-                                            d="M2.5 7H11.5M11.5 7L7.5 3M11.5 7L7.5 11"
-                                            stroke="currentColor"
-                                            strokeWidth="1.5"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
-                                </span>
-                            </Link>
-                        )}
-                        <Link
-                            href="/contact"
-                            className="group inline-flex items-center gap-3 rounded-full border border-gold/50 bg-velvet-950/40 px-7 py-3.5 font-heading text-xs font-semibold uppercase tracking-[0.18em] text-silk backdrop-blur transition-all duration-300 hover:border-gold hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 motion-reduce:transition-none"
-                        >
-                            {t("ctaSecondary")}
-                            <span
-                                aria-hidden="true"
-                                className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-gold/40 transition-transform duration-300 group-hover:translate-x-0.5"
-                            >
-                                <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
-                                    <path
-                                        d="M2.5 7H11.5M11.5 7L7.5 3M11.5 7L7.5 11"
-                                        stroke="currentColor"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                            </span>
-                        </Link>
+                                    {t("titleLine1")}{" "}
+                                    <span className="italic text-gold">
+                                        {t("titleEmphasis")}
+                                    </span>
+                                </h2>
+                                <p className="max-w-[602px] text-[18px] leading-[1.5] tracking-[-0.01em] text-[#b9b2aa]">
+                                    {t("description")}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-8">
+                            {catalogEnabled && (
+                                <PrimaryButton href="/catalog" variant="solid">
+                                    {t("ctaPrimary")}
+                                </PrimaryButton>
+                            )}
+                            <PrimaryButton href="/contact" variant="outline">
+                                {t("ctaSecondary")}
+                            </PrimaryButton>
+                        </div>
                     </div>
                 </div>
             </div>

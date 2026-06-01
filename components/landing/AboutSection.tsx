@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
+import Eyebrow from "@/components/landing/Eyebrow";
+import PrimaryButton from "@/components/landing/PrimaryButton";
 
 type ValueKey = "studio" | "experience" | "privacy";
 
@@ -22,11 +23,11 @@ export default async function AboutSection() {
             data-surface="dark"
             className="velvet-about relative bg-velvet-950 text-silk"
         >
-            <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-14 px-6 py-28 sm:px-10 lg:grid-cols-2 lg:gap-16 lg:px-16">
-                <div className="relative">
+            <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-10 px-4 py-16 sm:px-10 lg:grid-cols-2 lg:gap-16 lg:px-16 lg:py-28">
+                <div className="relative order-2 lg:order-1">
                     <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[24px] border border-velvet-800/60 shadow-2xl shadow-velvet-950/60 lg:aspect-[4/5]">
                         <Image
-                            src="/images/landing/about.jpg"
+                            src="/images/landing/about.png"
                             alt={t("imageAlt")}
                             fill
                             sizes="(max-width: 1024px) 100vw, 631px"
@@ -51,72 +52,62 @@ export default async function AboutSection() {
                     </div>
                 </div>
 
-                <div className="flex flex-col justify-center">
-                    <p className="font-heading text-[0.72rem] uppercase tracking-[0.22em] text-gold">
-                        {t("eyebrow")}
-                    </p>
-                    <h2
-                        id="about-title"
-                        className="mt-5 font-display text-[clamp(2.25rem,4.5vw,4rem)] leading-[1.05] tracking-tight text-silk"
-                    >
-                        <span className="block">{t("titleLine1")}</span>
-                        <span className="block">
-                            {t("titleLine2")}{" "}
-                            <span className="italic text-gold-light">
-                                {t("titleEmphasis")}
+                {/* Text column — `display:contents` on mobile so the image sits between
+                    the centered header and the values (Figma order: header → image →
+                    values → button). On lg it is the right flex column. */}
+                <div className="contents lg:order-2 lg:flex lg:flex-col lg:justify-center">
+                    <div className="order-1 flex flex-col items-center text-center lg:items-start lg:text-left">
+                        <Eyebrow>{t("eyebrow")}</Eyebrow>
+                        <h2
+                            id="about-title"
+                            className="mt-5 font-display text-[28px] leading-[1.3] tracking-tight text-ivory lg:text-[clamp(2.25rem,4.5vw,4rem)] lg:leading-[1.05]"
+                        >
+                            <span className="block">
+                                {t("titleLine1").replace(/\.$/, "")}
                             </span>
-                        </span>
-                    </h2>
-                    <span
-                        aria-hidden="true"
-                        className="mt-6 block h-px w-[60px] bg-gold/60"
-                    />
-                    <p className="mt-7 max-w-[36rem] text-sm leading-relaxed text-silk/70">
-                        {t("body")}
-                    </p>
+                            <span className="block italic text-gold">
+                                {t("titleLine2")} {t("titleEmphasis")}
+                            </span>
+                        </h2>
+                        <span
+                            aria-hidden="true"
+                            className="mt-6 block h-px w-[60px] bg-gold/60"
+                        />
+                        <p className="mt-7 max-w-[36rem] text-[12px] leading-relaxed text-silk/70 lg:text-sm">
+                            {t("body")}
+                        </p>
+                    </div>
 
-                    <ul className="mt-10 space-y-6">
-                        {VALUES.map(({ key, num }) => (
-                            <li
-                                key={key}
-                                className="flex items-start gap-5 border-l border-gold/20 pl-5"
-                            >
-                                <span className="font-display text-2xl italic text-gold/70">
-                                    {num}
-                                </span>
-                                <div>
-                                    <h3 className="font-heading text-base font-semibold tracking-tight text-silk">
-                                        {t(`values.${key}.title`)}
-                                    </h3>
-                                    <p className="mt-2 text-[0.82rem] leading-relaxed text-silk/65">
-                                        {t(`values.${key}.body`)}
-                                    </p>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
+                    <div className="order-3 mt-2 flex flex-col items-center text-center lg:mt-0 lg:items-start lg:text-left">
+                        <ul className="w-full space-y-[26px] lg:space-y-[30px]">
+                            {VALUES.map(({ key, num }) => (
+                                <li
+                                    key={key}
+                                    className="flex items-start gap-5 text-left"
+                                >
+                                    <span className="font-display text-3xl font-light leading-none text-gold lg:text-[40px]">
+                                        {num}
+                                    </span>
+                                    <div>
+                                        <h3 className="font-display text-[18px] font-semibold tracking-tight text-ivory lg:text-[20px]">
+                                            {t(`values.${key}.title`)}
+                                        </h3>
+                                        <p className="mt-2 text-[12px] leading-relaxed text-[#b9b2aa] lg:text-sm">
+                                            {t(`values.${key}.body`)}
+                                        </p>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
 
-                    <div className="mt-10 self-start">
-                        <Link
+                        <PrimaryButton
                             href="/about"
-                            className="group inline-flex items-center gap-3 rounded-full border border-gold/60 bg-gradient-to-r from-gold-light/15 to-gold/10 px-6 py-3 font-heading text-xs font-semibold uppercase tracking-[0.18em] text-gold-light transition-all duration-300 hover:border-gold hover:from-gold hover:to-gold-dark hover:text-velvet-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 motion-reduce:transition-none"
+                            variant="solid"
+                            ariaLabel={t("cta")}
+                            className="mt-10 self-center lg:self-start"
                         >
                             {t("cta")}
-                            <span
-                                aria-hidden="true"
-                                className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-gold/40 transition-transform duration-300 group-hover:translate-x-0.5"
-                            >
-                                <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
-                                    <path
-                                        d="M2.5 7H11.5M11.5 7L7.5 3M11.5 7L7.5 11"
-                                        stroke="currentColor"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                            </span>
-                        </Link>
+                        </PrimaryButton>
                     </div>
                 </div>
             </div>

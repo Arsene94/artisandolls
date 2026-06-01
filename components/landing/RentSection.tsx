@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
+import Eyebrow from "@/components/landing/Eyebrow";
+import PrimaryButton from "@/components/landing/PrimaryButton";
 
 type RentSectionProps = {
     doll: {
@@ -24,11 +25,10 @@ function Check() {
             aria-hidden="true"
             className="shrink-0 text-gold mt-0.5"
         >
-            <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1" />
             <path
-                d="M6 10.5 L9 13.5 L14.5 7.5"
+                d="M4 10.5 L8.5 15 L16 6"
                 stroke="currentColor"
-                strokeWidth="1.2"
+                strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
             />
@@ -47,76 +47,62 @@ export default async function RentSection({ doll, rentEnabled }: RentSectionProp
             data-surface="dark"
             className="velvet-rent relative bg-velvet-950 text-silk"
         >
-            <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-12 px-6 py-24 sm:px-10 lg:grid-cols-2 lg:gap-20 lg:px-16">
-                <div className="order-2 flex flex-col justify-center lg:order-1">
-                    <p className="font-heading text-[0.72rem] uppercase tracking-[0.22em] text-gold">
-                        {t("eyebrow")}
-                    </p>
-                    <h2
-                        id="rent-title"
-                        className="mt-5 font-display text-[clamp(2.25rem,4.5vw,4rem)] leading-[1.05] tracking-tight text-silk"
-                    >
-                        {t("titleLine1")}{" "}
-                        <span className="italic text-gold-light">
-                            {t("titleEmphasis")}
-                        </span>
-                    </h2>
-                    <span
-                        aria-hidden="true"
-                        className="mt-6 block h-px w-[60px] bg-gold/60"
-                    />
-                    <p className="mt-7 max-w-[36rem] text-sm leading-relaxed text-silk/70">
-                        {t("intro")}
-                    </p>
+            <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-10 px-4 py-16 sm:px-10 lg:grid-cols-2 lg:gap-20 lg:px-16 lg:py-24">
+                {/* Text column — on mobile `display:contents` hoists the header/details
+                    into the grid so the model card can sit between them (Figma order:
+                    header → card → details). On lg it is the left flex column. */}
+                <div className="contents lg:order-1 lg:flex lg:flex-col lg:justify-center">
+                    <div className="order-1 flex flex-col items-center text-center lg:items-start lg:text-left">
+                        <Eyebrow>{t("eyebrow")}</Eyebrow>
+                        <h2
+                            id="rent-title"
+                            className="mt-5 font-display text-[28px] leading-[1.3] tracking-tight text-silk lg:text-[clamp(2.25rem,4.5vw,4rem)] lg:leading-[1.05]"
+                        >
+                            {t("titleLine1")}{" "}
+                            <span className="italic text-gold">
+                                {t("titleEmphasis")}
+                            </span>
+                        </h2>
+                        <span
+                            aria-hidden="true"
+                            className="mt-6 block h-px w-[60px] bg-[#6a5330]"
+                        />
+                        <p className="mt-7 max-w-[36rem] text-[12px] leading-relaxed text-[#b9b2aa] lg:text-[18px]">
+                            {t("intro")}
+                        </p>
+                    </div>
 
-                    <h3 className="mt-12 font-display text-[clamp(1.75rem,3vw,2.75rem)] italic leading-tight text-gold-light">
-                        {t("rentTitle")}
-                    </h3>
+                    <div className="order-3 flex flex-col items-start text-left">
+                        <h3 className="mt-2 font-display text-[26px] italic leading-tight text-gold lg:mt-12 lg:text-[clamp(1.75rem,3vw,2.75rem)]">
+                            {t("rentTitle")}
+                        </h3>
 
-                    <ul className="mt-7 space-y-4">
-                        {BULLET_KEYS.map((k) => (
-                            <li
-                                key={k}
-                                className="flex items-start gap-3 text-sm leading-relaxed text-silk/85"
-                            >
-                                <Check />
-                                <span>{t(`bullets.${k}`)}</span>
-                            </li>
-                        ))}
-                    </ul>
+                        <ul className="mt-7 w-full space-y-4">
+                            {BULLET_KEYS.map((k) => (
+                                <li
+                                    key={k}
+                                    className="flex items-start gap-3 text-[12px] leading-relaxed text-[#b9b2aa] lg:text-[18px]"
+                                >
+                                    <Check />
+                                    <span>{t(`bullets.${k}`)}</span>
+                                </li>
+                            ))}
+                        </ul>
 
-                    {rentEnabled && (
-                        <div className="mt-10">
-                            <Link
+                        {rentEnabled && (
+                            <PrimaryButton
                                 href="/catalog?mode=rent"
-                                className="group inline-flex items-center gap-3 rounded-full border border-gold/60 bg-gradient-to-r from-gold-light/15 to-gold/10 px-7 py-3.5 font-heading text-sm font-semibold tracking-wide text-gold-light transition-all duration-300 hover:border-gold hover:from-gold hover:to-gold-dark hover:text-velvet-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 motion-reduce:transition-none"
+                                variant="solid"
+                                ariaLabel={t("ctaRent")}
+                                className="mt-10 self-start"
                             >
                                 {t("ctaRent")}
-                                <span
-                                    aria-hidden="true"
-                                    className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-gold/40 transition-transform duration-300 group-hover:translate-x-0.5"
-                                >
-                                    <svg
-                                        width="12"
-                                        height="12"
-                                        viewBox="0 0 14 14"
-                                        fill="none"
-                                    >
-                                        <path
-                                            d="M2.5 7H11.5M11.5 7L7.5 3M11.5 7L7.5 11"
-                                            stroke="currentColor"
-                                            strokeWidth="1.5"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
-                                </span>
-                            </Link>
-                        </div>
-                    )}
+                            </PrimaryButton>
+                        )}
+                    </div>
                 </div>
 
-                <div className="order-1 lg:order-2">
+                <div className="order-2 lg:order-2">
                     {doll ? (
                         <article className="relative isolate overflow-hidden rounded-[28px] border border-velvet-800/60 bg-gradient-to-b from-velvet-900/60 to-velvet-950/90 shadow-2xl shadow-velvet-950/60">
                             <div className="relative aspect-[3/4] w-full">
@@ -140,10 +126,10 @@ export default async function RentSection({ doll, rentEnabled }: RentSectionProp
                             </div>
 
                             <div className="relative z-10 -mt-10 px-8 pb-8 text-center">
-                                <h3 className="font-display text-[clamp(2rem,3.4vw,3rem)] italic leading-none text-silk">
+                                <h3 className="font-display text-[26px] italic leading-none text-silk lg:text-[clamp(2rem,3.4vw,3rem)]">
                                     {doll.name}
                                 </h3>
-                                <p className="mt-5 mx-auto max-w-[28ch] text-sm leading-relaxed text-silk/70">
+                                <p className="mt-5 mx-auto max-w-[28ch] text-[12px] leading-relaxed text-silk/70 lg:text-sm">
                                     {doll.description}
                                 </p>
 

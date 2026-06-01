@@ -2,8 +2,8 @@
 
 import { useCallback, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { safeLdJson } from "@/lib/seo/ld-json";
+import PrimaryButton from "@/components/landing/PrimaryButton";
 
 type FaqItem = { q: string; a: string };
 
@@ -58,61 +58,53 @@ export default function FAQ({ items: itemsProp }: Props = {}) {
             data-surface="dark"
             className="velvet-faq relative bg-velvet-950 text-silk"
         >
-            <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-14 px-6 py-24 sm:px-10 lg:grid-cols-[1fr_1.1fr] lg:gap-20 lg:px-16">
-                <div className="flex flex-col">
-                    <h2
-                        id="faq-title"
-                        className="font-display text-[clamp(2.25rem,4.5vw,4rem)] leading-[1.05] tracking-tight text-silk"
-                    >
-                        {t("title")}
-                    </h2>
-                    <span
-                        aria-hidden="true"
-                        className="mt-6 block h-px w-[60px] bg-gold/60"
-                    />
-                    <p className="mt-7 max-w-md text-sm leading-relaxed text-silk/70">
-                        {t("subtitle")}
-                    </p>
+            <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-10 px-4 py-16 sm:px-10 lg:grid-cols-[1fr_1.1fr] lg:gap-20 lg:px-16 lg:py-24">
+                {/* Intro column — `display:contents` on mobile so the questions sit
+                    between the centered header/chips and the contact CTA (Figma order:
+                    header → chips → questions → button). On lg it is the left column. */}
+                <div className="contents lg:flex lg:flex-col">
+                    <div className="order-1 flex flex-col items-center text-center lg:items-start lg:text-left">
+                        <h2
+                            id="faq-title"
+                            className="font-display text-[28px] leading-[1.3] tracking-tight text-silk lg:text-[clamp(2.25rem,4.5vw,4rem)] lg:leading-[1.05]"
+                        >
+                            {t("title")}
+                        </h2>
+                        <span
+                            aria-hidden="true"
+                            className="mt-6 block h-px w-[60px] bg-gold/60 mx-auto lg:mx-0"
+                        />
+                        <p className="mt-7 max-w-lg text-[12px] leading-relaxed text-[#b9b2aa] lg:text-[18px]">
+                            {t("subtitle")}
+                        </p>
 
-                    <ul className="mt-12 space-y-5">
-                        {CHIP_KEYS.map((key) => (
-                            <li key={key}>
-                                <a
-                                    href={`#faq-${key}`}
-                                    className="inline-flex items-center font-heading text-sm font-semibold uppercase tracking-[0.22em] text-silk/70 transition-colors hover:text-gold focus-visible:outline-none focus-visible:text-gold"
-                                >
-                                    {t(`chips.${key}`)}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
+                        <ul className="mt-12 w-full space-y-5 text-center lg:text-left">
+                            {CHIP_KEYS.map((key) => (
+                                <li key={key}>
+                                    <a
+                                        href={`#faq-${key}`}
+                                        className="inline-flex items-center font-sans text-[12px] font-medium uppercase tracking-[0.083em] text-ivory transition-colors hover:text-gold focus-visible:outline-none focus-visible:text-gold lg:text-[15px] lg:tracking-[0.067em]"
+                                    >
+                                        {t(`chips.${key}`)}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
 
-                    <div className="mt-12">
-                        <Link
+                    <div className="order-3 mt-4 flex justify-center lg:mt-12 lg:justify-start">
+                        <PrimaryButton
                             href="/contact"
-                            className="group inline-flex items-center gap-3 rounded-full border border-gold/60 bg-velvet-950/40 px-6 py-3 font-heading text-xs font-semibold uppercase tracking-[0.18em] text-silk transition-all duration-300 hover:border-gold hover:bg-gold hover:text-velvet-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 motion-reduce:transition-none"
+                            variant="outline"
+                            ariaLabel={t("contactCta")}
                         >
                             {t("contactCta")}
-                            <span
-                                aria-hidden="true"
-                                className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-gold/40 transition-transform duration-300 group-hover:translate-x-0.5"
-                            >
-                                <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
-                                    <path
-                                        d="M2.5 7H11.5M11.5 7L7.5 3M11.5 7L7.5 11"
-                                        stroke="currentColor"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                            </span>
-                        </Link>
+                        </PrimaryButton>
                     </div>
                 </div>
 
                 {items.length > 0 && (
-                    <ul className="divide-y divide-velvet-800/70">
+                    <ul className="order-2 divide-y divide-[#6a5330]/20">
                         {items.map(({ q, a }, idx) => {
                             const isOpen = open === idx;
                             const buttonId = `${baseId}-faq-button-${idx}`;
@@ -126,7 +118,7 @@ export default function FAQ({ items: itemsProp }: Props = {}) {
                                             onClick={() => toggle(idx)}
                                             aria-expanded={isOpen}
                                             aria-controls={panelId}
-                                            className="flex w-full items-center justify-between gap-6 py-5 text-left font-display text-lg italic leading-snug text-gold-light transition-colors hover:text-gold focus-visible:outline-none focus-visible:text-gold"
+                                            className="flex w-full items-center justify-between gap-6 py-5 text-left font-display text-[18px] font-semibold leading-snug text-gold transition-colors hover:text-gold focus-visible:outline-none focus-visible:text-gold lg:text-[20px]"
                                         >
                                             <span>{q}</span>
                                             <span
@@ -161,7 +153,7 @@ export default function FAQ({ items: itemsProp }: Props = {}) {
                                         }}
                                     >
                                         <div className="overflow-hidden">
-                                            <p className="pb-6 pr-12 text-[0.88rem] leading-relaxed text-silk/65">
+                                            <p className="pb-6 pr-12 text-[12px] leading-relaxed text-[#b9b2aa] lg:text-[0.88rem]">
                                                 {a}
                                             </p>
                                         </div>

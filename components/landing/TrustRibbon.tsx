@@ -18,12 +18,18 @@ function Icon({ name }: { name: CardKey }) {
 
     switch (name) {
         case "delivery":
-        case "hygiene":
             return (
                 <svg {...common} aria-hidden="true">
                     <path d="M18 4 L31 11 V25 L18 32 L5 25 V11 Z" />
                     <path d="M5 11 L18 18 L31 11" />
                     <path d="M18 18 V32" />
+                </svg>
+            );
+        case "hygiene":
+            return (
+                <svg {...common} aria-hidden="true">
+                    <path d="M18 5 C18.7 11.5 20.5 13.3 27 14 C20.5 14.7 18.7 16.5 18 23 C17.3 16.5 15.5 14.7 9 14 C15.5 13.3 17.3 11.5 18 5 Z" />
+                    <path d="M28 22 C28.3 24.6 29 25.3 31.5 25.6 C29 25.9 28.3 26.6 28 29.2 C27.7 26.6 27 25.9 24.5 25.6 C27 25.3 27.7 24.6 28 22 Z" />
                 </svg>
             );
         case "privacy":
@@ -59,15 +65,15 @@ export default async function TrustRibbon() {
                     {ORDER.map((key) => (
                         <li
                             key={key}
-                            className="flex flex-col items-center px-6 text-center"
+                            className="flex flex-col items-center border-b border-[#6a5330]/30 px-6 pb-10 text-center last:border-b-0 sm:border-b-0 sm:pb-0"
                         >
                             <div className="text-gold">
                                 <Icon name={key} />
                             </div>
-                            <h3 className="mt-5 font-display text-lg font-medium tracking-tight text-silk">
+                            <h3 className="mt-5 font-nav text-[16px] font-bold tracking-tight text-ivory lg:text-[18px]">
                                 {t(`${key}.title`)}
                             </h3>
-                            <p className="mt-3 max-w-[22ch] text-[0.78rem] leading-relaxed text-silk/65">
+                            <p className="mt-3 max-w-[22ch] text-[12px] leading-relaxed text-[#b9b2aa] lg:text-sm">
                                 {t(`${key}.body`)}
                             </p>
                         </li>
