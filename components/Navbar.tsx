@@ -93,6 +93,7 @@ function focusableSelector() {
 
 export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps) {
     const t = useTranslations("nav");
+    const tShop = useTranslations("shop");
     const locale = useLocale() as Locale;
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -151,6 +152,11 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
     const mobileLinks: NavItem[] = [...leftLinks, ...rightLinks];
 
     const trimmed = brandName.trim() || "Velvet Companions";
+
+    // On mobile the crest floats transparently over the hero (per Figma); it
+    // turns solid once the page scrolls or the menu opens so the bar stays
+    // legible. Desktop keeps its original always-solid treatment via md:.
+    const solid = scrolled || mobileOpen;
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -250,10 +256,10 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
     return (
         <nav
             aria-label={t("menu")}
-            className={`site-navbar fixed w-full z-50 backdrop-blur-md border-b transition-all duration-300 ${
-                scrolled
-                    ? "bg-velvet-950/95 border-velvet-800/80 shadow-2xl shadow-velvet-950/40"
-                    : "bg-velvet-900/95 border-velvet-800/60"
+            className={`site-navbar fixed w-full z-50 border-b transition-all duration-300 ${
+                solid
+                    ? "backdrop-blur-md bg-velvet-950/95 border-velvet-800/80 shadow-2xl shadow-velvet-950/40"
+                    : "bg-transparent border-transparent shadow-none md:backdrop-blur-md md:bg-velvet-900/95 md:border-velvet-800/60"
             }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -371,30 +377,33 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
                     </div>
                 </div>
 
-                {/* Mobile — logo left, utilities right */}
-                <div className="md:hidden flex items-center justify-between h-16">
-                    <Link
-                        href="/"
-                        aria-label={trimmed}
-                        className="inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-md"
-                    >
-                        <Image
-                            src="/logo-artisan-dolls.png"
-                            alt={trimmed}
-                            width={137}
-                            height={137}
-                            priority
-                            className="h-12 w-auto select-none"
-                        />
-                    </Link>
+                {/* Mobile — centered crest with the menu trigger on the right */}
+                <div className="md:hidden grid grid-cols-[1fr_auto_1fr] items-center h-20">
+                    <span aria-hidden="true" />
 
-                    <div className="flex items-center gap-2">
-                        <NavbarCartLink />
+                    <div className="flex justify-center">
+                        <Link
+                            href="/"
+                            aria-label={trimmed}
+                            className="inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-md"
+                        >
+                            <Image
+                                src="/logo-artisan-dolls.png"
+                                alt={trimmed}
+                                width={137}
+                                height={137}
+                                priority
+                                className="h-16 w-auto select-none"
+                            />
+                        </Link>
+                    </div>
+
+                    <div className="flex justify-end">
                         <button
                             ref={mobileToggleRef}
                             type="button"
                             onClick={() => setMobileOpen((v) => !v)}
-                            className="inline-flex items-center justify-center w-11 h-11 rounded-lg text-silk-200 hover:text-gold hover:bg-velvet-900 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950"
+                            className="inline-flex items-center justify-center w-11 h-11 -mr-1 rounded-lg text-gold hover:text-gold/75 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950"
                             aria-label={t("menu")}
                             aria-expanded={mobileOpen}
                             aria-controls={mobileMenuId}
@@ -405,7 +414,7 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    strokeWidth="2"
+                                    strokeWidth="1.75"
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     aria-hidden="true"
@@ -415,11 +424,11 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
                                 </svg>
                             ) : (
                                 <svg
-                                    className="w-6 h-6"
+                                    className="w-7 h-7"
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    strokeWidth="2"
+                                    strokeWidth="1.75"
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     aria-hidden="true"
@@ -480,6 +489,30 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
                             </Link>
                         </li>
                     ))}
+                    <li>
+                        <Link
+                            href="/shop/cart"
+                            onClick={closeMobile}
+                            aria-current={isShopPath && normalizedPathname.startsWith("/shop/cart") ? "page" : undefined}
+                            className="flex items-center gap-3 min-h-12 px-2 font-nav text-base font-bold tracking-[-0.16px] rounded-md text-silk-200 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                        >
+                            <svg
+                                className="w-5 h-5"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.6"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                            >
+                                <path d="M3 4h2l2.4 12.1a1 1 0 0 0 1 .9h8.2a1 1 0 0 0 1-.8L20 8H6" />
+                                <circle cx="9" cy="20" r="1.4" />
+                                <circle cx="17" cy="20" r="1.4" />
+                            </svg>
+                            <span>{tShop("cart")}</span>
+                        </Link>
+                    </li>
                 </ul>
 
                 <div className="mt-6 border-t border-velvet-800/60 pt-5">
