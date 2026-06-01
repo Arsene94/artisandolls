@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Inter, Montserrat } from "next/font/google";
+import { Cormorant_Garamond, Inter, Montserrat, Nunito } from "next/font/google";
 import { getLocale, getTranslations } from "next-intl/server";
 import { getPublicPlatformSettings } from "@/lib/settings";
 import { safeLdJson } from "@/lib/seo/ld-json";
@@ -36,6 +36,13 @@ const cormorant = Cormorant_Garamond({
     variable: "--font-cormorant",
     display: "swap",
     preload: true,
+});
+
+const nunito = Nunito({
+    subsets: ["latin", "latin-ext"],
+    weight: ["400", "600", "700", "800"],
+    variable: "--font-nunito",
+    display: "swap",
 });
 
 const SUPABASE_STORAGE_HOST =
@@ -247,7 +254,7 @@ export default async function RootLayout({
                 />
             </head>
             <body
-                className={`${inter.variable} ${montserrat.variable} ${cormorant.variable} font-sans antialiased bg-silk text-silk-800`}
+                className={`${inter.variable} ${montserrat.variable} ${cormorant.variable} ${nunito.variable} font-sans antialiased bg-silk text-silk-800`}
             >
                 {children}
             </body>

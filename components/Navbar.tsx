@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, usePathname } from "@/i18n/navigation";
@@ -73,6 +74,12 @@ type NavbarProps = {
     brandName?: string;
 };
 
+type NavItem = {
+    href: string;
+    label: string;
+    active: boolean;
+};
+
 function focusableSelector() {
     return [
         "a[href]",
@@ -93,7 +100,7 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
     const [langOpen, setLangOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
-    const langRef = useRef<HTMLLIElement>(null);
+    const langRef = useRef<HTMLDivElement>(null);
     const langButtonRef = useRef<HTMLButtonElement>(null);
     const mobilePanelRef = useRef<HTMLDivElement>(null);
     const mobileToggleRef = useRef<HTMLButtonElement>(null);
@@ -110,17 +117,15 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
         new RegExp(`^/(${locales.join("|")})(?=/|$)`),
         "",
     ) || "/";
+    const matches = (base: string) =>
+        normalizedPathname === base || normalizedPathname.startsWith(`${base}/`);
+
     const isHomePath = normalizedPathname === "/";
-    const isCatalogPath =
-        normalizedPathname === "/catalog" || normalizedPathname.startsWith("/catalog/");
-    const isShopPath =
-        normalizedPathname === "/shop" || normalizedPathname.startsWith("/shop/");
-    const isGlossaryPath =
-        normalizedPathname === "/glosar" || normalizedPathname.startsWith("/glosar/");
-    const isBlogPath =
-        normalizedPathname === "/blog" || normalizedPathname.startsWith("/blog/");
-    const isFaqPath =
-        normalizedPathname === "/faq" || normalizedPathname.startsWith("/faq/");
+    const isShopPath = matches("/shop");
+    const isCatalogPath = matches("/catalog");
+    const isBlogPath = matches("/blog");
+    const isFaqPath = matches("/faq");
+    const isGlossaryPath = matches("/glosar");
     const isAboutPath = normalizedPathname === "/about";
     const isContactPath = normalizedPathname === "/contact";
 
@@ -130,36 +135,22 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
         [isHomePath, homePath],
     );
 
-    const navLinkClassName =
-        "inline-flex items-center min-h-11 px-2 text-sm font-medium text-silk/85 hover:text-gold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm";
-    const catalogLinkClassName = isCatalogPath
-        ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
-        : navLinkClassName;
-    const shopLinkClassName = isShopPath
-        ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
-        : navLinkClassName;
-    const glossaryLinkClassName = isGlossaryPath
-        ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
-        : navLinkClassName;
-    const blogLinkClassName = isBlogPath
-        ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
-        : navLinkClassName;
-    const faqLinkClassName = isFaqPath
-        ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
-        : navLinkClassName;
-    const aboutLinkClassName = isAboutPath
-        ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
-        : navLinkClassName;
-    const contactLinkClassName = isContactPath
-        ? "inline-flex items-center min-h-11 px-2 text-sm font-medium text-gold border-b border-gold/40 pb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
-        : navLinkClassName;
+    // Original menu set, distributed around the centered crest (Home renders
+    // separately because it keeps its in-page #hero anchor behaviour).
+    const leftLinks: NavItem[] = [
+        { href: "/catalog", label: t("catalog"), active: isCatalogPath },
+        { href: "/shop", label: t("shop"), active: isShopPath },
+        { href: "/blog", label: t("blog"), active: isBlogPath },
+    ];
+    const rightLinks: NavItem[] = [
+        { href: "/faq", label: t("faq"), active: isFaqPath },
+        { href: "/glosar", label: t("glossary"), active: isGlossaryPath },
+        { href: "/about", label: t("about"), active: isAboutPath },
+        { href: "/contact", label: t("contact"), active: isContactPath },
+    ];
+    const mobileLinks: NavItem[] = [...leftLinks, ...rightLinks];
 
     const trimmed = brandName.trim() || "Velvet Companions";
-    const tokens = trimmed.split(/\s+/);
-    const brandLead = tokens[0] ?? trimmed;
-    const brandSecondary = tokens.slice(1).join(" ");
-    const brandFirst = brandLead.charAt(0);
-    const brandMain = brandLead.slice(1);
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -238,6 +229,24 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
     const langMenuId = "primary-language-menu";
     const mobileMenuId = "primary-mobile-menu";
 
+    const navLinkClassName = (active: boolean) =>
+        `inline-flex items-center min-h-11 whitespace-nowrap font-nav text-[14px] lg:text-[16px] font-bold tracking-[-0.16px] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm ${
+            active
+                ? "text-gold border-b border-gold/50 pb-0.5"
+                : "text-silk-200/90 hover:text-gold"
+        }`;
+
+    const logo = (
+        <Image
+            src="/logo-artisan-dolls.png"
+            alt={trimmed}
+            width={137}
+            height={137}
+            priority
+            className="h-14 w-auto lg:h-[68px] select-none"
+        />
+    );
+
     return (
         <nav
             aria-label={t("menu")}
@@ -248,169 +257,144 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
             }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16 sm:h-20 lg:h-24">
-                    <div className="flex-shrink-0 flex items-center">
-                        <Link
-                            href="/"
-                            className="font-display italic font-medium text-2xl sm:text-3xl text-silk flex items-baseline gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-sm"
-                            aria-label={trimmed}
-                        >
-                            <span>
-                                <span className="text-gold">{brandFirst}</span>
-                                {brandMain}
-                            </span>
-                            {brandSecondary ? (
-                                <span className="text-gold/85 text-[0.7rem] sm:text-sm not-italic font-sans font-medium tracking-[0.22em] uppercase ml-1.5 border-l border-velvet-700/70 pl-2 hidden sm:inline">
-                                    {brandSecondary}
-                                </span>
-                            ) : null}
-                        </Link>
-                    </div>
-
-                    <ul className="hidden md:flex items-center gap-1 lg:gap-3">
+                {/* Desktop — centered crest with the full menu split into two groups */}
+                <div className="hidden md:grid grid-cols-[1fr_auto_1fr] items-center h-20 lg:h-24 gap-3 lg:gap-4">
+                    <ul className="flex items-center justify-start gap-3 lg:gap-7">
                         <li>
                             {isHomePath ? (
-                                <a href={sectionHref("hero")} className={navLinkClassName}>
+                                <a href={sectionHref("hero")} className={navLinkClassName(false)}>
                                     {t("home")}
                                 </a>
                             ) : (
-                                <Link href="/" className={navLinkClassName}>
+                                <Link href="/" className={navLinkClassName(false)}>
                                     {t("home")}
                                 </Link>
                             )}
                         </li>
-                        <li>
-                            <Link
-                                href="/catalog"
-                                className={catalogLinkClassName}
-                                aria-current={isCatalogPath ? "page" : undefined}
-                            >
-                                {t("catalog")}
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                href="/shop"
-                                className={shopLinkClassName}
-                                aria-current={isShopPath ? "page" : undefined}
-                            >
-                                {t("shop")}
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                href="/blog"
-                                className={blogLinkClassName}
-                                aria-current={isBlogPath ? "page" : undefined}
-                            >
-                                {t("blog")}
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                href="/faq"
-                                className={faqLinkClassName}
-                                aria-current={isFaqPath ? "page" : undefined}
-                            >
-                                {t("faq")}
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                href="/glosar"
-                                className={glossaryLinkClassName}
-                                aria-current={isGlossaryPath ? "page" : undefined}
-                            >
-                                {t("glossary")}
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                href="/about"
-                                className={aboutLinkClassName}
-                                aria-current={isAboutPath ? "page" : undefined}
-                            >
-                                {t("about")}
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                href="/contact"
-                                className={contactLinkClassName}
-                                aria-current={isContactPath ? "page" : undefined}
-                            >
-                                {t("contact")}
-                            </Link>
-                        </li>
-
-                        <li className="ml-1 hidden md:flex items-center">
-                            <NavbarCartLink />
-                        </li>
-
-                        <li className="relative inline-block text-left ml-2" ref={langRef}>
-                            <button
-                                ref={langButtonRef}
-                                type="button"
-                                onClick={() => setLangOpen((v) => !v)}
-                                className="inline-flex items-center gap-2 min-h-11 px-3.5 py-2 rounded-full border border-velvet-700 bg-velvet-900/90 text-silk hover:text-gold hover:border-gold/60 transition duration-200 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950"
-                                aria-haspopup="menu"
-                                aria-expanded={langOpen}
-                                aria-controls={langMenuId}
-                                aria-label={`${t("language")}: ${LANG_LABEL[locale]}`}
-                            >
-                                <span className="flex items-center">{LANG_FLAGS[locale]}</span>
-                                <span className="tracking-wide">{locale.toUpperCase()}</span>
-                                <svg
-                                    className={`w-2.5 h-2.5 transition-transform duration-200 ${
-                                        langOpen ? "rotate-180" : ""
-                                    } motion-reduce:transition-none`}
-                                    viewBox="0 0 12 12"
-                                    fill="currentColor"
-                                    aria-hidden="true"
+                        {leftLinks.map((item) => (
+                            <li key={item.label}>
+                                <Link
+                                    href={item.href}
+                                    className={navLinkClassName(item.active)}
+                                    aria-current={item.active ? "page" : undefined}
                                 >
-                                    <path d="M6 8L1 3h10z" />
-                                </svg>
-                            </button>
-                            <ul
-                                id={langMenuId}
-                                role="menu"
-                                aria-label={t("language")}
-                                className={`absolute right-0 mt-2 w-40 rounded-xl bg-velvet-950 border border-gold/40 shadow-2xl z-50 overflow-hidden py-1 backdrop-blur-md origin-top-right transition-all duration-200 motion-reduce:transition-none ${
-                                    langOpen
-                                        ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
-                                        : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
-                                }`}
-                            >
-                                {locales.map((target) => (
-                                    <li key={target} role="none">
-                                        <Link
-                                            href={switcherHref}
-                                            locale={target}
-                                            onClick={() => setLangOpen(false)}
-                                            className={`w-full text-left px-3.5 py-3 text-xs font-semibold flex items-center gap-2 transition focus-visible:outline-none focus-visible:bg-velvet-800 focus-visible:text-gold ${
-                                                locale === target
-                                                    ? "bg-velvet-800 text-gold"
-                                                    : "text-silk hover:bg-velvet-800 hover:text-gold"
-                                            }`}
-                                            role="menuitem"
-                                            aria-current={locale === target ? "true" : undefined}
-                                        >
-                                            {LANG_FLAGS[target]}
-                                            <span>{LANG_LABEL[target]}</span>
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </li>
+                                    {item.label}
+                                </Link>
+                            </li>
+                        ))}
                     </ul>
 
-                    <div className="md:hidden flex items-center gap-2">
+                    <div className="flex justify-center">
+                        <Link
+                            href="/"
+                            aria-label={trimmed}
+                            className="inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-md"
+                        >
+                            {logo}
+                        </Link>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 lg:gap-5">
+                        <ul className="flex items-center gap-3 lg:gap-7">
+                            {rightLinks.map((item) => (
+                                <li key={item.label}>
+                                    <Link
+                                        href={item.href}
+                                        className={navLinkClassName(item.active)}
+                                        aria-current={item.active ? "page" : undefined}
+                                    >
+                                        {item.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+
+                        <div className="flex items-center gap-2 pl-1 border-l border-velvet-700/60">
+                            <NavbarCartLink />
+
+                            <div className="relative inline-block text-left" ref={langRef}>
+                                <button
+                                    ref={langButtonRef}
+                                    type="button"
+                                    onClick={() => setLangOpen((v) => !v)}
+                                    className="inline-flex items-center gap-2 min-h-11 px-3 py-2 rounded-full border border-velvet-700 bg-velvet-900/90 text-silk-200 hover:text-gold hover:border-gold/60 transition duration-200 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950"
+                                    aria-haspopup="menu"
+                                    aria-expanded={langOpen}
+                                    aria-controls={langMenuId}
+                                    aria-label={`${t("language")}: ${LANG_LABEL[locale]}`}
+                                >
+                                    <span className="flex items-center">{LANG_FLAGS[locale]}</span>
+                                    <span className="tracking-wide">{locale.toUpperCase()}</span>
+                                    <svg
+                                        className={`w-2.5 h-2.5 transition-transform duration-200 ${
+                                            langOpen ? "rotate-180" : ""
+                                        } motion-reduce:transition-none`}
+                                        viewBox="0 0 12 12"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path d="M6 8L1 3h10z" />
+                                    </svg>
+                                </button>
+                                <ul
+                                    id={langMenuId}
+                                    role="menu"
+                                    aria-label={t("language")}
+                                    className={`absolute right-0 mt-2 w-44 rounded-xl bg-velvet-950 border border-gold/40 shadow-2xl z-50 overflow-hidden py-1 backdrop-blur-md origin-top-right transition-all duration-200 motion-reduce:transition-none ${
+                                        langOpen
+                                            ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+                                            : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+                                    }`}
+                                >
+                                    {locales.map((target) => (
+                                        <li key={target} role="none">
+                                            <Link
+                                                href={switcherHref}
+                                                locale={target}
+                                                onClick={() => setLangOpen(false)}
+                                                className={`w-full text-left px-3.5 py-3 text-xs font-semibold flex items-center gap-2 transition focus-visible:outline-none focus-visible:bg-velvet-800 focus-visible:text-gold ${
+                                                    locale === target
+                                                        ? "bg-velvet-800 text-gold"
+                                                        : "text-silk hover:bg-velvet-800 hover:text-gold"
+                                                }`}
+                                                role="menuitem"
+                                                aria-current={locale === target ? "true" : undefined}
+                                            >
+                                                {LANG_FLAGS[target]}
+                                                <span>{LANG_LABEL[target]}</span>
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Mobile — logo left, utilities right */}
+                <div className="md:hidden flex items-center justify-between h-16">
+                    <Link
+                        href="/"
+                        aria-label={trimmed}
+                        className="inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 rounded-md"
+                    >
+                        <Image
+                            src="/logo-artisan-dolls.png"
+                            alt={trimmed}
+                            width={137}
+                            height={137}
+                            priority
+                            className="h-12 w-auto select-none"
+                        />
+                    </Link>
+
+                    <div className="flex items-center gap-2">
                         <NavbarCartLink />
                         <button
                             ref={mobileToggleRef}
                             type="button"
                             onClick={() => setMobileOpen((v) => !v)}
-                            className="inline-flex items-center justify-center w-11 h-11 rounded-lg text-silk hover:text-gold hover:bg-velvet-900 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950"
+                            className="inline-flex items-center justify-center w-11 h-11 rounded-lg text-silk-200 hover:text-gold hover:bg-velvet-900 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950"
                             aria-label={t("menu")}
                             aria-expanded={mobileOpen}
                             aria-controls={mobileMenuId}
@@ -467,7 +451,7 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
                                 ref={mobileFirstFocusableRef}
                                 href={sectionHref("hero")}
                                 onClick={closeMobile}
-                                className="flex items-center min-h-12 px-2 text-base font-medium text-silk hover:text-gold rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                                className="flex items-center min-h-12 px-2 font-nav text-base font-bold tracking-[-0.16px] rounded-md text-silk-200 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                             >
                                 {t("home")}
                             </a>
@@ -476,96 +460,26 @@ export default function Navbar({ brandName = "Velvet Companions" }: NavbarProps)
                                 ref={mobileFirstFocusableRef}
                                 href="/"
                                 onClick={closeMobile}
-                                className="flex items-center min-h-12 px-2 text-base font-medium text-silk hover:text-gold rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                                className="flex items-center min-h-12 px-2 font-nav text-base font-bold tracking-[-0.16px] rounded-md text-silk-200 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                             >
                                 {t("home")}
                             </Link>
                         )}
                     </li>
-                    <li>
-                        <Link
-                            href="/catalog"
-                            onClick={closeMobile}
-                            aria-current={isCatalogPath ? "page" : undefined}
-                            className={`flex items-center min-h-12 px-2 text-base font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-                                isCatalogPath ? "text-gold" : "text-silk hover:text-gold"
-                            }`}
-                        >
-                            {t("catalog")}
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/shop"
-                            onClick={closeMobile}
-                            aria-current={isShopPath ? "page" : undefined}
-                            className={`flex items-center min-h-12 px-2 text-base font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-                                isShopPath ? "text-gold" : "text-silk hover:text-gold"
-                            }`}
-                        >
-                            {t("shop")}
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/blog"
-                            onClick={closeMobile}
-                            aria-current={isBlogPath ? "page" : undefined}
-                            className={`flex items-center min-h-12 px-2 text-base font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-                                isBlogPath ? "text-gold" : "text-silk hover:text-gold"
-                            }`}
-                        >
-                            {t("blog")}
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/faq"
-                            onClick={closeMobile}
-                            aria-current={isFaqPath ? "page" : undefined}
-                            className={`flex items-center min-h-12 px-2 text-base font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-                                isFaqPath ? "text-gold" : "text-silk hover:text-gold"
-                            }`}
-                        >
-                            {t("faq")}
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/glosar"
-                            onClick={closeMobile}
-                            aria-current={isGlossaryPath ? "page" : undefined}
-                            className={`flex items-center min-h-12 px-2 text-base font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-                                isGlossaryPath ? "text-gold" : "text-silk hover:text-gold"
-                            }`}
-                        >
-                            {t("glossary")}
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/about"
-                            onClick={closeMobile}
-                            aria-current={isAboutPath ? "page" : undefined}
-                            className={`flex items-center min-h-12 px-2 text-base font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-                                isAboutPath ? "text-gold" : "text-silk hover:text-gold"
-                            }`}
-                        >
-                            {t("about")}
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/contact"
-                            onClick={closeMobile}
-                            aria-current={isContactPath ? "page" : undefined}
-                            className={`flex items-center min-h-12 px-2 text-base font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-                                isContactPath ? "text-gold" : "text-silk hover:text-gold"
-                            }`}
-                        >
-                            {t("contact")}
-                        </Link>
-                    </li>
+                    {mobileLinks.map((item) => (
+                        <li key={`${item.href}-${item.label}`}>
+                            <Link
+                                href={item.href}
+                                onClick={closeMobile}
+                                aria-current={item.active ? "page" : undefined}
+                                className={`flex items-center min-h-12 px-2 font-nav text-base font-bold tracking-[-0.16px] rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+                                    item.active ? "text-gold" : "text-silk-200 hover:text-gold"
+                                }`}
+                            >
+                                {item.label}
+                            </Link>
+                        </li>
+                    ))}
                 </ul>
 
                 <div className="mt-6 border-t border-velvet-800/60 pt-5">

@@ -50,6 +50,7 @@
     --font-sans:    var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
     --font-serif:   var(--font-display); /* alias retro-compat */
     --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --font-nav:     var(--font-nunito), 'Nunito', system-ui, sans-serif;
 
     /* ───── ANIMATIONS ───── */
     --animate-pulse-slow: pulse-slow 8s infinite ease-in-out;
