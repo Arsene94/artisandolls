@@ -19,15 +19,27 @@ const VECTOR_HOST = "https://*.upstash.io";
 // callstack-urilor). Îl adăugăm DOAR în development — în producție React nu
 // folosește niciodată eval, deci CSP-ul rămâne strict.
 const isDev = process.env.NODE_ENV !== "production";
-const scriptSrc = `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`;
+
+// Vercel Live (toolbar de feedback/comments) e injectat DOAR pe preview
+// deployments (`*.vercel.app`). Are nevoie de propriile origini în CSP, altfel
+// `feedback.js` e blocat și umple consola de erori. Le adăugăm exclusiv în
+// preview ca producția să rămână strictă. Pe development toolbar-ul nu rulează.
+const isVercelPreview = process.env.VERCEL_ENV === "preview";
+const live = isVercelPreview ? " https://vercel.live" : "";
+const liveConnect = isVercelPreview
+    ? " https://vercel.live wss://*.pusher.com https://*.pusher.com"
+    : "";
+
+const scriptSrc = `script-src 'self' 'unsafe-inline'${live}${isDev ? " 'unsafe-eval'" : ""}`;
 
 const CSP_DIRECTIVES = [
     "default-src 'self'",
-    `img-src 'self' data: blob: ${SUPABASE_HOST} https://placehold.co https://images.unsplash.com https://vsdoll.net`,
-    `connect-src 'self' ${SUPABASE_HOST} wss://*.supabase.co ${UPSTASH_HOST} ${VECTOR_HOST}`,
+    `img-src 'self' data: blob: ${SUPABASE_HOST} https://placehold.co https://images.unsplash.com https://vsdoll.net${isVercelPreview ? " https://vercel.live https://vercel.com" : ""}`,
+    `connect-src 'self' ${SUPABASE_HOST} wss://*.supabase.co ${UPSTASH_HOST} ${VECTOR_HOST}${liveConnect}`,
     scriptSrc,
-    "style-src 'self' 'unsafe-inline'",
-    "font-src 'self' data: https://fonts.gstatic.com",
+    `style-src 'self' 'unsafe-inline'${live}`,
+    `font-src 'self' data: https://fonts.gstatic.com${isVercelPreview ? " https://assets.vercel.com" : ""}`,
+    `frame-src 'self'${live}`,
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",

@@ -162,22 +162,13 @@
   },
   "home": {
     "hero": {
-      "tag": "Lux, intimitate & hiper-realism",
-      "titleLine1": "Trăiește fantezia.",
-      "titleEmphasis": "Atingerea care te cucerește.",
-      "description": "Pășește într-un univers al senzualității absolute. Descoperă companioni de o frumusețe hipnotizantă, creați cu trăsături anatomice perfecte și o textură revoluționară, caldă. Disponibili pentru închirieri intime ultra-discrete sau achiziții private personalizate.",
-      "btnCustomizer": "Creează companionul ideal",
-      "btnModels": "Descoperă modelele noastre",
-      "trust1Value": "37,2 °C",
-      "trust1Label": "Încălzire corporală activă",
-      "trust2Value": "100 %",
-      "trust2Label": "Igienă medicală certificată",
-      "trust3Value": "Total",
-      "trust3Label": "Livrare sigilată, anonimă",
-      "badgeTop": "Premium TPE Realism",
-      "badgeBottom": "Modelul de referință",
-      "cardDescription": "Senzualitate clasică, piele extra-fină ca mătasea și articulație biologică completă.",
-      "fallbackImageText": "Companion premium",
+      "titleLine1": "Fantezia devine",
+      "titleEmphasis": "realitate.",
+      "taglinePremium": "Realism excepțional. Materiale <accent>premium</accent>.<break></break>Confidențialitate absolută.",
+      "description": "Experiențe private discrete și achiziții personalizate premium, livrate cu maximă confidențialitate.",
+      "cta": "Descoperă colecția",
+      "ctaAria": "Descoperă colecția Artisan Dolls",
+      "imageAltFallback": "Companion premium pe canapea de catifea, lumină caldă, decor intim",
       "fallbackName": "Isabella",
       "fallbackHeight": "168 cm"
     },
@@ -275,30 +266,38 @@
       "buyCta": "Începe personalizarea"
     },
     "trust": {
-      "discreetShipping": "Cutie opacă, fără sigle",
-      "discreetShippingDetail": "Curierul nu cunoaște conținutul.",
-      "discreetBilling": "Factură pe „Velvet Studio SRL”",
-      "discreetBillingDetail": "Fără referință la conținut adult pe extras.",
-      "clinicalHygiene": "Igienă clinică între închirieri",
-      "clinicalHygieneDetail": "Sterilizare în 5 etape, UV-C, sigilare.",
-      "ageVerified": "Acces 18+ verificat",
-      "ageVerifiedDetail": "Servicii destinate exclusiv adulților."
+      "ariaLabel": "Garanții cheie",
+      "delivery": {
+        "title": "Livrare discretă",
+        "body": "Ambalare sigilată, fără elemente care să dezvăluie conținutul."
+      },
+      "hygiene": {
+        "title": "Protocol igienă în 5 pași",
+        "body": "Sterilizare UV-C și protocoale certificate pentru fiecare utilizare."
+      },
+      "privacy": {
+        "title": "Confidențialitate garantată",
+        "body": "Procesare confidențială și protecția datelor personale."
+      },
+      "materials": {
+        "title": "Materiale premium",
+        "body": "Silicon și TPE de cea mai înaltă calitate, sigure și durabile."
+      }
     },
     "hygiene": {
-      "badge": "Protocol clinic certificat",
-      "title": "Igienă tratată ca într-o clinică, nu ca într-un magazin",
-      "description": "Între închirieri aplicăm un protocol riguros de cinci etape pentru a vă livra un companion perfect curat, sigilat și pregătit. Detaliile complete ale metodologiei sunt disponibile la cerere.",
-      "step1Label": "Spălare profesională",
-      "step1Description": "Detergent medical, spălare manuală în mediu controlat.",
-      "step2Label": "Dezinfecție",
-      "step2Description": "Agenți antibacterieni de spectru larg, validați clinic.",
-      "step3Label": "Sterilizare UV-C",
-      "step3Description": "15 minute expunere intensivă la lumină ultravioletă C.",
-      "step4Label": "Uscare controlată",
-      "step4Description": "Mediu curat, fără particule, temperatură stabilă.",
-      "step5Label": "Sigilare neutră",
-      "step5Description": "Ambalare în pungă opacă și cutie fără sigle.",
-      "methodologyLink": "Vezi metodologia completă"
+      "eyebrow": "PROTOCOL DE IGIENĂ",
+      "titleLine1": "Siguranță",
+      "titleEmphasis": "garantată.",
+      "description": "Între fiecare închiriere aplicăm un protocol documentat pentru curățare, dezinfecție, sterilizare și pregătire finală.",
+      "bullets": {
+        "cleaning": "Curățare profesională",
+        "disinfection": "Dezinfecție medicală",
+        "sterilization": "Sterilizare UV-C",
+        "inspection": "Inspecție completă a unității",
+        "sealed": "Livrare în ambalaj sigilat"
+      },
+      "cta": "Vezi procesul complet",
+      "imageAlt": "Companion premium pregătit profesional pentru livrare"
     },
     "contact": {
       "badge": "Siguranță, discreție & respect",
@@ -341,55 +340,209 @@
       "modalClose": "Închide fereastra"
     },
     "faq": {
-      "badge": "Informații și clarificări",
-      "title": "Răspunsuri la întrebările dvs.",
-      "subtitle": "Aspecte esențiale despre discreție, igienă, materiale, plată și retur. Dacă lipsește ceva, ne puteți întreba privat.",
-      "searchPlaceholder": "Caută în întrebări…",
-      "searchNoResults": "Niciun rezultat. Reformulați sau scrieți-ne direct.",
-      "moreQuestions": "Mai aveți o întrebare?",
-      "moreQuestionsCta": "Contactați-ne discret",
+      "title": "Întrebări frecvente",
+      "subtitle": "Informațiile pe care clienții noștri le solicită cel mai des înainte de o închiriere sau achiziție.",
+      "contactCta": "Contactează-ne discret",
+      "chips": {
+        "rental": "ÎNCHIRIERE",
+        "purchase": "ACHIZIȚIE",
+        "hygiene": "STANDARDE DE IGIENĂ",
+        "privacy": "CONFIDENȚIALITATE",
+        "payment": "PLATĂ & LIVRARE"
+      },
       "items": [
         {
-          "q": "Cum arată pachetul la livrare?",
-          "a": "Livrarea se face într-o cutie opacă, robustă, complet neutră — fără logo, fără siglă, fără text care să sugereze conținutul. Pe documentele de transport apare doar denumirea operatorului juridic (Velvet Studio SRL), iar curierul nu cunoaște ce se află în interior."
+          "q": "Cum funcționează închirierea?",
+          "a": "Alegeți un interval (4 ore – 7 zile), confirmați adresa și ora, iar noi vă livrăm companionul sigilat în intervalul stabilit. La finalul perioadei, curierul revine pentru ridicare."
         },
         {
-          "q": "Cum se garantează igiena pentru închirieri?",
-          "a": "Între închirieri aplicăm un protocol clinic în cinci etape: spălare cu detergent profesional, dezinfecție medicală cu agenți antibacterieni de spectru larg, sterilizare UV-C 15 minute, uscare în mediu controlat și ambalare sigilată. Fiecare companion este resigilat înainte de fiecare nouă livrare."
+          "q": "Pot personaliza un companion pentru achiziție?",
+          "a": "Da. Puteți configura aspectul, materialele și anumite opțiuni premium disponibile, împreună cu un consultant dedicat."
         },
         {
-          "q": "Pot personaliza complet o păpușă pentru achiziție?",
-          "a": "Da. Pentru comenzile de achiziție alegeți între formă, înălțime, ten, culoare ochi, păr, machiaj, sâni, șolduri, opțiuni de schelet articulat, modul termic și modul vocal. Consilierul vă trimite pre-vizualizări înainte de aprobarea finală."
-        },
-        {
-          "q": "Ce materiale folosiți?",
-          "a": "Folosim silicon medical platinum-cure sau TPE de clasă chirurgicală, ambele hipoalergenice, fără ftalați și fără latex. Scheletul intern este din aliaj de titan și aluminiu, cu articulații articulate biomecanic. Lista completă de materiale este disponibilă la cerere."
+          "q": "Cum arată coletul la livrare?",
+          "a": "Toate comenzile sunt expediate în ambalaje neutre, fără logo-uri sau elemente care să indice conținutul coletului."
         },
         {
           "q": "Cum se face plata?",
-          "a": "Nu solicităm date de card pe site. După ce trimiteți cererea, un consilier vă contactează discret și stabilim împreună modalitatea — numerar la livrare sau card prin terminal mobil. Pe extras factura apare ca „Velvet Studio SRL”, fără referință la conținut."
+          "a": "Modalitatea de plată este stabilită împreună cu un consultant. Pe documentele de plată nu apar descrieri explicite referitoare la conținutul comenzii."
         },
         {
-          "q": "Se poate returna un companion achiziționat?",
-          "a": "Conform Directivei UE 2011/83/UE art. 16(e), produsele intime desigilate nu sunt eligibile pentru dreptul de retur de 14 zile, din motive de igienă și protecția sănătății. În cazul unui defect de fabricație, contactați-ne în 24 de ore — vă reparăm sau înlocuim piesa."
+          "q": "Cum se garantează igiena între închirieri?",
+          "a": "Fiecare companion trece printr-un protocol standardizat în cinci etape, care include curățare profesională, dezinfecție medicală, sterilizare UV-C și resigilare înainte de fiecare livrare."
         },
         {
-          "q": "Există o garanție pentru achiziții?",
-          "a": "Da. Toate companionii achiziționați includ 12 luni asistență tehnică pentru schelet și module electronice. Pielea exterioară este garantată 6 luni împotriva defectelor de fabricație în condiții de utilizare normală."
-        },
-        {
-          "q": "Cum funcționează închirierea?",
-          "a": "Alegeți un interval (4 ore – 7 zile), confirmați adresa și ora, iar noi vă livrăm companionul sigilat în fereastra orară agreată. La sfârșitul perioadei trimitem un curier pentru ridicare — într-o pungă opacă. Toată procedura este non-verbală pe partea curierului."
-        },
-        {
-          "q": "Există un depozit / cauțiune?",
-          "a": "Pentru închirieri colectăm o cauțiune refundabilă, stabilită cu consilierul în funcție de modelul ales (de obicei 500–1500 RON). Cauțiunea se returnează integral la finalul perioadei, după verificarea integrității."
-        },
-        {
-          "q": "Ce se întâmplă cu datele mele după colaborare?",
-          "a": "Numele, adresa și telefonul sunt criptate și păstrate strict pentru logistica comenzii. La maxim 30 zile după finalizarea livrării/returului, datele sunt șterse din baza activă. Putem furniza o confirmare scrisă a ștergerii la cerere (scrieți la dpo@velvet-companions.com)."
+          "q": "Ce materiale folosiți?",
+          "a": "Folosim silicon platinum-cure și TPE premium, alături de un schelet intern articulat pentru realism, confort și durabilitate."
         }
       ]
+    },
+    "heroLegs": {
+      "ariaLabel": "Imagine de prezentare premium",
+      "imageAlt": "Detalii de eleganță — pantofi cu toc înalt pe canapea de catifea"
+    },
+    "rent": {
+      "eyebrow": "COLECȚIA ARTISAN",
+      "titleLine1": "Modelele",
+      "titleEmphasis": "noastre",
+      "intro": "Fiecare model este disponibil pentru experiențe private sau pentru achiziție, cu personalizare completă.",
+      "rentTitle": "Închiriere",
+      "bullets": {
+        "duration": "Alege durata care se potrivește experienței tale, de la 4 ore la 7 zile",
+        "hygiene": "Igienizat și pregătit profesional înaintea fiecărei închirieri",
+        "delivery": "Livrare și ridicare discretă, la adresa și intervalul ales de tine",
+        "experience": "Experiență completă, cu accesorii și produse de îngrijire incluse"
+      },
+      "ctaRent": "Solicită închiriere"
+    },
+    "modelCard": {
+      "heatingIncluded": "Sistem de încălzire inclus",
+      "rent": "Închiriere",
+      "buy": "Achiziție",
+      "voiceModule": "Module vocale reactive"
+    },
+    "buy": {
+      "eyebrow": "ACHIZIȚIE PREMIUM",
+      "titleLine1": "Companionul tău.",
+      "titleLine2": "Configurat pentru",
+      "titleEmphasis": "tine",
+      "intro": "Configurează fiecare detaliu, de la aspect și materiale până la accesoriile finale, pentru o experiență construită în jurul preferințelor tale.",
+      "buyTitle": "Achiziție companion",
+      "bullets": {
+        "custom": "Configurată și personalizată după preferințele tale",
+        "prepared": "Fabricată și pregătită cu atenție înainte de livrare",
+        "delivery": "Livrare discretă și ambalaj neutru",
+        "support": "Garanție și suport dedicat după achiziție"
+      },
+      "ctaBuy": "Configurează companionul"
+    },
+    "featured": {
+      "eyebrow": "SELECȚIE EXCLUSIVĂ",
+      "titleLine1": "Realism",
+      "titleEmphasis": "reinterpretat",
+      "cta": "Vezi colecția completă",
+      "badgeRent": "Închiriere",
+      "badgeBuy": "Cumpără",
+      "prevAria": "Modelul anterior",
+      "nextAria": "Modelul următor"
+    },
+    "quality": {
+      "titleLine1": "Calitate fără",
+      "titleEmphasis": "compromis",
+      "description": "Fiecare companion trece printr-un proces riguros de evaluare și pregătire înainte de a intra în colecție. Materialele, structura internă și finisajele sunt analizate pentru a asigura o experiență premium.",
+      "cards": {
+        "evaluation": {
+          "title": "Evaluare în 14 pași",
+          "body": "Fiecare model trece printr-un proces intern de verificare care analizează finisajele, mobilitatea, aspectul și pregătirea generală."
+        },
+        "materials": {
+          "title": "Materiale certificate",
+          "body": "Utilizăm materiale selectate pentru realism, confort și siguranță, conform standardelor europene pentru contact cutanat."
+        },
+        "hygiene": {
+          "title": "Protocol de Igienă",
+          "body": "Între închirieri aplicăm un protocol standardizat în 5 etape, care include curățare profesională, dezinfecție și sterilizare UV-C."
+        },
+        "preparation": {
+          "title": "Pregătire Finală",
+          "body": "Fiecare companion este verificat, sigilat și pregătit înainte de fiecare livrare sau predare către client, conform standardelor noastre interne."
+        }
+      }
+    },
+    "about": {
+      "eyebrow": "DESPRE ARTISAN DOLLS",
+      "titleLine1": "Mai mult decât un catalog.",
+      "titleLine2": "O experiență",
+      "titleEmphasis": "completă.",
+      "body": "Artisan Dolls este un atelier dedicat experiențelor premium, unde fiecare model este selectat, pregătit și prezentat cu atenție pentru a oferi un nivel ridicat de realism, confort și discreție. De la evaluarea inițială până la livrarea finală, fiecare etapă urmează standarde clare de calitate și pregătire.",
+      "stats": {
+        "criteria": {
+          "value": "14",
+          "label": "Criterii de evaluare"
+        },
+        "steps": {
+          "value": "5",
+          "label": "Pași de asigurare"
+        },
+        "support": {
+          "value": "12 luni",
+          "label": "Suport tehnic"
+        }
+      },
+      "values": {
+        "studio": {
+          "title": "Studio Local Românesc",
+          "body": "Echipă, atelier și suport tehnic dedicate, comunicare directă și livrare discretă în România."
+        },
+        "experience": {
+          "title": "Experiență premium",
+          "body": "Punem accent pe realism, atenție la detalii și o experiență definită prin confort, rafinament și calitate."
+        },
+        "privacy": {
+          "title": "Confidențialitate totală",
+          "body": "Lucrăm discret, anonim și protejăm orice date — politici stricte privind protecția datelor clienților."
+        }
+      },
+      "cta": "Tot procesul complet",
+      "imageAlt": "Companion premium în decor de atelier, lumină caldă, atmosferă intimă"
+    },
+    "privacy": {
+      "titleLine1": "Discreția este",
+      "titleEmphasis": "prioritatea noastră",
+      "description": "Înțelegem că intimitatea ta este esențială. Fiecare aspect al procesului nostru este proiectat pentru confidențialitate completă.",
+      "cards": {
+        "packaging": {
+          "title": "Ambalare neutră",
+          "body": "Ambalaj neutru, fără sigle sau elemente care să indice conținutul livrat."
+        },
+        "data": {
+          "title": "Protecția datelor",
+          "body": "Informațiile tale sunt stocate, procesate și comunicate cu maximă siguranță."
+        },
+        "billing": {
+          "title": "Facturare discretă",
+          "body": "Pe extrasul tău și documentele de plată nu apare nimic care să dezvăluie natura comenzii."
+        },
+        "control": {
+          "title": "Control asupra datelor",
+          "body": "Ai control complet asupra propriilor date — politici clare privind ștergerea și păstrarea lor."
+        }
+      }
+    },
+    "howItWorks": {
+      "titleLine1": "Simplu.",
+      "titleEmphasis": "Discret.",
+      "description": "De la prima vizită până la livrare, fiecare pas este proiectat pentru confort și confidențialitate.",
+      "steps": {
+        "explore": {
+          "title": "Explorează",
+          "body": "Răsfoiește colecția completă cu filtre detaliate"
+        },
+        "choose": {
+          "title": "Alege",
+          "body": "Selectează între închiriere sau achiziție personalizată"
+        },
+        "personalize": {
+          "title": "Personalizează",
+          "body": "Configurează opțiuni și livrare după preferințe"
+        },
+        "confirm": {
+          "title": "Confirmă",
+          "body": "Plată securizată și confirmare imediată prin email discret"
+        },
+        "delivery": {
+          "title": "Livrare",
+          "body": "Ambalaj neutru, predare discretă și experiență pregătită cu atenție"
+        }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "ATELIER ONLINE",
+      "titleLine1": "Descoperă",
+      "titleEmphasis": "colecția.",
+      "description": "Mai mult decât un produs. O experiență construită în jurul discreției, confortului și atenției la fiecare detaliu.",
+      "ctaPrimary": "Explorează modele",
+      "ctaSecondary": "Solicită consultanță privată"
     }
   },
   "heroActions": {
@@ -697,7 +850,7 @@
     "contactSupportGeneric": "Contactează suportul"
   },
   "footer": {
-    "tagline": "Partener discret pentru intimitate și artă a corpului. Servicii rezervate adulților.",
+    "tagline": "Atelier dedicat companionilor premium pentru închiriere și achiziție, construit în jurul discreției, calității și atenției la detalii.",
     "description": "Companion premium pentru închiriere și achiziție, cu livrare neutră în România și UE.",
     "navigation": "Navigare",
     "navHome": "Acasă",
@@ -728,7 +881,7 @@
     "paymentsNote": "Plata se stabilește cu consilierul: numerar sau card prin terminal mobil la livrare.",
     "socialTitle": "Canale private",
     "copyright": "© {year} {brand}. Toate drepturile rezervate.",
-    "ageNotice": "Conținut destinat exclusiv adulților 18+ ani. Vârsta este verificată la accesul în site.",
+    "ageNotice": "Site destinat exclusiv persoanelor cu vârsta de 18+ ani.",
     "privacy": "Politica de confidențialitate",
     "terms": "Termeni & condiții",
     "cookies": "Politica de cookies",
@@ -737,7 +890,22 @@
     "navGlossary": "Glosar",
     "navAbout": "Despre",
     "navBlog": "Blog",
-    "navFaq": "Întrebări frecvente"
+    "navFaq": "Întrebări frecvente",
+    "colCollection": "Colecție",
+    "colShop": "Magazin accesorii",
+    "colRent": "Închiriere",
+    "colBuy": "Achiziție",
+    "colCustom": "Design personalizat",
+    "colInfo": "Informații",
+    "infoAbout": "Despre noi",
+    "infoFaq": "Întrebări frecvente",
+    "infoBlog": "Blog",
+    "infoContact": "Contact direct",
+    "colLegal": "Legal",
+    "legalTerms": "Termeni și condiții",
+    "legalPrivacy": "Confidențialitate",
+    "legalCookies": "Politica de cookies",
+    "legalAge": "Politica 18+"
   },
   "shop": {
     "label": "Magazin discret",

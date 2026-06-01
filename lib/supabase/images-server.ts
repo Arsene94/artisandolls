@@ -1,23 +1,21 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ImageSize } from "@/lib/supabase/images";
 
-const imagePresets = {
-    avatar: { width: 160, height: 160, resize: "cover" as const, quality: 80 },
-    thumb: { width: 320, height: 240, resize: "cover" as const, quality: 78 },
-    card: { width: 600, height: 400, resize: "cover" as const, quality: 80 },
-    gallery: { width: 1200, height: 900, resize: "cover" as const, quality: 82 },
-    hero: { width: 1600, height: 900, resize: "cover" as const, quality: 82 },
-};
-
 export function isExternalImage(value: string) {
     return value.startsWith("http://") || value.startsWith("https://");
 }
 
+// Vezi nota din `lib/supabase/images.ts`: transformările Supabase
+// (`/render/image/...`) sunt dezactivate pe acest tenant (403 FeatureNotEnabled
+// → 502 prin `/_next/image`), așa că returnăm URL-ul public RAW și lăsăm
+// `next/image` să optimizeze. `size` rămâne pentru compatibilitate.
 export async function getSupabaseImageUrlServer(
     pathOrUrl: string,
     size: ImageSize = "card",
     bucket = "doll-images"
 ) {
+    void size;
+
     if (!pathOrUrl) {
         return "";
     }
@@ -28,9 +26,7 @@ export async function getSupabaseImageUrlServer(
 
     const supabase = await createSupabaseServerClient();
 
-    const { data } = supabase.storage.from(bucket).getPublicUrl(pathOrUrl, {
-        transform: imagePresets[size],
-    });
+    const { data } = supabase.storage.from(bucket).getPublicUrl(pathOrUrl);
 
     return data.publicUrl;
 }

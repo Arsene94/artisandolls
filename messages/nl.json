@@ -162,22 +162,13 @@
   },
   "home": {
     "hero": {
-      "tag": "Luxe, privacy & hyperrealisme",
-      "titleLine1": "Beleef de fantasie.",
-      "titleEmphasis": "De aanraking die u verovert.",
-      "description": "Stap binnen in een wereld van pure sensualiteit. Ontdek partners van hypnotiserende schoonheid, vervaardigd met perfecte anatomische details en een revolutionair verwarmingssysteem. Beschikbaar voor uiterst discrete verhuur of volledig gepersonaliseerde privéaankopen.",
-      "btnCustomizer": "Ontwerp uw ideale partner",
-      "btnModels": "Ontdek onze modellen",
-      "trust1Value": "37,2 °C",
-      "trust1Label": "Actieve lichaamswarmte",
-      "trust2Value": "100%",
-      "trust2Label": "Gecertificeerde medische hygiëne",
-      "trust3Value": "Volledig",
-      "trust3Label": "Anoniem en verzegeld geleverd",
-      "badgeTop": "Premium TPE realisme",
-      "badgeBottom": "Referentiemodel",
-      "cardDescription": "Klassieke sensualiteit, extra fijne zijdezachte huid en volledige anatomische beweeglijkheid.",
-      "fallbackImageText": "Premium partner",
+      "titleLine1": "Fantasie wordt",
+      "titleEmphasis": "werkelijkheid.",
+      "taglinePremium": "Uitzonderlijk realisme. <accent>Premium</accent> materialen.<break></break>Absolute discretie.",
+      "description": "Discrete privé-ervaringen en exclusieve maatwerkaankopen, geleverd met maximale vertrouwelijkheid.",
+      "cta": "Ontdek de collectie",
+      "ctaAria": "Ontdek de Artisan Dolls collectie",
+      "imageAltFallback": "Premium companion op een fluwelen sofa, warme verlichting, intieme setting",
       "fallbackName": "Isabella",
       "fallbackHeight": "168 cm"
     },
@@ -275,30 +266,38 @@
       "buyCta": "Start uw ontwerp"
     },
     "trust": {
-      "discreetShipping": "Ondoorzichtige doos, zonder logo",
-      "discreetShippingDetail": "De koerier kent de inhoud niet.",
-      "discreetBilling": "Op uittreksel: „Velvet Studio SRL”",
-      "discreetBillingDetail": "Geen verwijzing naar de inhoud op het uittreksel.",
-      "clinicalHygiene": "Klinische hygiëne tussen verhuringen",
-      "clinicalHygieneDetail": "Sterilisatie in vijf stappen, UV-C en verzegeling.",
-      "ageVerified": "Geverifieerde 18+ toegang",
-      "ageVerifiedDetail": "Diensten uitsluitend voor volwassenen."
+      "ariaLabel": "Belangrijke garanties",
+      "delivery": {
+        "title": "Discrete levering",
+        "body": "Verzegelde verpakking, zonder zichtbare verwijzingen naar de inhoud."
+      },
+      "hygiene": {
+        "title": "Hygiëneprotocol in 5 stappen",
+        "body": "UV-C-sterilisatie en gecertificeerde protocollen bij elk gebruik."
+      },
+      "privacy": {
+        "title": "Gegarandeerde vertrouwelijkheid",
+        "body": "Vertrouwelijke verwerking en bescherming van persoonsgegevens."
+      },
+      "materials": {
+        "title": "Premium materialen",
+        "body": "Hoogwaardige siliconen en TPE, veilig en duurzaam."
+      }
     },
     "hygiene": {
-      "badge": "Gecertificeerd klinisch protocol",
-      "title": "Hygiëne als in een kliniek, niet als in een winkel",
-      "description": "Tussen verhuringen volgen we een streng protocol in vijf stappen, zodat de pop die u ontvangt volledig schoon, verzegeld en klaar voor gebruik is. Volledige methodologie op aanvraag beschikbaar.",
-      "step1Label": "Professioneel reinigen",
-      "step1Description": "Medisch detergent, handwas in een gecontroleerde omgeving.",
-      "step2Label": "Desinfectie",
-      "step2Description": "Klinisch gevalideerde breedspectrum antibacteriële middelen.",
-      "step3Label": "UV-C-sterilisatie",
-      "step3Description": "15 minuten intensieve UV-C-blootstelling.",
-      "step4Label": "Gecontroleerd drogen",
-      "step4Description": "Stofvrije omgeving op stabiele temperatuur.",
-      "step5Label": "Neutrale verzegeling",
-      "step5Description": "Ondoorzichtige zak in een doos zonder logo.",
-      "methodologyLink": "Bekijk de volledige methodologie"
+      "eyebrow": "HYGIËNEPROTOCOL",
+      "titleLine1": "Veiligheid",
+      "titleEmphasis": "gegarandeerd.",
+      "description": "Tussen elke verhuring volgen we een gedocumenteerd protocol voor reiniging, desinfectie, sterilisatie en eindvoorbereiding.",
+      "bullets": {
+        "cleaning": "Professionele reiniging",
+        "disinfection": "Medische desinfectie",
+        "sterilization": "UV-C-sterilisatie",
+        "inspection": "Volledige eenheidsinspectie",
+        "sealed": "Levering in verzegelde verpakking"
+      },
+      "cta": "Bekijk het volledige proces",
+      "imageAlt": "Premium companion professioneel voorbereid voor levering"
     },
     "contact": {
       "badge": "Veiligheid, discretie & respect",
@@ -341,55 +340,209 @@
       "modalClose": "Venster sluiten"
     },
     "faq": {
-      "badge": "Informatie & verduidelijking",
-      "title": "Antwoorden op uw vragen",
-      "subtitle": "Het belangrijkste over discretie, hygiëne, materialen, betaling en retour. Mist er iets, schrijf ons gerust privé.",
-      "searchPlaceholder": "Zoek in vragen…",
-      "searchNoResults": "Geen resultaten. Probeer een andere zoekterm of schrijf ons rechtstreeks.",
-      "moreQuestions": "Heeft u nog een vraag?",
-      "moreQuestionsCta": "Neem discreet contact op",
+      "title": "Veelgestelde vragen",
+      "subtitle": "De informatie die onze klanten het vaakst opvragen vóór een huurperiode of aankoop.",
+      "contactCta": "Neem discreet contact op",
+      "chips": {
+        "rental": "VERHUUR",
+        "purchase": "AANKOOP",
+        "hygiene": "HYGIËNESTANDAARDEN",
+        "privacy": "VERTROUWELIJKHEID",
+        "payment": "BETALING & LEVERING"
+      },
       "items": [
         {
-          "q": "Hoe ziet het pakket eruit bij levering?",
-          "a": "De bezorging gebeurt in een ondoorzichtige, stevige, volledig neutrale doos — zonder logo, zonder embleem, zonder verwijzing naar de inhoud. Op de transportdocumenten staat enkel de juridische operator (Velvet Studio SRL); de koerier weet niet wat erin zit."
-        },
-        {
-          "q": "Hoe wordt hygiëne bij verhuur gegarandeerd?",
-          "a": "Tussen verhuringen passen we een klinisch protocol in vijf stappen toe: wasbeurt met professioneel reinigingsmiddel, medische desinfectie, 15 minuten UV-C-sterilisatie, gecontroleerd drogen en verzegelde verpakking. Elk model wordt opnieuw verzegeld voor elke nieuwe levering."
-        },
-        {
-          "q": "Kan ik een pop volledig op maat laten maken?",
-          "a": "Ja. Bij aankoop kiest u vorm, lengte, huidskleur, oogkleur, haar, make-up, buste, heupen, type skelet, thermische module en stemmodule. De adviseur stuurt previews vóór de definitieve goedkeuring."
-        },
-        {
-          "q": "Welke materialen gebruikt u?",
-          "a": "Medisch platinum-cure silicone of chirurgisch TPE — beide hypoallergeen, vrij van ftalaten en latex. Het interne skelet is een titanium-aluminiumlegering met biomechanisch geleed gewrichten. Volledige materiaalfiche op aanvraag."
-        },
-        {
-          "q": "Hoe werkt de betaling?",
-          "a": "We vragen geen kaartgegevens via de website. Na uw aanvraag neemt een adviseur discreet contact op en bepalen we samen de methode — contant bij levering of kaart via mobiele terminal. Op het uittreksel verschijnt “Velvet Studio SRL”, zonder verwijzing naar de inhoud."
-        },
-        {
-          "q": "Kan een aangekochte pop geretourneerd worden?",
-          "a": "Volgens EU-richtlijn 2011/83 art. 16(e) zijn ontzegelde intieme producten uitgesloten van het herroepingsrecht van 14 dagen om hygiënische redenen. Bij een fabricagefout neemt u binnen 24 uur contact op — wij herstellen of vervangen het stuk."
-        },
-        {
-          "q": "Is er garantie op een aankoop?",
-          "a": "Ja. Elke aangekochte pop krijgt 12 maanden technische ondersteuning voor het skelet en de elektronische modules. De buitenste huid is 6 maanden gewaarborgd tegen fabricagefouten bij normaal gebruik."
-        },
-        {
           "q": "Hoe werkt de verhuur?",
-          "a": "Kies een interval (4 uur tot 7 dagen), bevestig adres en tijdstip, en wij leveren de verzegelde pop in het afgesproken tijdvenster. Aan het einde van de periode stuurt een koerier voor ophaling — in een ondoorzichtige zak. Voor de koerier is alles non-verbaal."
+          "a": "Kies een tijdsbestek (4 uur – 7 dagen), bevestig adres en tijdstip en wij leveren de verzegelde companion binnen het afgesproken venster. Aan het einde van de periode komt de koerier terug voor ophaling."
         },
         {
-          "q": "Is er een waarborg/borg?",
-          "a": "Voor verhuringen vragen we een terugbetaalbare waarborg, afgesproken met uw adviseur op basis van het model (doorgaans 100–300 EUR). De waarborg wordt volledig terugbetaald aan het einde na een integriteitscontrole."
+          "q": "Kan ik een companion personaliseren bij aankoop?",
+          "a": "Ja. Je kunt uiterlijk, materialen en bepaalde premium opties configureren, samen met een toegewijde consultant."
         },
         {
-          "q": "Wat gebeurt er met mijn gegevens na de samenwerking?",
-          "a": "Uw naam, adres en telefoon zijn versleuteld en worden uitsluitend bewaard voor de logistiek van uw bestelling. Binnen maximaal 30 dagen na levering/retour worden de gegevens uit de actieve database verwijderd. Een schriftelijke bevestiging is op verzoek beschikbaar (dpo@velvet-companions.com)."
+          "q": "Hoe ziet het pakket eruit bij levering?",
+          "a": "Alle bestellingen worden verzonden in neutrale verpakking, zonder logo's of elementen die de inhoud verraden."
+        },
+        {
+          "q": "Hoe verloopt de betaling?",
+          "a": "De betaalvoorwaarden worden samen met een consultant afgesproken. Niets op je betaaldocumenten beschrijft de inhoud van de bestelling expliciet."
+        },
+        {
+          "q": "Hoe wordt hygiëne tussen verhuringen gegarandeerd?",
+          "a": "Elke companion doorloopt een gestandaardiseerd vijf-stappenprotocol: professionele reiniging, medische desinfectie, UV-C-sterilisatie en herverpakking vóór elke levering."
+        },
+        {
+          "q": "Welke materialen gebruiken jullie?",
+          "a": "We gebruiken platinum-cure siliconen en premium TPE, samen met een gearticuleerd intern skelet voor realisme, comfort en duurzaamheid."
         }
       ]
+    },
+    "heroLegs": {
+      "ariaLabel": "Premium presentatiebeeld",
+      "imageAlt": "Elegantiedetails — hoge hakken op een fluwelen sofa"
+    },
+    "rent": {
+      "eyebrow": "ARTISAN COLLECTIE",
+      "titleLine1": "Onze",
+      "titleEmphasis": "modellen",
+      "intro": "Elk model is beschikbaar voor privé-ervaringen of aankoop, met volledige personalisatie.",
+      "rentTitle": "Verhuur",
+      "bullets": {
+        "duration": "Kies de duur die past bij je ervaring, van 4 uur tot 7 dagen",
+        "hygiene": "Professioneel ontsmet en voorbereid vóór elke huurperiode",
+        "delivery": "Discrete levering en ophaling, op het adres en tijdstip dat jij kiest",
+        "experience": "Een complete ervaring, met accessoires en verzorgingsproducten inbegrepen"
+      },
+      "ctaRent": "Verhuur aanvragen"
+    },
+    "modelCard": {
+      "heatingIncluded": "Verwarmingssysteem inbegrepen",
+      "rent": "Huren",
+      "buy": "Kopen",
+      "voiceModule": "Reactieve spraakmodules"
+    },
+    "buy": {
+      "eyebrow": "PREMIUM AANKOOP",
+      "titleLine1": "Jouw companion.",
+      "titleLine2": "Op maat gemaakt voor",
+      "titleEmphasis": "jou",
+      "intro": "Configureer elk detail, van uiterlijk en materialen tot de laatste accessoires, voor een ervaring volledig afgestemd op jouw voorkeuren.",
+      "buyTitle": "Companion aankoop",
+      "bullets": {
+        "custom": "Geconfigureerd en gepersonaliseerd naar jouw voorkeuren",
+        "prepared": "Zorgvuldig vervaardigd en voorbereid vóór levering",
+        "delivery": "Discrete levering en neutrale verpakking",
+        "support": "Garantie en toegewijde ondersteuning na aankoop"
+      },
+      "ctaBuy": "Configureer je companion"
+    },
+    "featured": {
+      "eyebrow": "EXCLUSIEVE SELECTIE",
+      "titleLine1": "Realisme",
+      "titleEmphasis": "heruitgevonden",
+      "cta": "Bekijk de volledige collectie",
+      "badgeRent": "Huren",
+      "badgeBuy": "Kopen",
+      "prevAria": "Vorig model",
+      "nextAria": "Volgend model"
+    },
+    "quality": {
+      "titleLine1": "Kwaliteit zonder",
+      "titleEmphasis": "compromissen",
+      "description": "Elke companion doorloopt een grondig evaluatie- en voorbereidingsproces voordat hij in de collectie wordt opgenomen. Materialen, interne structuur en afwerkingen worden geanalyseerd voor een premium ervaring.",
+      "cards": {
+        "evaluation": {
+          "title": "14-stappen evaluatie",
+          "body": "Elk model doorloopt een interne controle die afwerking, mobiliteit, uiterlijk en algehele voorbereiding analyseert."
+        },
+        "materials": {
+          "title": "Gecertificeerde materialen",
+          "body": "We gebruiken materialen geselecteerd op realisme, comfort en veiligheid, conform Europese normen voor huidcontact."
+        },
+        "hygiene": {
+          "title": "Hygiëneprotocol",
+          "body": "Tussen verhuringen passen we een gestandaardiseerd 5-stappenprotocol toe met professionele reiniging, desinfectie en UV-C-sterilisatie."
+        },
+        "preparation": {
+          "title": "Eindvoorbereiding",
+          "body": "Elke companion wordt gecontroleerd, verzegeld en voorbereid vóór elke levering of overhandiging, volgens onze interne standaarden."
+        }
+      }
+    },
+    "about": {
+      "eyebrow": "OVER ARTISAN DOLLS",
+      "titleLine1": "Meer dan een catalogus.",
+      "titleLine2": "Een echt",
+      "titleEmphasis": "complete ervaring.",
+      "body": "Artisan Dolls is een atelier gewijd aan premium ervaringen, waar elk model met zorg wordt geselecteerd, voorbereid en gepresenteerd voor een hoog niveau van realisme, comfort en discretie. Van de eerste beoordeling tot de uiteindelijke levering volgt elke stap duidelijke standaarden voor kwaliteit en voorbereiding.",
+      "stats": {
+        "criteria": {
+          "value": "14",
+          "label": "Beoordelingscriteria"
+        },
+        "steps": {
+          "value": "5",
+          "label": "Garantiestappen"
+        },
+        "support": {
+          "value": "12 maanden",
+          "label": "Technische ondersteuning"
+        }
+      },
+      "values": {
+        "studio": {
+          "title": "Lokale Roemeense studio",
+          "body": "Een toegewijd team, atelier en technische ondersteuning — directe communicatie en discrete levering in Roemenië."
+        },
+        "experience": {
+          "title": "Premium ervaring",
+          "body": "We leggen de nadruk op realisme, oog voor detail en een ervaring gedefinieerd door comfort, verfijning en kwaliteit."
+        },
+        "privacy": {
+          "title": "Volledige vertrouwelijkheid",
+          "body": "We werken discreet en anoniem, met strikte beleidsregels voor de bescherming van klantgegevens."
+        }
+      },
+      "cta": "Bekijk het volledige proces",
+      "imageAlt": "Premium companion in atelier-omgeving, warme verlichting, intieme sfeer"
+    },
+    "privacy": {
+      "titleLine1": "Discretie is",
+      "titleEmphasis": "onze prioriteit",
+      "description": "We begrijpen dat jouw privacy essentieel is. Elk aspect van ons proces is ontworpen voor volledige vertrouwelijkheid.",
+      "cards": {
+        "packaging": {
+          "title": "Neutrale verpakking",
+          "body": "Neutrale verpakking — geen logo's of elementen die de inhoud van de zending verraden."
+        },
+        "data": {
+          "title": "Gegevensbescherming",
+          "body": "Je informatie wordt met het hoogste niveau van beveiliging opgeslagen, verwerkt en gecommuniceerd."
+        },
+        "billing": {
+          "title": "Discrete facturering",
+          "body": "Niets op je bankafschrift of betaaldocumenten onthult de aard van de bestelling."
+        },
+        "control": {
+          "title": "Controle over je gegevens",
+          "body": "Je houdt volledige controle over je data — met heldere regels over bewaring en verwijdering."
+        }
+      }
+    },
+    "howItWorks": {
+      "titleLine1": "Eenvoudig.",
+      "titleEmphasis": "Discreet.",
+      "description": "Van je eerste bezoek tot de levering — elke stap is ontworpen voor comfort en vertrouwelijkheid.",
+      "steps": {
+        "explore": {
+          "title": "Verken",
+          "body": "Blader door de volledige collectie met gedetailleerde filters"
+        },
+        "choose": {
+          "title": "Kies",
+          "body": "Kies tussen verhuur of een persoonlijke aankoop"
+        },
+        "personalize": {
+          "title": "Personaliseer",
+          "body": "Configureer opties en levering naar jouw voorkeuren"
+        },
+        "confirm": {
+          "title": "Bevestig",
+          "body": "Veilige betaling en directe bevestiging via discrete e-mail"
+        },
+        "delivery": {
+          "title": "Levering",
+          "body": "Neutrale verpakking, discrete overhandiging, met zorg voorbereid"
+        }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "ONLINE ATELIER",
+      "titleLine1": "Ontdek",
+      "titleEmphasis": "de collectie.",
+      "description": "Meer dan een product. Een ervaring opgebouwd rond discretie, comfort en oog voor elk detail.",
+      "ctaPrimary": "Bekijk de modellen",
+      "ctaSecondary": "Vraag privéconsult aan"
     }
   },
   "heroActions": {
@@ -697,7 +850,7 @@
     "contactSupportGeneric": "Neem contact op"
   },
   "footer": {
-    "tagline": "Discrete partner voor intimiteit en lichaamskunst. Diensten uitsluitend voor volwassenen.",
+    "tagline": "Een atelier gewijd aan premium companions voor verhuur en aankoop, opgebouwd rond discretie, kwaliteit en oog voor detail.",
     "description": "Premium companions voor verhuur en aankoop, neutraal geleverd in Roemenië en de EU.",
     "navigation": "Navigatie",
     "navHome": "Home",
@@ -728,7 +881,7 @@
     "paymentsNote": "Betaling wordt afgesproken met uw adviseur: contant of kaart via mobiele terminal bij levering.",
     "socialTitle": "Privé-kanalen",
     "copyright": "© {year} {brand}. Alle rechten voorbehouden.",
-    "ageNotice": "Inhoud uitsluitend voor volwassenen van 18 jaar en ouder. De leeftijd wordt bij het betreden van de site geverifieerd.",
+    "ageNotice": "Site uitsluitend bedoeld voor volwassenen van 18+ jaar.",
     "privacy": "Privacybeleid",
     "terms": "Algemene voorwaarden",
     "cookies": "Cookiebeleid",
@@ -737,7 +890,22 @@
     "navGlossary": "Woordenlijst",
     "navAbout": "Over ons",
     "navBlog": "Blog",
-    "navFaq": "FAQ"
+    "navFaq": "FAQ",
+    "colCollection": "Collectie",
+    "colShop": "Accessoires shop",
+    "colRent": "Verhuur",
+    "colBuy": "Aankoop",
+    "colCustom": "Op maat ontwerp",
+    "colInfo": "Informatie",
+    "infoAbout": "Over ons",
+    "infoFaq": "Veelgestelde vragen",
+    "infoBlog": "Blog",
+    "infoContact": "Direct contact",
+    "colLegal": "Juridisch",
+    "legalTerms": "Algemene voorwaarden",
+    "legalPrivacy": "Privacy",
+    "legalCookies": "Cookiebeleid",
+    "legalAge": "18+ beleid"
   },
   "shop": {
     "label": "Discrete shop",

@@ -162,22 +162,13 @@
   },
   "home": {
     "hero": {
-      "tag": "Luxus, Privatsphäre & Hyperrealismus",
-      "titleLine1": "Lebe die Fantasie.",
-      "titleEmphasis": "Die Berührung, die dich erobert.",
-      "description": "Treten Sie ein in eine Welt purer Sinnlichkeit. Entdecken Sie Companion-Modelle von atemberaubender Schönheit, gefertigt mit perfekten anatomischen Merkmalen und einem revolutionären Heizsystem. Verfügbar zur hochprivaten, sicheren Kurzzeitmiete oder zum vollständig personalisierten privaten Kauf.",
-      "btnCustomizer": "Erschaffen Sie Ihre ideale Partnerin",
-      "btnModels": "Entdecken Sie unsere Modelle",
-      "trust1Value": "37,2 °C",
-      "trust1Label": "Aktive Körperwärme",
-      "trust2Value": "100 %",
-      "trust2Label": "Zertifizierte medizinische Hygiene",
-      "trust3Value": "Komplett",
-      "trust3Label": "Anonyme versiegelte Lieferung",
-      "badgeTop": "Premium-TPE-Realismus",
-      "badgeBottom": "Referenzmodell",
-      "cardDescription": "Klassische Sinnlichkeit, extrafein-seidige Haut und vollständige anatomische Beweglichkeit.",
-      "fallbackImageText": "Premium-Companion",
+      "titleLine1": "Fantasie wird",
+      "titleEmphasis": "Wirklichkeit.",
+      "taglinePremium": "Außergewöhnlicher Realismus. <accent>Premium-Materialien</accent>.<break></break>Absolute Diskretion.",
+      "description": "Diskrete private Erlebnisse und maßgeschneiderte Premium-Käufe, geliefert mit höchster Vertraulichkeit.",
+      "cta": "Kollektion entdecken",
+      "ctaAria": "Die Artisan Dolls Kollektion entdecken",
+      "imageAltFallback": "Premium-Companion auf einem Samtsofa, warmes Licht, intime Atmosphäre",
       "fallbackName": "Isabella",
       "fallbackHeight": "168 cm"
     },
@@ -275,30 +266,38 @@
       "buyCta": "Starten Sie Ihr individuelles Design"
     },
     "trust": {
-      "discreetShipping": "Blickdichter Karton, kein Branding",
-      "discreetShippingDetail": "Der Zusteller kennt den Inhalt nicht.",
-      "discreetBilling": "Auf dem Kontoauszug steht „Velvet Studio SRL“",
-      "discreetBillingDetail": "Kein Hinweis auf Erwachseneninhalt auf dem Auszug.",
-      "clinicalHygiene": "Klinische Hygiene zwischen Vermietungen",
-      "clinicalHygieneDetail": "Fünf-Stufen-Sterilisation, UV-C und Versiegelung.",
-      "ageVerified": "Verifizierter 18+-Zugang",
-      "ageVerifiedDetail": "Dienste streng für Erwachsene."
+      "ariaLabel": "Wichtige Garantien",
+      "delivery": {
+        "title": "Diskrete Lieferung",
+        "body": "Versiegelte Verpackung, ohne erkennbare Hinweise auf den Inhalt."
+      },
+      "hygiene": {
+        "title": "Hygieneprotokoll in 5 Schritten",
+        "body": "UV-C-Sterilisation und zertifizierte Protokolle bei jeder Anwendung."
+      },
+      "privacy": {
+        "title": "Garantierte Vertraulichkeit",
+        "body": "Vertrauliche Verarbeitung und Schutz personenbezogener Daten."
+      },
+      "materials": {
+        "title": "Premium-Materialien",
+        "body": "Hochwertiges Silikon und TPE, sicher und langlebig."
+      }
     },
     "hygiene": {
-      "badge": "Zertifiziertes klinisches Protokoll",
-      "title": "Hygiene wie in einer Klinik, nicht wie in einem Geschäft",
-      "description": "Zwischen Vermietungen führen wir ein strenges fünfstufiges Protokoll durch, damit die Companion, die Sie erhalten, vollständig sauber, versiegelt und bereit ist. Vollständige Methodik auf Anfrage erhältlich.",
-      "step1Label": "Professionelle Reinigung",
-      "step1Description": "Medizinisches Reinigungsmittel, Handwäsche in kontrollierter Umgebung.",
-      "step2Label": "Desinfektion",
-      "step2Description": "Klinisch validierte antibakterielle Mittel mit Breitbandwirkung.",
-      "step3Label": "UV-C-Sterilisation",
-      "step3Description": "15 Minuten intensive Bestrahlung mit ultraviolettem C-Licht.",
-      "step4Label": "Kontrollierte Trocknung",
-      "step4Description": "Partikelfreie Umgebung bei stabiler Temperatur.",
-      "step5Label": "Neutrale Versiegelung",
-      "step5Description": "Blickdichte Verpackung in neutralem Karton.",
-      "methodologyLink": "Vollständige Methodik ansehen"
+      "eyebrow": "HYGIENEPROTOKOLL",
+      "titleLine1": "Sicherheit",
+      "titleEmphasis": "garantiert.",
+      "description": "Zwischen jeder Vermietung wenden wir ein dokumentiertes Protokoll für Reinigung, Desinfektion, Sterilisation und Endvorbereitung an.",
+      "bullets": {
+        "cleaning": "Professionelle Reinigung",
+        "disinfection": "Medizinische Desinfektion",
+        "sterilization": "UV-C-Sterilisation",
+        "inspection": "Vollständige Inspektion der Einheit",
+        "sealed": "Lieferung in versiegelter Verpackung"
+      },
+      "cta": "Den gesamten Prozess ansehen",
+      "imageAlt": "Premium-Companion professionell für die Lieferung vorbereitet"
     },
     "contact": {
       "badge": "Sicherheit, Diskretion & Respekt",
@@ -341,55 +340,209 @@
       "modalClose": "Fenster schließen"
     },
     "faq": {
-      "badge": "Informationen & Klärung",
-      "title": "Antworten auf Ihre Fragen",
-      "subtitle": "Das Wichtigste rund um Diskretion, Hygiene, Materialien, Zahlung und Rückgabe. Fehlt etwas, schreiben Sie uns privat.",
-      "searchPlaceholder": "Fragen durchsuchen…",
-      "searchNoResults": "Keine Treffer. Formulieren Sie die Suche um oder schreiben Sie uns direkt.",
-      "moreQuestions": "Haben Sie noch eine Frage?",
-      "moreQuestionsCta": "Privat kontaktieren",
+      "title": "Häufig gestellte Fragen",
+      "subtitle": "Die Informationen, die unsere Kunden am häufigsten vor einer Vermietung oder einem Kauf anfragen.",
+      "contactCta": "Kontaktiere uns diskret",
+      "chips": {
+        "rental": "VERMIETUNG",
+        "purchase": "KAUF",
+        "hygiene": "HYGIENESTANDARDS",
+        "privacy": "VERTRAULICHKEIT",
+        "payment": "ZAHLUNG & LIEFERUNG"
+      },
       "items": [
         {
+          "q": "Wie funktioniert die Vermietung?",
+          "a": "Wähle einen Zeitraum (4 Stunden – 7 Tage), bestätige Adresse und Uhrzeit, und wir liefern den versiegelten Companion im vereinbarten Fenster. Am Ende des Zeitraums kommt der Kurier zur Abholung zurück."
+        },
+        {
+          "q": "Kann ich einen Companion zum Kauf personalisieren?",
+          "a": "Ja. Du kannst Aussehen, Materialien und ausgewählte Premium-Optionen gemeinsam mit einem persönlichen Berater konfigurieren."
+        },
+        {
           "q": "Wie sieht das Paket bei der Lieferung aus?",
-          "a": "Lieferungen kommen in einer blickdichten, robusten und vollständig neutralen Box — kein Logo, kein Hinweis, kein Text, der den Inhalt andeutet. Versanddokumente zeigen ausschließlich den juristischen Betreibernamen (Velvet Studio SRL); der Kurier weiß nie, was sich darin befindet."
+          "a": "Alle Bestellungen werden in neutraler Verpackung versandt — ohne Logos oder Elemente, die auf den Inhalt hinweisen."
         },
         {
-          "q": "Wie gewährleisten Sie die Hygiene bei Vermietungen?",
-          "a": "Zwischen Vermietungen führen wir ein fünfstufiges klinisches Protokoll durch: professionelle Detergenzwäsche, medizinische Breitspektrum-Desinfektion, 15 Minuten UV-C-Sterilisation, kontrollierte Trocknung und versiegelte Verpackung. Jede Companion wird vor jeder neuen Lieferung erneut versiegelt."
+          "q": "Wie läuft die Zahlung ab?",
+          "a": "Die Zahlungsbedingungen werden gemeinsam mit einem Berater festgelegt. Auf den Zahlungsbelegen finden sich keine expliziten Hinweise auf den Inhalt der Bestellung."
         },
         {
-          "q": "Kann ich eine Puppe vollständig zum Kauf personalisieren?",
-          "a": "Ja. Bei Kaufbestellungen wählen Sie Form, Größe, Hautton, Augenfarbe, Haare, Make-up, Brust, Hüften, Gelenkskelett, Wärmemodul und reaktives Sprachmodul. Ihr Berater sendet Vorschauen vor der endgültigen Freigabe."
+          "q": "Wie wird die Hygiene zwischen Vermietungen sichergestellt?",
+          "a": "Jeder Companion durchläuft ein standardisiertes fünfstufiges Protokoll: professionelle Reinigung, medizinische Desinfektion, UV-C-Sterilisation und erneute Versiegelung vor jeder Lieferung."
         },
         {
-          "q": "Welche Materialien verwenden Sie?",
-          "a": "Medizinisches Platinum-Cure-Silikon oder chirurgisches TPE — beides hypoallergen, phthalatfrei, latexfrei. Das innere Skelett ist eine Titan-Aluminium-Legierung mit biomechanisch artikulierten Gelenken. Vollständiges Materialdatenblatt auf Anfrage erhältlich."
-        },
-        {
-          "q": "Wie funktioniert die Zahlung?",
-          "a": "Wir verlangen keine Kartendaten auf der Website. Nach Ihrer Anfrage meldet sich ein privater Berater, mit dem Sie die Methode vereinbaren — Barzahlung bei Lieferung oder Karte über ein mobiles Terminal. Auf dem Kontoauszug steht „Velvet Studio SRL“ ohne Hinweis auf den Inhalt."
-        },
-        {
-          "q": "Kann eine gekaufte Companion zurückgegeben werden?",
-          "a": "Gemäß Art. 16(e) der EU-Richtlinie 2011/83 sind entsiegelte Intimprodukte aus Hygienegründen vom 14-tägigen Widerrufsrecht ausgeschlossen. Bei Fabrikationsfehlern kontaktieren Sie uns innerhalb von 24 Stunden — wir reparieren oder ersetzen das Stück."
-        },
-        {
-          "q": "Gibt es eine Garantie auf den Kauf?",
-          "a": "Ja. Jede gekaufte Companion umfasst 12 Monate technischen Support für das Skelett und die elektronischen Module. Die äußere Haut ist 6 Monate gegen Fabrikationsfehler bei normalem Gebrauch garantiert."
-        },
-        {
-          "q": "Wie funktioniert die Miete?",
-          "a": "Wählen Sie ein Zeitfenster (4 Stunden bis 7 Tage), bestätigen Sie Adresse und Uhrzeit, und wir liefern die versiegelte Companion innerhalb des vereinbarten Fensters. Am Ende der Periode holt ein Kurier sie in einem blickdichten Beutel ab. Die Interaktion mit dem Kurier erfolgt ohne Worte."
-        },
-        {
-          "q": "Wird eine Kaution erhoben?",
-          "a": "Vermietungen erfordern eine rückerstattbare Kaution, die mit Ihrem Berater je nach Modell festgelegt wird (in der Regel 100–300 EUR). Die Kaution wird nach einer Integritätsprüfung am Ende der Periode vollständig erstattet."
-        },
-        {
-          "q": "Was passiert mit meinen Daten nach Abschluss?",
-          "a": "Ihr Name, Ihre Adresse und Ihre Telefonnummer werden verschlüsselt und ausschließlich für die Logistik der Bestellung aufbewahrt. Spätestens 30 Tage nach Lieferung/Rückgabe werden die Daten aus der aktiven Datenbank entfernt. Auf Anfrage stellen wir eine schriftliche Bestätigung aus (dpo@velvet-companions.com)."
+          "q": "Welche Materialien verwendet ihr?",
+          "a": "Wir verwenden Platin-Silikon und Premium-TPE, ergänzt durch ein gelenkiges Innengerüst für Realismus, Komfort und Langlebigkeit."
         }
       ]
+    },
+    "heroLegs": {
+      "ariaLabel": "Premium-Präsentationsbild",
+      "imageAlt": "Eleganzdetails — High Heels auf einem Samtsofa"
+    },
+    "rent": {
+      "eyebrow": "ARTISAN-KOLLEKTION",
+      "titleLine1": "Unsere",
+      "titleEmphasis": "Modelle",
+      "intro": "Jedes Modell ist für private Erlebnisse oder zum Kauf verfügbar, mit vollständiger Personalisierung.",
+      "rentTitle": "Vermietung",
+      "bullets": {
+        "duration": "Wähle die Dauer, die zu deinem Erlebnis passt — von 4 Stunden bis 7 Tagen",
+        "hygiene": "Vor jeder Vermietung professionell desinfiziert und vorbereitet",
+        "delivery": "Diskrete Lieferung und Abholung, an der Adresse und zur Zeit deiner Wahl",
+        "experience": "Ein vollständiges Erlebnis, inklusive Zubehör und Pflegeprodukten"
+      },
+      "ctaRent": "Vermietung anfragen"
+    },
+    "modelCard": {
+      "heatingIncluded": "Heizsystem inklusive",
+      "rent": "Mieten",
+      "buy": "Kaufen",
+      "voiceModule": "Reaktive Sprachmodule"
+    },
+    "buy": {
+      "eyebrow": "PREMIUM-ERWERB",
+      "titleLine1": "Dein Companion.",
+      "titleLine2": "Konfiguriert für",
+      "titleEmphasis": "dich",
+      "intro": "Konfiguriere jedes Detail — von Aussehen und Materialien bis zu den finalen Accessoires — für ein Erlebnis, das ganz auf deine Vorlieben zugeschnitten ist.",
+      "buyTitle": "Companion-Kauf",
+      "bullets": {
+        "custom": "Konfiguriert und personalisiert nach deinen Vorlieben",
+        "prepared": "Sorgfältig gefertigt und vor der Lieferung vorbereitet",
+        "delivery": "Diskrete Lieferung und neutrale Verpackung",
+        "support": "Garantie und engagierter Support nach dem Kauf"
+      },
+      "ctaBuy": "Companion konfigurieren"
+    },
+    "featured": {
+      "eyebrow": "EXKLUSIVE AUSWAHL",
+      "titleLine1": "Realismus",
+      "titleEmphasis": "neu interpretiert",
+      "cta": "Vollständige Kollektion ansehen",
+      "badgeRent": "Mieten",
+      "badgeBuy": "Kaufen",
+      "prevAria": "Vorheriges Modell",
+      "nextAria": "Nächstes Modell"
+    },
+    "quality": {
+      "titleLine1": "Qualität ohne",
+      "titleEmphasis": "Kompromisse",
+      "description": "Jeder Companion durchläuft einen sorgfältigen Bewertungs- und Vorbereitungsprozess, bevor er in die Kollektion aufgenommen wird. Materialien, innere Struktur und Finishes werden analysiert, um ein Premium-Erlebnis zu gewährleisten.",
+      "cards": {
+        "evaluation": {
+          "title": "14-stufige Bewertung",
+          "body": "Jedes Modell durchläuft eine interne Prüfung, die Verarbeitung, Beweglichkeit, Optik und Gesamtvorbereitung analysiert."
+        },
+        "materials": {
+          "title": "Zertifizierte Materialien",
+          "body": "Wir verwenden Materialien, die nach Realismus, Komfort und Sicherheit ausgewählt werden — konform mit europäischen Standards für Hautkontakt."
+        },
+        "hygiene": {
+          "title": "Hygieneprotokoll",
+          "body": "Zwischen Vermietungen wenden wir ein standardisiertes 5-stufiges Protokoll an: professionelle Reinigung, Desinfektion und UV-C-Sterilisation."
+        },
+        "preparation": {
+          "title": "Endvorbereitung",
+          "body": "Jeder Companion wird vor jeder Lieferung oder Übergabe gemäß unseren internen Standards geprüft, versiegelt und vorbereitet."
+        }
+      }
+    },
+    "about": {
+      "eyebrow": "ÜBER ARTISAN DOLLS",
+      "titleLine1": "Mehr als ein Katalog.",
+      "titleLine2": "Ein wirklich",
+      "titleEmphasis": "vollständiges Erlebnis.",
+      "body": "Artisan Dolls ist ein Atelier, das sich Premium-Erlebnissen widmet — jedes Modell wird sorgfältig ausgewählt, vorbereitet und präsentiert, um ein hohes Maß an Realismus, Komfort und Diskretion zu bieten. Von der ersten Bewertung bis zur finalen Lieferung folgt jeder Schritt klaren Qualitäts- und Vorbereitungsstandards.",
+      "stats": {
+        "criteria": {
+          "value": "14",
+          "label": "Bewertungskriterien"
+        },
+        "steps": {
+          "value": "5",
+          "label": "Sicherungsschritte"
+        },
+        "support": {
+          "value": "12 Monate",
+          "label": "Technischer Support"
+        }
+      },
+      "values": {
+        "studio": {
+          "title": "Lokales rumänisches Studio",
+          "body": "Ein engagiertes Team, Atelier und technischer Support — direkte Kommunikation und diskrete Lieferung in Rumänien."
+        },
+        "experience": {
+          "title": "Premium-Erlebnis",
+          "body": "Wir legen Wert auf Realismus, Liebe zum Detail und ein Erlebnis, das durch Komfort, Raffinesse und Qualität geprägt ist."
+        },
+        "privacy": {
+          "title": "Vollständige Vertraulichkeit",
+          "body": "Wir arbeiten diskret und anonym, mit strengen Richtlinien zum Schutz der Kundendaten."
+        }
+      },
+      "cta": "Den gesamten Prozess ansehen",
+      "imageAlt": "Premium-Companion im Atelier-Setting, warmes Licht, intime Atmosphäre"
+    },
+    "privacy": {
+      "titleLine1": "Diskretion ist",
+      "titleEmphasis": "unsere Priorität",
+      "description": "Wir wissen, dass deine Privatsphäre essenziell ist. Jeder Aspekt unseres Prozesses ist auf vollständige Vertraulichkeit ausgelegt.",
+      "cards": {
+        "packaging": {
+          "title": "Neutrale Verpackung",
+          "body": "Neutrale Verpackung — keine Logos oder Elemente, die auf den Inhalt der Sendung hinweisen."
+        },
+        "data": {
+          "title": "Datenschutz",
+          "body": "Deine Informationen werden mit höchstem Sicherheitsniveau gespeichert, verarbeitet und kommuniziert."
+        },
+        "billing": {
+          "title": "Diskrete Abrechnung",
+          "body": "Auf deinem Kontoauszug oder den Zahlungsbelegen ist nichts zu sehen, das die Art der Bestellung verrät."
+        },
+        "control": {
+          "title": "Kontrolle über deine Daten",
+          "body": "Du behältst die volle Kontrolle über deine Daten — mit klaren Regeln zu Speicherung und Löschung."
+        }
+      }
+    },
+    "howItWorks": {
+      "titleLine1": "Einfach.",
+      "titleEmphasis": "Diskret.",
+      "description": "Vom ersten Besuch bis zur Lieferung — jeder Schritt ist auf Komfort und Vertraulichkeit ausgelegt.",
+      "steps": {
+        "explore": {
+          "title": "Erkunden",
+          "body": "Stöbere durch die vollständige Kollektion mit detaillierten Filtern"
+        },
+        "choose": {
+          "title": "Wählen",
+          "body": "Entscheide dich zwischen Vermietung oder personalisiertem Kauf"
+        },
+        "personalize": {
+          "title": "Personalisieren",
+          "body": "Konfiguriere Optionen und Lieferung nach deinen Vorlieben"
+        },
+        "confirm": {
+          "title": "Bestätigen",
+          "body": "Sichere Zahlung und sofortige Bestätigung per diskreter E-Mail"
+        },
+        "delivery": {
+          "title": "Lieferung",
+          "body": "Neutrale Verpackung, diskrete Übergabe, sorgfältig vorbereitet"
+        }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "ONLINE-ATELIER",
+      "titleLine1": "Entdecke",
+      "titleEmphasis": "die Kollektion.",
+      "description": "Mehr als ein Produkt. Ein Erlebnis, das auf Diskretion, Komfort und Liebe zum Detail aufgebaut ist.",
+      "ctaPrimary": "Modelle ansehen",
+      "ctaSecondary": "Private Beratung anfragen"
     }
   },
   "heroActions": {
@@ -697,7 +850,7 @@
     "contactSupportGeneric": "Support kontaktieren"
   },
   "footer": {
-    "tagline": "Diskreter Partner für Intimität und Körperkunst. Dienste ausschließlich für Erwachsene.",
+    "tagline": "Ein Atelier, das sich Premium-Companions für Vermietung und Kauf widmet — auf Diskretion, Qualität und Liebe zum Detail aufgebaut.",
     "description": "Premium-Companions zur Miete und zum Kauf, neutral verpackt in Rumänien und der EU geliefert.",
     "navigation": "Navigation",
     "navHome": "Startseite",
@@ -728,7 +881,7 @@
     "paymentsNote": "Die Zahlung wird mit Ihrem Berater abgestimmt: bar oder Karte über ein mobiles Terminal bei Lieferung.",
     "socialTitle": "Private Kanäle",
     "copyright": "© {year} {brand}. Alle Rechte vorbehalten.",
-    "ageNotice": "Inhalt strikt für Erwachsene ab 18 Jahren. Das Alter wird beim Zutritt überprüft.",
+    "ageNotice": "Website ausschließlich für Erwachsene ab 18 Jahren.",
     "privacy": "Datenschutzerklärung",
     "terms": "Allgemeine Geschäftsbedingungen",
     "cookies": "Cookie-Richtlinie",
@@ -737,7 +890,22 @@
     "navGlossary": "Glossar",
     "navAbout": "Über uns",
     "navBlog": "Blog",
-    "navFaq": "FAQ"
+    "navFaq": "FAQ",
+    "colCollection": "Kollektion",
+    "colShop": "Accessoires-Shop",
+    "colRent": "Vermietung",
+    "colBuy": "Kauf",
+    "colCustom": "Individuelles Design",
+    "colInfo": "Informationen",
+    "infoAbout": "Über uns",
+    "infoFaq": "Häufige Fragen",
+    "infoBlog": "Blog",
+    "infoContact": "Direkter Kontakt",
+    "colLegal": "Rechtliches",
+    "legalTerms": "AGB",
+    "legalPrivacy": "Datenschutz",
+    "legalCookies": "Cookie-Richtlinie",
+    "legalAge": "18+ Richtlinie"
   },
   "shop": {
     "label": "Diskreter Shop",

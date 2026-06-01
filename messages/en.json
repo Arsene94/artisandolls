@@ -162,22 +162,13 @@
   },
   "home": {
     "hero": {
-      "tag": "Luxury, privacy & hyper-realism",
-      "titleLine1": "Live the fantasy.",
-      "titleEmphasis": "The touch that conquers you.",
-      "description": "Step into a world of pure sensuality. Discover companion models of mesmerising beauty, crafted with perfect anatomical features and a revolutionary heating system. Available for highly private, secure short-term rental or fully personalised private purchase.",
-      "btnCustomizer": "Create your ideal partner",
-      "btnModels": "Discover our models",
-      "trust1Value": "37.2 °C",
-      "trust1Label": "Active body heating",
-      "trust2Value": "100%",
-      "trust2Label": "Certified medical hygiene",
-      "trust3Value": "Full",
-      "trust3Label": "Anonymous sealed delivery",
-      "badgeTop": "Premium TPE Realism",
-      "badgeBottom": "Reference model",
-      "cardDescription": "Classic sensuality, extra-fine silky skin, and complete anatomical articulation.",
-      "fallbackImageText": "Premium companion",
+      "titleLine1": "Fantasy becomes",
+      "titleEmphasis": "reality.",
+      "taglinePremium": "Exceptional realism. <accent>Premium</accent> materials.<break></break>Absolute confidentiality.",
+      "description": "Discreet private experiences and bespoke premium acquisitions, delivered with the highest level of confidentiality.",
+      "cta": "Discover the collection",
+      "ctaAria": "Discover the Artisan Dolls collection",
+      "imageAltFallback": "Premium companion on a velvet sofa, warm lighting, intimate setting",
       "fallbackName": "Isabella",
       "fallbackHeight": "168 cm"
     },
@@ -275,30 +266,38 @@
       "buyCta": "Start your custom design"
     },
     "trust": {
-      "discreetShipping": "Opaque box, no branding",
-      "discreetShippingDetail": "The courier does not know the contents.",
-      "discreetBilling": "Statement reads “Velvet Studio SRL”",
-      "discreetBillingDetail": "No reference to adult content on the statement.",
-      "clinicalHygiene": "Clinical hygiene between rentals",
-      "clinicalHygieneDetail": "Five-stage sterilisation, UV-C and sealing.",
-      "ageVerified": "Verified 18+ access",
-      "ageVerifiedDetail": "Services strictly for adults."
+      "ariaLabel": "Key guarantees",
+      "delivery": {
+        "title": "Discreet delivery",
+        "body": "Sealed packaging, with no elements revealing the contents."
+      },
+      "hygiene": {
+        "title": "5-step hygiene protocol",
+        "body": "UV-C sterilization and certified protocols for every use."
+      },
+      "privacy": {
+        "title": "Guaranteed confidentiality",
+        "body": "Confidential processing and personal data protection."
+      },
+      "materials": {
+        "title": "Premium materials",
+        "body": "The finest silicone and TPE, safe and durable."
+      }
     },
     "hygiene": {
-      "badge": "Certified clinical protocol",
-      "title": "Hygiene treated like a clinic, not a shop",
-      "description": "Between rentals we run a rigorous five-stage protocol so the companion you receive is fully clean, sealed and ready. Full methodology available on request.",
-      "step1Label": "Professional wash",
-      "step1Description": "Medical-grade detergent, hand wash in a controlled environment.",
-      "step2Label": "Disinfection",
-      "step2Description": "Broad-spectrum, clinically validated antibacterial agents.",
-      "step3Label": "UV-C sterilisation",
-      "step3Description": "15 minutes of intensive ultraviolet C exposure.",
-      "step4Label": "Controlled drying",
-      "step4Description": "Particle-free environment at stable temperature.",
-      "step5Label": "Neutral sealing",
-      "step5Description": "Opaque bag inside an unbranded box.",
-      "methodologyLink": "View the full methodology"
+      "eyebrow": "HYGIENE PROTOCOL",
+      "titleLine1": "Safety",
+      "titleEmphasis": "guaranteed.",
+      "description": "Between every rental we apply a documented protocol for cleaning, disinfection, sterilization, and final preparation.",
+      "bullets": {
+        "cleaning": "Professional cleaning",
+        "disinfection": "Medical-grade disinfection",
+        "sterilization": "UV-C sterilization",
+        "inspection": "Full unit inspection",
+        "sealed": "Delivery in sealed packaging"
+      },
+      "cta": "See the full process",
+      "imageAlt": "Premium companion professionally prepared for delivery"
     },
     "contact": {
       "badge": "Safety, discretion & respect",
@@ -341,55 +340,209 @@
       "modalClose": "Close window"
     },
     "faq": {
-      "badge": "Information & clarification",
-      "title": "Answers to your questions",
-      "subtitle": "The essentials around discretion, hygiene, materials, payment and returns. If something is missing, write to us privately.",
-      "searchPlaceholder": "Search questions…",
-      "searchNoResults": "No matches. Reword your search or write to us directly.",
-      "moreQuestions": "Still have a question?",
-      "moreQuestionsCta": "Contact us privately",
+      "title": "Frequently asked questions",
+      "subtitle": "The information our clients most often request before a rental or purchase.",
+      "contactCta": "Contact us discreetly",
+      "chips": {
+        "rental": "RENTAL",
+        "purchase": "PURCHASE",
+        "hygiene": "HYGIENE STANDARDS",
+        "privacy": "CONFIDENTIALITY",
+        "payment": "PAYMENT & DELIVERY"
+      },
       "items": [
         {
+          "q": "How does the rental work?",
+          "a": "Choose an interval (4 hours – 7 days), confirm the address and time, and we deliver the sealed companion within the agreed window. At the end of the period, the courier returns for pick-up."
+        },
+        {
+          "q": "Can I personalize a companion for purchase?",
+          "a": "Yes. You can configure appearance, materials, and select premium options, together with a dedicated consultant."
+        },
+        {
           "q": "What does the parcel look like on delivery?",
-          "a": "Deliveries arrive in an opaque, robust, completely neutral box — no logo, no insignia, no copy that hints at the contents. Shipping documents show only the legal operator name (Velvet Studio SRL); the courier never knows what is inside."
+          "a": "All orders ship in neutral packaging, with no logos or elements hinting at the contents."
         },
         {
-          "q": "How do you guarantee hygiene for rentals?",
-          "a": "Between rentals we run a five-stage clinical protocol: professional detergent wash, medical-grade broad-spectrum disinfection, 15-minute UV-C sterilisation, controlled drying, and sealed packaging. Each companion is re-sealed before each new delivery."
+          "q": "How is payment handled?",
+          "a": "Payment terms are agreed with a consultant. Nothing on your payment documents explicitly describes the contents of the order."
         },
         {
-          "q": "Can I fully customise a doll for purchase?",
-          "a": "Yes. Purchase orders let you choose shape, height, skin tone, eye colour, hair, makeup, bust, hips, articulated skeleton, thermal module, and reactive voice module. Your advisor sends previews before final approval."
+          "q": "How is hygiene guaranteed between rentals?",
+          "a": "Every companion goes through a standardized five-stage protocol: professional cleaning, medical-grade disinfection, UV-C sterilization, and re-sealing before each delivery."
         },
         {
           "q": "What materials do you use?",
-          "a": "Medical-grade platinum-cure silicone or surgical-grade TPE — both hypoallergenic, phthalate-free, latex-free. The internal skeleton is a titanium-aluminium alloy with biomechanically articulated joints. Full material datasheet available on request."
-        },
-        {
-          "q": "How does payment work?",
-          "a": "We do not request card details on the site. After you submit your request a private advisor contacts you and you agree the method together — cash on delivery or card via mobile terminal. The statement reads “Velvet Studio SRL” with no reference to the content."
-        },
-        {
-          "q": "Can a purchased companion be returned?",
-          "a": "Per EU Directive 2011/83 art. 16(e), unsealed intimate goods are excluded from the 14-day right of withdrawal for hygiene reasons. In case of manufacturing defect, contact us within 24 hours and we will repair or replace the piece."
-        },
-        {
-          "q": "Is there a warranty on purchases?",
-          "a": "Yes. Every purchased companion includes 12 months of technical support for the skeleton and electronic modules. The outer skin is warranted for 6 months against manufacturing defects under normal use."
-        },
-        {
-          "q": "How does the rental work?",
-          "a": "Pick an interval (4 hours to 7 days), confirm address and time, and we deliver the sealed companion within the agreed window. At the end of the period a courier collects it back inside an opaque bag. The courier interaction is non-verbal."
-        },
-        {
-          "q": "Is there a deposit?",
-          "a": "Rentals require a refundable deposit set with your advisor based on the model (typically 100–300 EUR). The deposit is fully refunded at the end of the period after an integrity check."
-        },
-        {
-          "q": "What happens to my data after we finish?",
-          "a": "Your name, address and phone are encrypted and kept strictly for the logistics of the order. Within 30 days of delivery/return at the latest, the data is purged from the active database. We can issue a written confirmation on request (dpo@velvet-companions.com)."
+          "a": "We use platinum-cure silicone and premium TPE, alongside an articulated internal skeleton for realism, comfort, and durability."
         }
       ]
+    },
+    "heroLegs": {
+      "ariaLabel": "Premium presentation image",
+      "imageAlt": "Elegance details — high heels on a velvet sofa"
+    },
+    "rent": {
+      "eyebrow": "ARTISAN COLLECTION",
+      "titleLine1": "Our",
+      "titleEmphasis": "models",
+      "intro": "Each model is available for private experiences or purchase, with complete personalization.",
+      "rentTitle": "Rental",
+      "bullets": {
+        "duration": "Choose the duration that matches your experience, from 4 hours to 7 days",
+        "hygiene": "Professionally sanitized and prepared before every rental",
+        "delivery": "Discreet delivery and pick-up, at the address and time you choose",
+        "experience": "A complete experience, with accessories and care products included"
+      },
+      "ctaRent": "Request a rental"
+    },
+    "modelCard": {
+      "heatingIncluded": "Heating system included",
+      "rent": "Rent",
+      "buy": "Buy",
+      "voiceModule": "Reactive voice modules"
+    },
+    "buy": {
+      "eyebrow": "PREMIUM ACQUISITION",
+      "titleLine1": "Your companion.",
+      "titleLine2": "Configured just for",
+      "titleEmphasis": "you",
+      "intro": "Configure every detail, from appearance and materials to the final accessories, for an experience built around your preferences.",
+      "buyTitle": "Companion purchase",
+      "bullets": {
+        "custom": "Configured and personalized to your preferences",
+        "prepared": "Carefully manufactured and prepared before delivery",
+        "delivery": "Discreet delivery and neutral packaging",
+        "support": "Warranty and dedicated post-purchase support"
+      },
+      "ctaBuy": "Configure your companion"
+    },
+    "featured": {
+      "eyebrow": "EXCLUSIVE SELECTION",
+      "titleLine1": "Realism",
+      "titleEmphasis": "reimagined",
+      "cta": "View the full collection",
+      "badgeRent": "Rent",
+      "badgeBuy": "Buy",
+      "prevAria": "Previous model",
+      "nextAria": "Next model"
+    },
+    "quality": {
+      "titleLine1": "Quality without",
+      "titleEmphasis": "compromise",
+      "description": "Every companion goes through a rigorous evaluation and preparation process before joining the collection. Materials, internal structure, and finishes are analyzed to ensure a premium experience.",
+      "cards": {
+        "evaluation": {
+          "title": "14-step evaluation",
+          "body": "Every model undergoes an internal verification process that analyzes finishes, mobility, appearance, and overall preparation."
+        },
+        "materials": {
+          "title": "Certified materials",
+          "body": "We use materials selected for realism, comfort, and safety, compliant with European standards for skin contact."
+        },
+        "hygiene": {
+          "title": "Hygiene protocol",
+          "body": "Between rentals we apply a standardized 5-stage protocol that includes professional cleaning, disinfection, and UV-C sterilization."
+        },
+        "preparation": {
+          "title": "Final preparation",
+          "body": "Each companion is verified, sealed, and prepared before every delivery or handover, in line with our internal standards."
+        }
+      }
+    },
+    "about": {
+      "eyebrow": "ABOUT ARTISAN DOLLS",
+      "titleLine1": "More than a catalogue.",
+      "titleLine2": "A truly",
+      "titleEmphasis": "complete experience.",
+      "body": "Artisan Dolls is a studio dedicated to premium experiences, where each model is carefully selected, prepared, and presented to deliver a high level of realism, comfort, and discretion. From the initial evaluation to the final delivery, every step follows clear standards of quality and preparation.",
+      "stats": {
+        "criteria": {
+          "value": "14",
+          "label": "Evaluation criteria"
+        },
+        "steps": {
+          "value": "5",
+          "label": "Assurance steps"
+        },
+        "support": {
+          "value": "12 months",
+          "label": "Technical support"
+        }
+      },
+      "values": {
+        "studio": {
+          "title": "Local Romanian studio",
+          "body": "A dedicated team, workshop, and technical support — direct communication and discreet delivery in Romania."
+        },
+        "experience": {
+          "title": "Premium experience",
+          "body": "We focus on realism, attention to detail, and an experience defined by comfort, refinement, and quality."
+        },
+        "privacy": {
+          "title": "Total confidentiality",
+          "body": "We work discreetly and anonymously, with strict policies safeguarding our clients' personal data."
+        }
+      },
+      "cta": "See the full process",
+      "imageAlt": "Premium companion in studio setting, warm lighting, intimate atmosphere"
+    },
+    "privacy": {
+      "titleLine1": "Discretion is",
+      "titleEmphasis": "our priority",
+      "description": "We understand that your privacy is essential. Every aspect of our process is designed for complete confidentiality.",
+      "cards": {
+        "packaging": {
+          "title": "Neutral packaging",
+          "body": "Neutral packaging — no logos or elements hinting at the contents of the shipment."
+        },
+        "data": {
+          "title": "Data protection",
+          "body": "Your information is stored, processed, and communicated with the highest level of security."
+        },
+        "billing": {
+          "title": "Discreet billing",
+          "body": "Nothing on your bank statement or payment documents reveals the nature of the order."
+        },
+        "control": {
+          "title": "Control over your data",
+          "body": "You stay in full control of your data — with clear policies on retention and deletion."
+        }
+      }
+    },
+    "howItWorks": {
+      "titleLine1": "Simple.",
+      "titleEmphasis": "Discreet.",
+      "description": "From your first visit to delivery, every step is designed for comfort and confidentiality.",
+      "steps": {
+        "explore": {
+          "title": "Explore",
+          "body": "Browse the full collection with detailed filters"
+        },
+        "choose": {
+          "title": "Choose",
+          "body": "Select between rental or a personalized purchase"
+        },
+        "personalize": {
+          "title": "Personalize",
+          "body": "Configure options and delivery to match your preferences"
+        },
+        "confirm": {
+          "title": "Confirm",
+          "body": "Secure payment and instant confirmation via discreet email"
+        },
+        "delivery": {
+          "title": "Delivery",
+          "body": "Neutral packaging, discreet handover, an experience prepared with care"
+        }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "ONLINE ATELIER",
+      "titleLine1": "Discover",
+      "titleEmphasis": "the collection.",
+      "description": "More than a product. An experience built around discretion, comfort, and attention to every detail.",
+      "ctaPrimary": "Explore the models",
+      "ctaSecondary": "Request private consultation"
     }
   },
   "heroActions": {
@@ -697,7 +850,7 @@
     "contactSupportGeneric": "Contact support"
   },
   "footer": {
-    "tagline": "Discreet partner for intimacy and body art. Services reserved for adults.",
+    "tagline": "A studio dedicated to premium companions for rental and purchase, built around discretion, quality, and attention to detail.",
     "description": "Premium companions for rental and purchase, delivered neutrally across Romania and the EU.",
     "navigation": "Navigation",
     "navHome": "Home",
@@ -728,7 +881,7 @@
     "paymentsNote": "Payment is agreed with your advisor: cash or card via mobile terminal on delivery.",
     "socialTitle": "Private channels",
     "copyright": "© {year} {brand}. All rights reserved.",
-    "ageNotice": "Content strictly for adults aged 18+. Age is verified upon entry.",
+    "ageNotice": "Site intended exclusively for adults aged 18+.",
     "privacy": "Privacy policy",
     "terms": "Terms & conditions",
     "cookies": "Cookie policy",
@@ -737,7 +890,22 @@
     "navGlossary": "Glossary",
     "navAbout": "About",
     "navBlog": "Blog",
-    "navFaq": "FAQ"
+    "navFaq": "FAQ",
+    "colCollection": "Collection",
+    "colShop": "Accessories shop",
+    "colRent": "Rental",
+    "colBuy": "Purchase",
+    "colCustom": "Custom design",
+    "colInfo": "Information",
+    "infoAbout": "About us",
+    "infoFaq": "Frequently asked",
+    "infoBlog": "Blog",
+    "infoContact": "Direct contact",
+    "colLegal": "Legal",
+    "legalTerms": "Terms & conditions",
+    "legalPrivacy": "Privacy",
+    "legalCookies": "Cookie policy",
+    "legalAge": "18+ policy"
   },
   "shop": {
     "label": "Discreet shop",

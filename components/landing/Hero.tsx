@@ -1,195 +1,118 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import HeroRentalActions from "@/components/HeroRentalActions";
-
-export type HeroDoll = {
-    name: string;
-    image: string;
-    height?: string;
-    description?: string;
-};
+import { Link } from "@/i18n/navigation";
 
 type HeroProps = {
-    heroDoll: HeroDoll | null;
-    fallbackImage: string;
     catalogEnabled: boolean;
-    rentEnabled: boolean;
-    buyEnabled: boolean;
 };
 
-function buildAltText(name: string, height: string | undefined, description: string) {
-    const parts = [name];
-    if (height) parts.push(height);
-    const short = description.replace(/\s+/g, " ").trim();
-    if (short) parts.push(short.slice(0, 120));
-    return parts.join(" — ");
-}
-
-export default async function Hero({
-    heroDoll,
-    fallbackImage,
-    catalogEnabled,
-    rentEnabled,
-    buyEnabled,
-}: HeroProps) {
+export default async function Hero({ catalogEnabled }: HeroProps) {
     const t = await getTranslations("home.hero");
-
-    const image = heroDoll?.image ?? fallbackImage;
-    const displayName = heroDoll?.name ?? t("fallbackName");
-    const heightLabel = heroDoll?.height ?? t("fallbackHeight");
-    const description = heroDoll?.description ?? t("cardDescription");
-    const altText = buildAltText(displayName, heightLabel, description);
 
     return (
         <section
             id="hero"
             aria-labelledby="hero-title"
             data-surface="dark"
-            className="velvet-hero relative pt-32 pb-24 lg:pt-40 lg:pb-32 overflow-hidden min-h-screen flex items-center bg-velvet-950 text-silk isolate"
+            className="velvet-hero relative isolate overflow-hidden bg-[#12070b] text-[#f3eee7] lg:h-[1302px]"
         >
-            <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-br from-velvet-950 via-velvet-900 to-velvet-800/50 pointer-events-none"
-            />
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute top-1/4 left-[10%] w-80 h-80 bg-velvet-500/18 rounded-full blur-[120px] motion-safe:animate-pulse-slow"
-            />
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute bottom-1/4 right-[10%] w-[450px] h-[450px] bg-gold/10 rounded-full blur-[140px] motion-safe:animate-pulse-slow"
-                style={{ animationDelay: "4s" }}
-            />
+            {/* Velvet textured backdrop — only the hero band (top 871px in Figma). */}
+            <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-20 h-[560px] lg:h-[871px]">
+                <Image
+                    src="/images/landing/hero.png"
+                    alt=""
+                    fill
+                    priority
+                    fetchPriority="high"
+                    sizes="100vw"
+                    className="object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-black/10" />
+            </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-                <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-                    <div>
-                        <div className="inline-flex items-center gap-3 px-3.5 py-2 bg-velvet-900/80 border border-gold/40 rounded-full mb-7 backdrop-blur-sm">
-                            <span
-                                aria-hidden="true"
-                                className="w-1.5 h-1.5 rounded-full bg-gold motion-safe:animate-ping"
-                            />
-                            <span className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-gold-light">
-                                {t("tag")}
-                            </span>
-                        </div>
+            <div className="relative mx-auto flex w-full max-w-[1474px] flex-col px-6 pt-[120px] pb-0 sm:px-10 lg:h-[871px] lg:px-[87px] lg:pt-[95px]">
+                <h1
+                    id="hero-title"
+                    className="font-display text-center font-bold leading-[1.5] tracking-[-0.01em] text-[#f3eee7] text-[clamp(3rem,10.5vw,130px)] lg:whitespace-nowrap"
+                    style={{
+                        fontFamily:
+                            'var(--font-cormorant), "Cormorant Garamond", Georgia, serif',
+                    }}
+                >
+                    <span>{t("titleLine1")} </span>
+                    <span className="italic font-normal text-[#c9a15a]">
+                        {t("titleEmphasis")}
+                    </span>
+                </h1>
 
-                        <h1
-                            id="hero-title"
-                            className="mb-7 text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-[1.05] font-display font-medium text-silk"
-                        >
-                            {t("titleLine1")}
-                            <span className="block italic text-gold-light mt-1">
-                                {t("titleEmphasis")}
-                            </span>
-                        </h1>
-
-                        <p className="mb-9 text-base sm:text-lg text-silk/75 font-light leading-relaxed max-w-xl">
+                <div className="mt-12 flex flex-col items-stretch gap-10 lg:mt-[136px] lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+                    <div className="flex w-full flex-col gap-[39px] lg:max-w-[327px]">
+                        <p className="font-display text-[20px] font-semibold leading-[1.5] text-[#f3eee7]">
+                            {t.rich("taglinePremium", {
+                                accent: (chunks) => (
+                                    <span className="text-[#c9a15a]">{chunks}</span>
+                                ),
+                                break: () => <br />,
+                            })}
+                        </p>
+                        <p className="font-sans text-[18px] font-normal leading-[1.5] tracking-[-0.01em] text-[#b9b2aa]">
                             {t("description")}
                         </p>
-
-                        <HeroRentalActions
-                            catalogEnabled={catalogEnabled}
-                            rentEnabled={rentEnabled}
-                            buyEnabled={buyEnabled}
-                        />
-
-                        <dl className="mt-12 pt-8 border-t border-velvet-700 grid grid-cols-3 gap-4 text-center sm:text-left">
-                            <div>
-                                <dt className="sr-only">{t("trust1Label")}</dt>
-                                <dd>
-                                    <p className="font-display text-2xl sm:text-3xl lg:text-4xl font-medium text-gold tabular-nums">
-                                        {t("trust1Value")}
-                                    </p>
-                                    <p className="mt-1.5 text-[0.7rem] sm:text-xs text-silk/70 font-medium tracking-[0.14em] uppercase leading-snug">
-                                        {t("trust1Label")}
-                                    </p>
-                                </dd>
-                            </div>
-                            <div>
-                                <dt className="sr-only">{t("trust2Label")}</dt>
-                                <dd>
-                                    <p className="font-display text-2xl sm:text-3xl lg:text-4xl font-medium text-gold tabular-nums">
-                                        {t("trust2Value")}
-                                    </p>
-                                    <p className="mt-1.5 text-[0.7rem] sm:text-xs text-silk/70 font-medium tracking-[0.14em] uppercase leading-snug">
-                                        {t("trust2Label")}
-                                    </p>
-                                </dd>
-                            </div>
-                            <div>
-                                <dt className="sr-only">{t("trust3Label")}</dt>
-                                <dd>
-                                    <p className="font-display text-2xl sm:text-3xl lg:text-4xl font-medium text-gold">
-                                        {t("trust3Value")}
-                                    </p>
-                                    <p className="mt-1.5 text-[0.7rem] sm:text-xs text-silk/70 font-medium tracking-[0.14em] uppercase leading-snug">
-                                        {t("trust3Label")}
-                                    </p>
-                                </dd>
-                            </div>
-                        </dl>
                     </div>
 
-                    <div className="relative flex justify-center lg:justify-end">
-                        <div className="relative w-full max-w-[460px] aspect-[4/5]">
-                            <div
+                    {catalogEnabled && (
+                        <Link
+                            href="/catalog"
+                            aria-label={t("ctaAria")}
+                            className="inline-flex w-fit items-center justify-center gap-[10px] self-start rounded-[20px] px-6 py-[14px] font-display text-[17px] font-bold tracking-[-0.01em] text-[#12070b] shadow-[0_8px_24px_rgba(201,161,90,0.35)] transition-transform duration-300 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a15a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12070b] motion-reduce:transition-none motion-reduce:hover:scale-100 lg:self-center"
+                            style={{
+                                backgroundImage:
+                                    "linear-gradient(108.19deg, #c9a15a 0.59%, #daffed 103.75%)",
+                            }}
+                        >
+                            <span className="whitespace-nowrap">{t("cta")}</span>
+                            <span
                                 aria-hidden="true"
-                                className="absolute -top-5 -right-5 w-[70%] h-[70%] border border-gold/30 z-0"
-                            />
-                            <div
-                                aria-hidden="true"
-                                className="absolute -bottom-5 -left-5 w-[50%] h-[50%] border border-velvet-500/30 z-0"
-                            />
-
-                            <div className="relative w-full h-full overflow-hidden border border-gold/25 shadow-2xl z-10">
-                                <Image
-                                    src={image}
-                                    alt={altText}
-                                    fill
-                                    priority
-                                    fetchPriority="high"
-                                    sizes="(max-width: 1024px) 100vw, 460px"
-                                    className="object-cover object-[center_25%]"
-                                    unoptimized={image.includes("placehold.co")}
-                                />
-
-                                <div
-                                    aria-hidden="true"
-                                    className="absolute inset-0 bg-gradient-to-t from-velvet-950 via-velvet-950/10 to-transparent"
-                                />
-
-                                <figcaption className="absolute bottom-5 left-5 right-5 z-10">
-                                    <p className="text-[0.7rem] text-gold tracking-[0.22em] uppercase mb-1">
-                                        {t("badgeBottom")}
-                                    </p>
-                                    <p className="font-display italic text-2xl text-silk leading-tight">
-                                        {displayName}
-                                        {heightLabel ? (
-                                            <span className="text-silk/75 font-normal not-italic">
-                                                {" "}— {heightLabel}
-                                            </span>
-                                        ) : null}
-                                    </p>
-                                    <p className="mt-1 text-[0.78rem] text-silk/80 line-clamp-2 leading-snug">
-                                        {description}
-                                    </p>
-                                </figcaption>
-                            </div>
-                        </div>
-                    </div>
+                                className="inline-flex h-6 w-6 items-center justify-center"
+                            >
+                                <svg
+                                    width="18"
+                                    height="14"
+                                    viewBox="0 0 18 14"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        d="M1 7h16m0 0L11 1m6 6l-6 6"
+                                        stroke="currentColor"
+                                        strokeWidth="1.6"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                            </span>
+                        </Link>
+                    )}
                 </div>
+            </div>
 
-                <a
-                    href="#galerie"
-                    aria-label={t("btnModels")}
-                    className="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 text-silk/55 hover:text-gold transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-md p-2"
-                >
-                    <span className="text-[0.7rem] tracking-[0.22em] uppercase">
-                        Scroll
-                    </span>
-                    <span aria-hidden="true" className="scroll-line" />
-                </a>
+            {/* Single unified figure (hero.png). On lg it is 1013px wide → 1107px tall and,
+                bottom-anchored to the 1302px section, lands at top:195px exactly as in Figma,
+                its legs overflowing 431px below the hero band. On smaller screens it flows
+                directly under the copy so text and figure never overlap. */}
+            <div
+                aria-hidden="true"
+                className="pointer-events-none relative z-0 mt-2 flex justify-center lg:absolute lg:inset-x-0 lg:bottom-0 lg:-z-10 lg:mt-0"
+            >
+                <Image
+                    src="/hero.png"
+                    alt={t("imageAltFallback")}
+                    width={2026}
+                    height={2212}
+                    priority
+                    sizes="(max-width: 1024px) 90vw, 1013px"
+                    className="h-auto w-[92vw] max-w-[460px] object-contain object-bottom sm:max-w-[560px] lg:w-[1013px] lg:max-w-none lg:translate-x-[4px]"
+                />
             </div>
         </section>
     );

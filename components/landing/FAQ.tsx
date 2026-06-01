@@ -1,30 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { safeLdJson } from "@/lib/seo/ld-json";
 
 type FaqItem = { q: string; a: string };
 
-const HIGHLIGHT_THRESHOLD = 2;
-
-function normalize(value: string) {
-    return value
-        .toLocaleLowerCase()
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, "")
-        .trim();
-}
-
 type Props = {
-    /** Lista de Q&A. Dacă lipsește, cade pe `messages.home.faq.items` (legacy). */
     items?: FaqItem[];
 };
+
+const CHIP_KEYS = [
+    "rental",
+    "purchase",
+    "hygiene",
+    "privacy",
+    "payment",
+] as const;
 
 export default function FAQ({ items: itemsProp }: Props = {}) {
     const t = useTranslations("home.faq");
     const baseId = useId();
-    const items = useMemo(() => {
+
+    const items = useMemo<FaqItem[]>(() => {
         if (itemsProp && itemsProp.length > 0) return itemsProp;
         try {
             return (t.raw("items") as FaqItem[]) ?? [];
@@ -33,30 +32,10 @@ export default function FAQ({ items: itemsProp }: Props = {}) {
         }
     }, [t, itemsProp]);
 
-    const [open, setOpen] = useState<number | null>(null);
-    const [query, setQuery] = useState("");
-
-    const filtered = useMemo(() => {
-        const needle = normalize(query);
-        if (needle.length < HIGHLIGHT_THRESHOLD) {
-            return items.map((item, idx) => ({ ...item, idx }));
-        }
-        return items
-            .map((item, idx) => ({ ...item, idx }))
-            .filter(
-                ({ q, a }) =>
-                    normalize(q).includes(needle) || normalize(a).includes(needle),
-            );
-    }, [items, query]);
-
-    useEffect(() => {
-        if (filtered.length > 0 && filtered.every(({ idx }) => idx !== open)) {
-            setOpen(null);
-        }
-    }, [filtered, open]);
+    const [open, setOpen] = useState<number | null>(0);
 
     const toggle = useCallback((idx: number) => {
-        setOpen((current) => (current === idx ? null : idx));
+        setOpen((cur) => (cur === idx ? null : idx));
     }, []);
 
     const jsonLd = useMemo(
@@ -76,73 +55,70 @@ export default function FAQ({ items: itemsProp }: Props = {}) {
         <section
             id="faq"
             aria-labelledby="faq-title"
-            className="surface-light py-24 bg-silk text-silk-800"
+            data-surface="dark"
+            className="velvet-faq relative bg-velvet-950 text-silk"
         >
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-10 lg:mb-12">
-                    <span className="inline-block text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-velvet-700 bg-velvet-100 px-4 py-2 rounded-full">
-                        {t("badge")}
-                    </span>
+            <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-14 px-6 py-24 sm:px-10 lg:grid-cols-[1fr_1.1fr] lg:gap-20 lg:px-16">
+                <div className="flex flex-col">
                     <h2
                         id="faq-title"
-                        className="text-3xl sm:text-4xl lg:text-5xl font-display italic font-medium mt-5 text-velvet-900"
+                        className="font-display text-[clamp(2.25rem,4.5vw,4rem)] leading-[1.05] tracking-tight text-silk"
                     >
                         {t("title")}
                     </h2>
-                    <p className="mt-4 mx-auto max-w-xl text-silk-600 leading-relaxed">
+                    <span
+                        aria-hidden="true"
+                        className="mt-6 block h-px w-[60px] bg-gold/60"
+                    />
+                    <p className="mt-7 max-w-md text-sm leading-relaxed text-silk/70">
                         {t("subtitle")}
                     </p>
-                </div>
 
-                <div className="mb-8 max-w-xl mx-auto">
-                    <label htmlFor={`${baseId}-search`} className="sr-only">
-                        {t("searchPlaceholder")}
-                    </label>
-                    <div className="relative">
-                        <svg
-                            aria-hidden="true"
-                            focusable="false"
-                            className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-silk-600"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
+                    <ul className="mt-12 space-y-5">
+                        {CHIP_KEYS.map((key) => (
+                            <li key={key}>
+                                <a
+                                    href={`#faq-${key}`}
+                                    className="inline-flex items-center font-heading text-sm font-semibold uppercase tracking-[0.22em] text-silk/70 transition-colors hover:text-gold focus-visible:outline-none focus-visible:text-gold"
+                                >
+                                    {t(`chips.${key}`)}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <div className="mt-12">
+                        <Link
+                            href="/contact"
+                            className="group inline-flex items-center gap-3 rounded-full border border-gold/60 bg-velvet-950/40 px-6 py-3 font-heading text-xs font-semibold uppercase tracking-[0.18em] text-silk transition-all duration-300 hover:border-gold hover:bg-gold hover:text-velvet-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-velvet-950 motion-reduce:transition-none"
                         >
-                            <circle cx="11" cy="11" r="7" />
-                            <path d="m20 20-3.5-3.5" />
-                        </svg>
-                        <input
-                            id={`${baseId}-search`}
-                            type="search"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder={t("searchPlaceholder")}
-                            autoComplete="off"
-                            className="w-full pl-11 pr-4 py-3 rounded-full bg-white border border-silk-300 text-silk-800 placeholder:text-silk-600/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-velvet-600 focus-visible:border-velvet-600"
-                        />
+                            {t("contactCta")}
+                            <span
+                                aria-hidden="true"
+                                className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-gold/40 transition-transform duration-300 group-hover:translate-x-0.5"
+                            >
+                                <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
+                                    <path
+                                        d="M2.5 7H11.5M11.5 7L7.5 3M11.5 7L7.5 11"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                            </span>
+                        </Link>
                     </div>
                 </div>
 
-                {filtered.length === 0 ? (
-                    <p
-                        role="status"
-                        className="text-center text-silk-600 py-12"
-                    >
-                        {t("searchNoResults")}
-                    </p>
-                ) : (
-                    <ul className="space-y-3">
-                        {filtered.map(({ q, a, idx }) => {
+                {items.length > 0 && (
+                    <ul className="divide-y divide-velvet-800/70">
+                        {items.map(({ q, a }, idx) => {
                             const isOpen = open === idx;
                             const buttonId = `${baseId}-faq-button-${idx}`;
                             const panelId = `${baseId}-faq-panel-${idx}`;
                             return (
-                                <li
-                                    key={idx}
-                                    className="bg-white border border-silk-300 rounded-2xl shadow-sm transition-shadow duration-200 motion-reduce:transition-none hover:shadow-md"
-                                >
+                                <li key={idx} className="py-1">
                                     <h3 className="m-0">
                                         <button
                                             id={buttonId}
@@ -150,24 +126,29 @@ export default function FAQ({ items: itemsProp }: Props = {}) {
                                             onClick={() => toggle(idx)}
                                             aria-expanded={isOpen}
                                             aria-controls={panelId}
-                                            className="w-full flex items-center justify-between gap-4 text-left py-5 px-5 sm:px-6 font-heading text-base sm:text-lg font-semibold text-velvet-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-velvet-600 rounded-2xl"
+                                            className="flex w-full items-center justify-between gap-6 py-5 text-left font-display text-lg italic leading-snug text-gold-light transition-colors hover:text-gold focus-visible:outline-none focus-visible:text-gold"
                                         >
                                             <span>{q}</span>
-                                            <svg
-                                                className={`shrink-0 w-5 h-5 text-velvet-700 transition-transform duration-300 motion-reduce:transition-none ${
-                                                    isOpen ? "rotate-180" : ""
-                                                }`}
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
+                                            <span
                                                 aria-hidden="true"
-                                                focusable="false"
+                                                className={`shrink-0 text-silk/70 transition-transform duration-300 ${
+                                                    isOpen ? "rotate-45" : ""
+                                                }`}
                                             >
-                                                <polyline points="6 9 12 15 18 9" />
-                                            </svg>
+                                                <svg
+                                                    width="18"
+                                                    height="18"
+                                                    viewBox="0 0 18 18"
+                                                    fill="none"
+                                                >
+                                                    <path
+                                                        d="M3 9h12M9 3v12"
+                                                        stroke="currentColor"
+                                                        strokeWidth="1.2"
+                                                        strokeLinecap="round"
+                                                    />
+                                                </svg>
+                                            </span>
                                         </button>
                                     </h3>
                                     <div
@@ -180,7 +161,7 @@ export default function FAQ({ items: itemsProp }: Props = {}) {
                                         }}
                                     >
                                         <div className="overflow-hidden">
-                                            <p className="px-5 sm:px-6 pb-5 text-[0.95rem] leading-relaxed text-silk-800">
+                                            <p className="pb-6 pr-12 text-[0.88rem] leading-relaxed text-silk/65">
                                                 {a}
                                             </p>
                                         </div>
@@ -190,30 +171,6 @@ export default function FAQ({ items: itemsProp }: Props = {}) {
                         })}
                     </ul>
                 )}
-
-                <div className="mt-12 text-center">
-                    <p className="text-silk-600 text-sm mb-3">{t("moreQuestions")}</p>
-                    <a
-                        href="#contact"
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-velvet-700 text-velvet-900 font-semibold text-sm tracking-wide hover:bg-velvet-700 hover:text-silk transition-colors duration-200 motion-reduce:transition-none focus:outline-none focus-visible:ring-2 focus-visible:ring-velvet-600 focus-visible:ring-offset-2 focus-visible:ring-offset-silk"
-                    >
-                        {t("moreQuestionsCta")}
-                        <svg
-                            aria-hidden="true"
-                            focusable="false"
-                            className="w-4 h-4"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
-                            <path d="M5 12h14" />
-                            <path d="m12 5 7 7-7 7" />
-                        </svg>
-                    </a>
-                </div>
             </div>
 
             <script
